@@ -34,7 +34,7 @@ const USE_CASES = [
 function ChainLink({ className = "" }: { className?: string }) {
   return (
     <div className={`chain-link relative h-6 w-3 ${className}`}>
-      <div className="absolute inset-0 rounded-full border-2 border-[#AE8C20]/60" />
+      <div className="chain-run-link absolute inset-0 rounded-full border-2 border-[#AE8C20]/60" />
     </div>
   );
 }
@@ -87,54 +87,60 @@ export function ExpertiseSection() {
         const connector = card.querySelector(".card-connector");
         const cardBody = card.querySelector(".card-body");
 
+        // Set initial hidden state
+        gsap.set(connector, { scaleY: 0, transformOrigin: "top center" });
+        gsap.set(cardBody, {
+          y: -100,
+          opacity: 0,
+          rotation: i % 2 === 0 ? -12 : 12,
+          transformOrigin: "top center",
+        });
+
         const tl = gsap.timeline({
           scrollTrigger: {
             trigger: ".chain-container",
-            start: "top 80%",
+            start: "top 82%",
             toggleActions: "play none none none",
           },
         });
 
         // Connector chain drops
-        tl.from(
+        tl.to(
           connector,
           {
-            scaleY: 0,
-            transformOrigin: "top center",
-            duration: 0.4,
+            scaleY: 1,
+            duration: 0.5,
             ease: "power2.out",
           },
-          i * 0.15
+          i * 0.18
         );
 
-        // Card drops with swing. Keep cards visible by default so they never
-        // disappear if the scroll trigger initializes while already in view.
-        tl.from(
+        // Card drops with swing
+        tl.to(
           cardBody,
           {
-            y: -80,
-            scale: 0.96,
-            rotation: i % 2 === 0 ? -8 : 8,
-            transformOrigin: "top center",
-            duration: 0.75,
-            ease: "elastic.out(1, 0.55)",
-            clearProps: "transform",
+            y: 0,
+            opacity: 1,
+            rotation: 0,
+            duration: 0.9,
+            ease: "elastic.out(1, 0.5)",
           },
-          i * 0.15 + 0.2
+          i * 0.18 + 0.25
         );
       });
 
-      // Chain links shimmer
-      gsap.to(".chain-link", {
-        scrollTrigger: {
-          trigger: ".chain-container",
-          start: "top 70%",
-          toggleActions: "play none none none",
+      // Continuous chain energy effect.
+      gsap.to(".chain-run-link", {
+        borderColor: "rgba(174, 140, 32, 0.95)",
+        boxShadow: "0 0 14px rgba(174, 140, 32, 0.45)",
+        scale: 1.08,
+        duration: 0.45,
+        stagger: {
+          each: 0.035,
+          repeat: -1,
+          yoyo: true,
         },
-        borderColor: "rgba(174, 140, 32, 0.9)",
-        duration: 0.3,
-        stagger: 0.05,
-        ease: "power2.out",
+        ease: "sine.inOut",
       });
     },
     { scope: sectionRef }
@@ -170,14 +176,14 @@ export function ExpertiseSection() {
 
         {/* Chain container */}
         <div className="chain-container relative mt-16 lg:mt-20">
-          {/* Main horizontal chain bar */}
-          <div className="main-chain relative mx-auto flex h-10 max-w-5xl items-center justify-center">
-            {/* Horizontal chain */}
-            <div className="flex items-center gap-0">
-              {Array.from({ length: 40 }).map((_, i) => (
+          {/* Main horizontal chain bar - full width */}
+          <div className="main-chain relative flex h-10 w-full items-center justify-center">
+            {/* Horizontal chain - spans full width */}
+            <div className="flex w-full items-center justify-center gap-0">
+              {Array.from({ length: 70 }).map((_, i) => (
                 <div
                   key={i}
-                  className="chain-link h-3 w-5 rounded-full border-2 border-[#AE8C20]/50 -ml-1 first:ml-0"
+                  className="chain-run-link chain-link h-3 w-5 shrink-0 rounded-full border-2 border-[#AE8C20]/50 -ml-1 first:ml-0"
                 />
               ))}
             </div>
@@ -193,20 +199,20 @@ export function ExpertiseSection() {
             {USE_CASES.map((useCase, index) => (
               <div
                 key={useCase.title}
-                className="hanging-card relative flex flex-col items-center pt-8 lg:pt-12"
+                className="hanging-card relative flex flex-col items-center pt-12"
               >
                 {/* Connector chain from main bar to card */}
-                <div className="card-connector absolute -top-9 left-1/2 -translate-x-1/2">
-                  <ChainSegment length={index % 2 === 0 ? 4 : 6} />
+                <div className="card-connector absolute -top-9 left-1/2 z-20 -translate-x-1/2">
+                  <ChainSegment length={4} />
                 </div>
 
                 {/* Card body */}
                 <article
                   className="card-body group relative w-full overflow-hidden rounded-3xl border border-zinc-200/70 bg-white p-6 shadow-[0_10px_40px_-12px_rgba(24,24,27,0.1)] transition-all duration-500 hover:-translate-y-1 hover:border-[#AE8C20]/40 hover:shadow-[0_30px_70px_-20px_rgba(174,140,32,0.35)] md:p-7"
-                  style={{ marginTop: index % 2 === 0 ? "2.25rem" : "3.5rem" }}
+                  style={{ marginTop: "0.75rem" }}
                 >
                   {/* Pin/hook at top of card */}
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                  <div className="absolute -top-3 left-1/2 z-30 -translate-x-1/2">
                     <div className="h-6 w-6 rounded-full border-3 border-[#AE8C20] bg-gradient-to-br from-[#D4AF37] to-[#AE8C20] shadow-lg" />
                   </div>
 

@@ -320,6 +320,14 @@ export function CinematicHero() {
 
         {/* Revealed content after scroll - below video */}
         <div className="reveal-content absolute inset-x-0 bottom-0 top-[calc(5rem+30svh)] z-20 mx-auto flex w-full max-w-[1200px] flex-col items-center justify-center px-6 py-10 text-center opacity-0 sm:top-[calc(5.5rem+34vh)] md:top-[calc(6rem+39vh)] md:py-14">
+          {/* Spinning circle - top left corner (only visible when reveal-content is visible) */}
+          <Image
+            src="/assets/circle_revolve.png"
+            alt=""
+            width={180}
+            height={180}
+            className="pointer-events-none absolute left-0 top-4 h-24 w-24 animate-spin-slow sm:left-2 sm:top-8 sm:h-28 sm:w-28 md:left-4 md:top-10 md:h-25 md:w-25 lg:left-8"
+          />
           <p className="reveal-tagline text-xl font-medium tracking-tight text-zinc-600 md:text-3xl">
             &ldquo;AI is changing so fast in 2026&rdquo;
           </p>
@@ -327,13 +335,6 @@ export function CinematicHero() {
             <h2 className="relative z-10 max-w-5xl text-[clamp(3rem,9vw,7.25rem)] font-bold leading-[0.88] tracking-[-0.06em] text-zinc-950">
               But are you?
             </h2>
-            <Image
-              src="/assets/circle_revolve.png"
-              alt=""
-              width={96}
-              height={96}
-              className="pointer-events-none absolute -left-4 top-1/2 hidden h-14 w-14 -translate-x-full -translate-y-1/2 animate-spin-slow sm:block md:-left-8 md:h-20 md:w-20 lg:-left-10 lg:h-24 lg:w-24"
-            />
           </div>
           <Link
             ref={ctaButtonRef}
