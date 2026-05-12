@@ -267,7 +267,7 @@ export function Testimonials() {
                   </div>
 
                   {/* Card label */}
-                  <div className="absolute bottom-3 left-3 right-3">
+                  {/* <div className="absolute bottom-3 left-3 right-3">
                     <div className="flex items-center justify-between rounded-xl border border-white/10 bg-black/50 px-3 py-2 backdrop-blur-md">
                       <div>
                         <div className="text-[9px] font-bold uppercase tracking-[0.2em] text-[#D4AF37]">
@@ -281,7 +281,7 @@ export function Testimonials() {
                         <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#D4AF37]" />
                       </div>
                     </div>
-                  </div>
+                  </div> */}
                 </button>
               </div>
             ))}

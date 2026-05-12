@@ -7,6 +7,7 @@ import { AnimatedStats } from "@/components/home/AnimatedStats";
 import { CaseStudies } from "@/components/home/CaseStudies";
 import { ExpertiseSection } from "@/components/home/ExpertiseSection";
 import { Testimonials } from "@/components/home/Testimonials";
+import { TransitionSection } from "@/components/home/TransitionSection";
 import { CTAFooter } from "@/components/home/CTAFooter";
 
 export default function Home() {
@@ -21,6 +22,7 @@ export default function Home() {
       {/* <CaseStudies /> */}
       <ExpertiseSection />
       <Testimonials />
+      <TransitionSection />
       <CTAFooter />
     </main>
   );

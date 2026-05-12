@@ -1,29 +1,35 @@
 "use client";
 
+import { useRef, useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useRef } from "react";
-import Link from "next/link";
+import Waves from "@/components/Waves";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
-const FOOTER_LINKS = {
-  Product: ["Features", "Pricing", "API", "Documentation", "Changelog"],
-  Company: ["About", "Blog", "Careers", "Press", "Partners"],
-  Resources: ["Community", "Help Center", "Status", "Security", "Privacy"],
-  Legal: ["Terms", "Privacy", "Cookies", "Licenses", "Contact"],
-};
+const BRAND_TEXT = "CONTENAISSANCE";
+
+const NAV_LINKS = [
+  { label: "Home", href: "/" },
+  { label: "Portfolio", href: "#portfolio" },
+  { label: "Services", href: "#services" },
+  { label: "Contact", href: "#contact" },
+];
 
 export function CTAFooter() {
   const sectionRef = useRef<HTMLElement>(null);
+  const brandTextRef = useRef<HTMLHeadingElement>(null);
+  const [email, setEmail] = useState("");
 
   useGSAP(
     () => {
-      gsap.from(".cta-content", {
+      gsap.from(".footer-container", {
         scrollTrigger: {
           trigger: sectionRef.current,
-          start: "top 75%",
+          start: "top 85%",
           toggleActions: "play none none reverse",
         },
         y: 60,
@@ -32,145 +38,173 @@ export function CTAFooter() {
         ease: "power3.out",
       });
 
-      gsap.from(".footer-content", {
-        scrollTrigger: {
-          trigger: ".footer-content",
-          start: "top 90%",
-          toggleActions: "play none none reverse",
-        },
-        y: 40,
-        opacity: 0,
-        duration: 0.8,
-        ease: "power3.out",
-      });
+      // Letter-by-letter pop-up animation for brand text
+      const letters = brandTextRef.current?.querySelectorAll(".brand-letter");
+      if (letters) {
+        gsap.set(letters, { y: 100, opacity: 0 });
+        
+        gsap.to(letters, {
+          scrollTrigger: {
+            trigger: brandTextRef.current,
+            start: "top 90%",
+            toggleActions: "play none none reverse",
+          },
+          y: 0,
+          opacity: 1,
+          duration: 0.8,
+          stagger: 0.04,
+          ease: "back.out(1.7)",
+        });
+      }
     },
     { scope: sectionRef }
   );
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (email) {
+      console.log("Email submitted:", email);
+      setEmail("");
+    }
+  };
+
   return (
-    <section ref={sectionRef} className="relative overflow-hidden bg-white">
-      {/* CTA Section */}
-      <div className="relative py-24 md:py-32">
-        {/* Background gradient */}
-        <div className="absolute inset-0 bg-gradient-to-b from-white via-[#AE8C20]/5 to-white" />
-        
-        {/* Animated background elements */}
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute -left-1/4 top-1/2 h-[600px] w-[600px] -translate-y-1/2 rounded-full bg-[#AE8C20]/10 blur-[120px] animate-pulse-glow" />
-          <div className="absolute -right-1/4 top-1/2 h-[600px] w-[600px] -translate-y-1/2 rounded-full bg-[#AE8C20]/10 blur-[120px] animate-pulse-glow" style={{ animationDelay: "2s" }} />
-        </div>
-
-        <div className="cta-content relative mx-auto max-w-[1400px] px-6">
-          <div className="mx-auto max-w-4xl text-center">
-            <h2 className="text-display-lg font-bold text-zinc-900">
-              Ready to build the{" "}
-              <span className="bg-gradient-to-r from-[#AE8C20] to-[#8A7019] bg-clip-text text-transparent">
-                future
-              </span>
-              ?
-            </h2>
-            <p className="mt-6 text-xl text-zinc-600">
-              Join thousands of developers and companies building intelligent
-              applications with Contenaissance. Start free, scale infinitely.
-            </p>
-
-            <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
-              <Link
-                href="#start"
-                className="group relative inline-flex items-center gap-3 overflow-hidden rounded-full bg-zinc-900 px-8 py-4 text-base font-semibold text-white transition-all hover:bg-zinc-800"
-              >
-                <span>Get Started Free</span>
-                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#AE8C20] text-zinc-900 transition-transform group-hover:translate-x-1">
-                  <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
-                  </svg>
-                </span>
-              </Link>
-              <Link
-                href="#contact"
-                className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white px-8 py-4 text-base font-semibold text-zinc-900 transition-all hover:border-zinc-300 hover:bg-zinc-50"
-              >
-                Talk to Sales
-              </Link>
-            </div>
-
-            <p className="mt-6 text-sm text-zinc-500">
-              No credit card required • Free tier available • Enterprise plans available
-            </p>
-          </div>
-        </div>
+    <section ref={sectionRef} className="relative bg-zinc-950">
+      {/* Dotted SVG background area above the footer */}
+      <div className="relative w-full h-[400px] sm:h-[480px] md:h-[550px]">
+        {/* Dotted SVG */}
+        <Image
+          src="/assets/dotted.svg"
+          alt=""
+          fill
+          className="object-cover object-top"
+          priority
+        />
+        {/* Bottom gradient to blend into footer */}
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-zinc-950 to-transparent" />
       </div>
 
-      {/* Footer */}
-      <footer className="footer-content border-t border-zinc-100 bg-zinc-50 py-16">
-        <div className="mx-auto max-w-[1400px] px-6">
-          <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-6">
-            {/* Brand */}
-            <div className="lg:col-span-2">
-              <Link href="/" className="flex items-center gap-2.5">
-                <img
-                  src="/assets/favicon.png"
-                  alt="Contenaissance"
-                  className="h-12 w-auto"
-                />
-              </Link>
-              <p className="mt-4 max-w-sm text-sm text-zinc-600">
-                Building the most capable and accessible AI platform for developers
-                and enterprises worldwide. Ritz GenAI Storytelling Studios.
-              </p>
-              <div className="mt-6 flex gap-4">
-                {[
-                  { name: "Twitter", icon: "𝕏" },
-                  { name: "GitHub", icon: "◉" },
-                  { name: "LinkedIn", icon: "in" },
-                  { name: "Discord", icon: "◈" },
-                ].map((social) => (
-                  <a
-                    key={social.name}
-                    href={`#${social.name.toLowerCase()}`}
-                    className="flex h-10 w-10 items-center justify-center rounded-full border border-zinc-200 text-zinc-500 transition-all hover:border-[#AE8C20] hover:text-[#AE8C20]"
-                    aria-label={social.name}
+      {/* Footer container with rounded top corners */}
+      <div className="relative -mt-32 sm:-mt-40 md:-mt-48 mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8">
+        <footer
+          className="footer-container relative overflow-hidden rounded-t-[60px] sm:rounded-t-[80px] md:rounded-t-[100px] lg:rounded-t-[120px]"
+          style={{
+            background: "rgba(17, 17, 19, 0.90)",
+            minHeight: "450px",
+          }}
+        >
+          {/* Waves background */}
+          <div className="absolute inset-0 z-0">
+            <Waves
+              lineColor="#2c2c2c"
+              backgroundColor="transparent"
+              waveSpeedX={0.0125}
+              waveSpeedY={0.01}
+              waveAmpX={40}
+              waveAmpY={20}
+              friction={0.9}
+              tension={0.01}
+              maxCursorMove={120}
+              xGap={12}
+              yGap={36}
+            />
+          </div>
+
+          {/* Inner radial gradient overlay */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 z-[1] bg-[radial-gradient(ellipse_at_center,rgba(17,17,19,0)_0%,rgba(17,17,19,0.55)_70%,rgba(17,17,19,0.95)_100%)]"
+          />
+
+          {/* Footer content */}
+          <div className="relative z-10 px-6 pt-12 pb-6 sm:px-10 sm:pt-16 md:px-14 md:pt-20 lg:px-20">
+            <div className="flex flex-col gap-10 lg:flex-row lg:items-start lg:justify-between">
+              {/* Navigation links */}
+              <div className="grid grid-cols-2 gap-x-12 gap-y-3 sm:gap-x-16">
+                {NAV_LINKS.map((link) => (
+                  <Link
+                    key={link.label}
+                    href={link.href}
+                    className="text-base font-medium text-white/80 transition-colors duration-300 hover:text-white sm:text-lg"
                   >
-                    <span className="text-sm">{social.icon}</span>
-                  </a>
+                    {link.label}
+                  </Link>
                 ))}
               </div>
-            </div>
 
-            {/* Links */}
-            {Object.entries(FOOTER_LINKS).map(([category, links]) => (
-              <div key={category}>
-                <h4 className="font-semibold text-zinc-900">{category}</h4>
-                <ul className="mt-4 space-y-3">
-                  {links.map((link) => (
-                    <li key={link}>
-                      <Link
-                        href={`#${link.toLowerCase()}`}
-                        className="text-sm text-zinc-600 transition-colors hover:text-zinc-900"
-                      >
-                        {link}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
+              {/* Email subscription */}
+              <div className="w-full max-w-md lg:max-w-lg">
+                <p className="text-base text-white sm:text-lg">
+                  Still have a questions
+                </p>
+                <form onSubmit={handleSubmit} className="mt-4 flex flex-col gap-3 sm:flex-row">
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Enter Your Email..."
+                    className="h-[50px] flex-1 rounded-full border-2 border-white bg-white px-6 text-sm text-zinc-900 placeholder:text-zinc-500 outline-none transition-all duration-300 focus:border-[#AE8C20] focus:ring-2 focus:ring-[#AE8C20]/30"
+                  />
+                  <button
+                    type="submit"
+                    className="h-[50px] shrink-0 rounded-full bg-[#AE8C20] px-8 text-sm font-semibold text-white shadow-[0_8px_20px_rgba(174,140,32,0.35)] transition-all duration-300 hover:bg-[#C9A730] hover:shadow-[0_12px_28px_rgba(174,140,32,0.45)]"
+                  >
+                    send us
+                  </button>
+                </form>
               </div>
-            ))}
-          </div>
+            </div>
 
-          {/* Bottom bar */}
-          <div className="mt-16 flex flex-col items-center justify-between gap-4 border-t border-zinc-200 pt-8 md:flex-row">
-            <p className="text-sm text-zinc-500">
-              © {new Date().getFullYear()} Contenaissance. All rights reserved.
-            </p>
-            <div className="flex items-center gap-6 text-sm text-zinc-500">
-              <span className="flex items-center gap-2">
-                <span className="h-2 w-2 rounded-full bg-green-500" />
-                All systems operational
-              </span>
+            {/* Large brand text */}
+            <h2
+              ref={brandTextRef}
+              className="mt-12 overflow-hidden text-center text-[clamp(2.5rem,12vw,8rem)] font-bold leading-none tracking-tight text-white sm:mt-16 md:mt-20"
+            >
+              {BRAND_TEXT.split("").map((letter, index) => (
+                <span
+                  key={index}
+                  className="brand-letter inline-block"
+                  style={{ willChange: "transform, opacity" }}
+                >
+                  {letter}
+                </span>
+              ))}
+            </h2>
+
+            {/* Bottom bar */}
+            <div className="mt-8 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-6 sm:mt-10 md:flex-row">
+              <p className="text-sm text-white/60">
+                © {new Date().getFullYear()} Contenaissance. All rights reserved.
+              </p>
+              <div className="flex flex-wrap items-center justify-center gap-4 text-sm text-white/60 sm:gap-6">
+                <Link
+                  href="#privacy"
+                  className="transition-colors duration-300 hover:text-white"
+                >
+                  Privacy Policy
+                </Link>
+                <Link
+                  href="#cookies"
+                  className="transition-colors duration-300 hover:text-white"
+                >
+                  Cookies Policy
+                </Link>
+                <span>
+                  Website by{" "}
+                  <a
+                    href="https://ritzmediaworld.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-white/80 underline underline-offset-2 transition-colors duration-300 hover:text-[#AE8C20]"
+                  >
+                    ritzmediaworld
+                  </a>
+                </span>
+              </div>
             </div>
           </div>
-        </div>
-      </footer>
+        </footer>
+      </div>
     </section>
   );
 }
