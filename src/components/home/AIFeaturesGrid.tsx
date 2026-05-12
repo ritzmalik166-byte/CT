@@ -1,0 +1,274 @@
+"use client";
+
+import { useGSAP } from "@gsap/react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useRef, useState } from "react";
+import { ReelModal } from "@/components/ui/ReelModal";
+
+gsap.registerPlugin(useGSAP, ScrollTrigger);
+
+type EnterDirection = "right" | "left" | "bottom" | "top";
+
+interface Reel {
+  id: number;
+  title: string;
+  subtitle: string;
+  video: string;
+  enterFrom: EnterDirection;
+}
+
+const REELS: Reel[] = [
+  {
+    id: 1,
+    title: "Brand Films",
+    subtitle: "Cinematic storytelling",
+    video: "https://lfnxmldvqzqsgjigzibk.supabase.co/storage/v1/object/public/Contenaisaance/01.mp4",
+    enterFrom: "right",
+  },
+  {
+    id: 2,
+    title: "Commercials",
+    subtitle: "Ad campaigns that convert",
+    video: "https://lfnxmldvqzqsgjigzibk.supabase.co/storage/v1/object/public/Contenaisaance/02.MP4",
+    enterFrom: "right",
+  },
+  {
+    id: 3,
+    title: "Social Content",
+    subtitle: "Viral-worthy reels",
+    video: "https://lfnxmldvqzqsgjigzibk.supabase.co/storage/v1/object/public/Contenaisaance/03.mp4",
+    enterFrom: "right",
+  },
+  {
+    id: 4,
+    title: "Music Videos",
+    subtitle: "Visual rhythms",
+    video: "https://lfnxmldvqzqsgjigzibk.supabase.co/storage/v1/object/public/Contenaisaance/05.MP4",
+    enterFrom: "bottom",
+  },
+  {
+    id: 5,
+    title: "Documentary",
+    subtitle: "Stories that matter",
+    video: "https://lfnxmldvqzqsgjigzibk.supabase.co/storage/v1/object/public/Contenaisaance/09.mp4",
+    enterFrom: "left",
+  },
+];
+
+const enterOffsets: Record<EnterDirection, { x: string; y: string }> = {
+  right: { x: "120vw", y: "0" },
+  left: { x: "-120vw", y: "0" },
+  bottom: { x: "0", y: "110vh" },
+  top: { x: "0", y: "-110vh" },
+};
+
+const exitOffsets: Record<EnterDirection, { x: string; y: string }> = {
+  right: { x: "-120vw", y: "0" },
+  left: { x: "120vw", y: "0" },
+  bottom: { x: "0", y: "-110vh" },
+  top: { x: "0", y: "110vh" },
+};
+
+export function AIFeaturesGrid() {
+  const sectionRef = useRef<HTMLElement>(null);
+  const stageRef = useRef<HTMLDivElement>(null);
+  const reelRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const [openReel, setOpenReel] = useState<Reel | null>(null);
+
+  useGSAP(
+    () => {
+      gsap.from(".features-header", {
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: "top 75%",
+          toggleActions: "play none none reverse",
+        },
+        y: 40,
+        opacity: 0,
+        duration: 1,
+        ease: "power3.out",
+      });
+
+      const reels = reelRefs.current.filter(Boolean) as HTMLDivElement[];
+      if (reels.length === 0) return;
+
+      // Set initial positions: first reel centered/visible, others off-screen
+      reels.forEach((reel, i) => {
+        if (i === 0) {
+          gsap.set(reel, { x: 0, y: 0, opacity: 1, scale: 1, rotateY: 0 });
+        } else {
+          const offset = enterOffsets[REELS[i].enterFrom];
+          gsap.set(reel, {
+            x: offset.x,
+            y: offset.y,
+            opacity: 0,
+            scale: 0.7,
+            rotateY: REELS[i].enterFrom === "right" || REELS[i].enterFrom === "left" ? 35 : 0,
+          });
+        }
+      });
+
+      const transitionsCount = reels.length - 1;
+      const segmentLength = 1; // viewport heights per transition
+
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: stageRef.current,
+          start: "top top",
+          end: `+=${transitionsCount * segmentLength * 100}%`,
+          pin: true,
+          pinSpacing: true,
+          scrub: 1,
+          anticipatePin: 1,
+        },
+      });
+
+      reels.forEach((reel, i) => {
+        if (i === 0) return;
+
+        const prev = reels[i - 1];
+        const exitOffset = exitOffsets[REELS[i - 1].enterFrom];
+
+        // Previous reel exits in the opposite direction it entered from
+        tl.to(
+          prev,
+          {
+            x: exitOffset.x,
+            y: exitOffset.y,
+            opacity: 0,
+            scale: 0.7,
+            rotateY:
+              REELS[i - 1].enterFrom === "right" || REELS[i - 1].enterFrom === "left"
+                ? -35
+                : 0,
+            duration: 0.8,
+            ease: "power2.in",
+          },
+          i - 1
+        );
+
+        // Current reel enters and lands centered
+        tl.to(
+          reel,
+          {
+            x: 0,
+            y: 0,
+            opacity: 1,
+            scale: 1,
+            rotateY: 0,
+            duration: 0.8,
+            ease: "power3.out",
+          },
+          i - 1 + 0.1
+        );
+      });
+    },
+    { scope: sectionRef }
+  );
+
+  return (
+    <section
+      ref={sectionRef}
+      className="features-section relative overflow-hidden bg-zinc-950"
+    >
+      {/* Pinned stage - keeps the dark bg locked through the entire scroll */}
+      <div
+        ref={stageRef}
+        className="relative flex h-screen w-full flex-col items-center justify-start overflow-hidden bg-zinc-950 pt-16 md:pt-20"
+      >
+        {/* Background gradient mesh */}
+        <div className="pointer-events-none absolute inset-0 opacity-30">
+          <div className="absolute -left-1/4 top-0 h-[600px] w-[600px] rounded-full bg-[#AE8C20]/10 blur-[120px]" />
+          <div className="absolute -right-1/4 bottom-0 h-[600px] w-[600px] rounded-full bg-[#AE8C20]/10 blur-[120px]" />
+        </div>
+
+        {/* Header */}
+        <div className="features-header relative z-10 mx-auto max-w-3xl px-6 text-center">
+          <h1 className="bg-gradient-to-r from-[#AE8C20] to-[#C9A730] bg-clip-text text-4xl font-bold tracking-tight text-transparent sm:text-5xl md:text-6xl lg:text-7xl">
+            AI Reels
+          </h1>
+          {/* <p className="mt-4 text-base text-zinc-400 md:text-lg">
+            Everything you need to build, deploy, and scale intelligent applications.
+            No infrastructure headaches. Just pure innovation.
+          </p> */}
+        </div>
+
+        {/* Reels stage */}
+        <div
+          className="relative mt-4 flex w-full flex-1 items-center justify-center"
+          style={{ perspective: "1500px" }}
+        >
+          {REELS.map((reel, i) => (
+            <div
+              key={reel.id}
+              ref={(el) => {
+                reelRefs.current[i] = el;
+              }}
+              className="reel-stage absolute"
+              style={{ transformStyle: "preserve-3d", willChange: "transform, opacity" }}
+            >
+              <button
+                type="button"
+                onClick={() => setOpenReel(reel)}
+                className="reel-circle group relative cursor-pointer focus:outline-none"
+                aria-label={`Open ${reel.title}`}
+              >
+                {/* Decorative ring */}
+                <div className="reel-ring absolute -inset-4 rounded-full border border-[#AE8C20]/20 transition-colors duration-500 group-hover:border-[#AE8C20]/45 md:-inset-6" />
+
+                {/* Video circle */}
+                <div className="relative h-[260px] w-[260px] overflow-hidden rounded-full border-[3px] border-[#AE8C20]/35 bg-zinc-900 shadow-[0_28px_80px_-28px_rgba(0,0,0,0.95),0_0_42px_-18px_rgba(174,140,32,0.75)] transition-all duration-500 group-hover:scale-[1.03] group-hover:border-[#AE8C20]/80 group-hover:shadow-[0_30px_90px_-28px_rgba(0,0,0,1),0_0_70px_-12px_rgba(174,140,32,0.65)] md:h-[360px] md:w-[360px] lg:h-[420px] lg:w-[420px]">
+                  <video
+                    className="h-full w-full object-cover"
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                  >
+                    <source src={reel.video} type="video/mp4" />
+                  </video>
+
+                  {/* Soft vignette */}
+                  <div className="pointer-events-none absolute inset-0 rounded-full bg-gradient-to-t from-black/45 via-black/5 to-transparent" />
+
+                  {/* Play icon overlay on hover */}
+                  <div className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-500 group-hover:opacity-100">
+                    <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#AE8C20]/90 shadow-lg shadow-[#AE8C20]/50 backdrop-blur-sm md:h-20 md:w-20">
+                      <svg className="ml-1 h-7 w-7 text-zinc-950 md:h-9 md:w-9" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M8 5v14l11-7z" />
+                      </svg>
+                    </div>
+                  </div>
+
+                  {/* Label */}
+                  <div className="absolute inset-x-0 bottom-6 flex flex-col items-center text-center md:bottom-10">
+                    <h3 className="text-xl font-bold text-white drop-shadow-md md:text-2xl">
+                      {reel.title}
+                    </h3>
+                    <p className="mt-1 text-xs text-zinc-200/90 md:text-sm">
+                      {reel.subtitle}
+                    </p>
+                  </div>
+                </div>
+              </button>
+            </div>
+          ))}
+        </div>
+
+        {/* Progress indicator */}
+        <div className="relative z-10 mb-8 flex items-center gap-2">
+          {REELS.map((reel) => (
+            <div
+              key={reel.id}
+              className="h-1.5 w-6 rounded-full bg-zinc-700/60 md:w-8"
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* Cinematic reel modal */}
+      <ReelModal reel={openReel} onClose={() => setOpenReel(null)} />
+    </section>
+  );
+}
