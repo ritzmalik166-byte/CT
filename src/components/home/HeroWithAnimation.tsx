@@ -97,32 +97,17 @@ export function HeroWithAnimation() {
       }
 
       if (menuButton && contextSafe) {
+        const lines = menuButton.querySelectorAll(".hero-menu-line");
         const menuEnter = contextSafe(() => {
-          gsap.to(menuButton.querySelectorAll(".hero-menu-line"), {
-            height: 20,
-            stagger: 0.05,
-            duration: 0.25,
-            ease: "power2.out",
-          });
-          gsap.to(menuButton, {
-            scale: 1.1,
-            duration: 0.25,
-            ease: "power2.out",
-          });
+          gsap.to(lines[0], { y: -2, width: "100%", duration: 0.25, ease: "power2.out" });
+          gsap.to(lines[1], { scaleX: 0.8, duration: 0.25, ease: "power2.out" });
+          gsap.to(lines[2], { y: 2, width: "100%", duration: 0.25, ease: "power2.out" });
         });
 
         const menuLeave = contextSafe(() => {
-          gsap.to(menuButton.querySelectorAll(".hero-menu-line"), {
-            height: 16,
-            stagger: 0.05,
-            duration: 0.25,
-            ease: "power2.out",
-          });
-          gsap.to(menuButton, {
-            scale: 1,
-            duration: 0.25,
-            ease: "power2.out",
-          });
+          gsap.to(lines[0], { y: 0, width: "1.25rem", duration: 0.25, ease: "power2.out" });
+          gsap.to(lines[1], { scaleX: 1, duration: 0.25, ease: "power2.out" });
+          gsap.to(lines[2], { y: 0, width: "1rem", duration: 0.25, ease: "power2.out" });
         });
 
         menuButton.addEventListener("mouseenter", menuEnter);
@@ -358,33 +343,19 @@ export function HeroWithAnimation() {
               />
             </Link>
 
-            {/* <nav className="hidden items-center justify-center gap-8 text-lg font-medium md:flex lg:gap-10">
-              <Link href="#technology" className="hero-nav-item hero-nav-link cursor-pointer text-black transition-colors hover:text-zinc-700">
-                Technology
-              </Link>
-              <Link href="#products" className="hero-nav-item hero-nav-link cursor-pointer text-black transition-colors hover:text-zinc-700">
-                Products
-              </Link>
-              <Link href="#expertise" className="hero-nav-item hero-nav-link font-optima cursor-pointer text-black transition-colors hover:text-zinc-700">
-                Expertise
-              </Link>
-              <Link href="#features" className="hero-nav-item hero-nav-link font-optima cursor-pointer text-black transition-colors hover:text-zinc-700">
-                Key features
-              </Link>
-            </nav> */}
+            <div className="hidden" />
 
             <div className="flex items-center justify-end gap-2 sm:gap-3">
               <button
                 ref={menuButtonRef}
                 type="button"
                 aria-label="Open menu"
-                className="hero-nav-item hero-menu-button flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border border-zinc-900/20 bg-white/70 backdrop-blur-sm sm:h-10 sm:w-10"
+                className="hero-nav-item hero-menu-button flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-zinc-900/20 bg-white/80 shadow-[0_4px_18px_rgba(0,0,0,0.06)] backdrop-blur-sm transition-all duration-300 hover:border-[#AE8C20]/40 hover:bg-white sm:h-11 sm:w-11 md:h-12 md:w-12"
               >
-                <span className="flex gap-[2px]">
-                  <span className="hero-menu-line h-4 w-px bg-zinc-900" />
-                  <span className="hero-menu-line h-4 w-px bg-zinc-900" />
-                  <span className="hero-menu-line h-4 w-px bg-zinc-900" />
-                  <span className="hero-menu-line h-4 w-px bg-zinc-900" />
+                <span className="flex flex-col items-center justify-center gap-[5px]">
+                  <span className="hero-menu-line h-[2px] w-5 rounded-full bg-zinc-900 sm:w-6" />
+                  <span className="hero-menu-line h-[2px] w-5 rounded-full bg-zinc-900 sm:w-6" />
+                  <span className="hero-menu-line h-[2px] w-4 rounded-full bg-zinc-900 sm:w-5" />
                 </span>
               </button>
               <button

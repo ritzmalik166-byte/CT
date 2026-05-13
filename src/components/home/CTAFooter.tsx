@@ -7,6 +7,7 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Waves from "@/components/Waves";
+import { AIIconsMarquee } from "@/components/ui/AIIconsMarquee";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
@@ -14,9 +15,9 @@ const BRAND_TEXT = "CONTENAISSANCE";
 
 const NAV_LINKS = [
   { label: "Home", href: "/" },
-  { label: "Portfolio", href: "#portfolio" },
-  { label: "Services", href: "#services" },
-  { label: "Contact", href: "#contact" },
+  { label: "Portfolio", href: "/portfolio" },
+  { label: "Services", href: "/services" },
+  { label: "Contact", href: "/contact" },
 ];
 
 export function CTAFooter() {
@@ -82,6 +83,11 @@ export function CTAFooter() {
         />
         {/* Bottom gradient to blend into footer */}
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-zinc-950 to-transparent" />
+
+        {/* AI Icons marquee — floats on the dotted surface */}
+        <div className="absolute inset-x-0 top-[28%] -translate-y-1/2">
+          <AIIconsMarquee />
+        </div>
       </div>
 
       {/* Footer container with rounded top corners */}

@@ -8,6 +8,7 @@ import Link from "next/link";
 import { useRef, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { FloatingParticles } from "@/components/ui/FloatingParticles";
+import { HamburgerMenu } from "./HamburgerMenu";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
@@ -20,6 +21,7 @@ export function CinematicHero() {
   const videoContainerRef = useRef<HTMLDivElement>(null);
   const ctaButtonRef = useRef<HTMLAnchorElement>(null);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -235,6 +237,42 @@ export function CinematicHero() {
         }}
       />
 
+      {/* Persistent logo - fixed to viewport, always visible */}
+      <Link href="/" className="fixed left-5 top-5 z-[110] md:left-9 md:top-6">
+        <Image
+          src="/assets/favicon.png"
+          alt="Contenaissance"
+          width={220}
+          height={66}
+          className="h-14 w-auto md:h-16"
+          priority
+        />
+      </Link>
+
+      {/* Persistent hamburger menu - fixed to viewport, always visible */}
+      <button
+        type="button"
+        aria-label={menuOpen ? "Close menu" : "Open menu"}
+        onClick={() => setMenuOpen((v) => !v)}
+        className="group fixed right-5 top-5 z-[110] flex h-12 w-12 items-center justify-center rounded-full border border-zinc-700 bg-zinc-900/90 text-white shadow-[0_12px_30px_rgba(0,0,0,0.25)] backdrop-blur-md transition-all duration-300 hover:border-[#AE8C20]/50 hover:bg-[#AE8C20] hover:shadow-[0_16px_40px_rgba(174,140,32,0.35)] md:right-9 md:top-6 md:h-14 md:w-14"
+      >
+        {menuOpen ? (
+          <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 6l12 12M18 6L6 18" />
+          </svg>
+        ) : (
+          <span className="flex h-5 items-end gap-[3px]">
+            <span className="h-4 w-[2.5px] rounded-full bg-current transition-all duration-300 group-hover:h-5" />
+            <span className="h-5 w-[2.5px] rounded-full bg-current transition-all duration-300 group-hover:h-3" />
+            <span className="h-3 w-[2.5px] rounded-full bg-current transition-all duration-300 group-hover:h-5" />
+            <span className="h-4 w-[2.5px] rounded-full bg-current transition-all duration-300 group-hover:h-3" />
+          </span>
+        )}
+      </button>
+
+      {/* Full-screen hamburger menu overlay */}
+      <HamburgerMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} currentPage="studio" />
+
       <section
         ref={heroSectionRef}
         className="relative isolate h-[115svh] overflow-hidden bg-white"
@@ -267,32 +305,13 @@ export function CinematicHero() {
           <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at center, transparent 0%, rgba(0,0,0,0.3) 100%)" }} />
         </div>
 
-        {/* Navigation - stays fixed, not affected by scroll animation */}
+        {/* Spacer header — keeps hero layout balanced without duplicate logo */}
         <header className="hero-nav absolute left-0 right-0 top-0 z-40 px-5 py-5 md:px-9 md:py-6">
           <div className="mx-auto flex w-full max-w-[1400px] items-center justify-between">
-            <Link href="/" className="hero-nav-item flex items-center gap-2.5">
-              <Image
-                src="/assets/favicon.png"
-                alt="Contenaissance"
-                width={148}
-                height={44}
-                className="h-10 w-auto md:h-12"
-                priority
-              />
-            </Link>
-
-            <button
-              type="button"
-              aria-label="Open menu"
-              className="hero-nav-item group flex h-12 w-12 items-center justify-center rounded-full border border-zinc-700 bg-zinc-900/90 text-white shadow-[0_12px_30px_rgba(0,0,0,0.25)] backdrop-blur-md transition-all duration-300 hover:border-[#AE8C20]/50 hover:bg-[#AE8C20] hover:shadow-[0_16px_40px_rgba(174,140,32,0.35)] md:h-14 md:w-14"
-            >
-              <span className="flex h-5 items-end gap-[3px]">
-                <span className="h-4 w-[2.5px] rounded-full bg-current transition-all duration-300 group-hover:h-5" />
-                <span className="h-5 w-[2.5px] rounded-full bg-current transition-all duration-300 group-hover:h-3" />
-                <span className="h-3 w-[2.5px] rounded-full bg-current transition-all duration-300 group-hover:h-5" />
-                <span className="h-4 w-[2.5px] rounded-full bg-current transition-all duration-300 group-hover:h-3" />
-              </span>
-            </button>
+            {/* Logo placeholder (actual logo is fixed above) */}
+            <span aria-hidden className="h-14 w-auto md:h-16" />
+            {/* Spacer to keep grid balance */}
+            <span aria-hidden className="h-12 w-12 md:h-14 md:w-14" />
           </div>
         </header>
 

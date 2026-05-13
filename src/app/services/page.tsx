@@ -1,0 +1,560 @@
+"use client";
+
+import { useGSAP } from "@gsap/react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { SplitText } from "gsap/SplitText";
+import Image from "next/image";
+import Link from "next/link";
+import { useRef } from "react";
+import { CTAFooter } from "@/components/home/CTAFooter";
+import { HamburgerMenu } from "@/components/home/HamburgerMenu";
+import { useState } from "react";
+
+gsap.registerPlugin(useGSAP, ScrollTrigger, SplitText);
+
+const VIDEOS = [
+  "https://lfnxmldvqzqsgjigzibk.supabase.co/storage/v1/object/public/Contenaisaance/home.mp4",
+  "https://lfnxmldvqzqsgjigzibk.supabase.co/storage/v1/object/public/Contenaisaance/Mzha%20Nhi%20Aaya-02.1.mp4",
+  "https://lfnxmldvqzqsgjigzibk.supabase.co/storage/v1/object/public/Contenaisaance/website_popup%20to%20view.mp4",
+];
+
+const VIDEO_SHOWCASES = [
+  {
+    video: VIDEOS[1],
+    title: "Cinematic Excellence",
+    subtitle: "Experience the future of storytelling",
+  },
+  {
+    video: VIDEOS[2],
+    title: "Digital Innovation",
+    subtitle: "Where creativity meets technology",
+  },
+];
+
+const SERVICES = [
+  {
+    id: "ai-brand-films",
+    title: "AI Brand Films",
+    video: VIDEOS[1],
+    theme: "dark",
+    features: [
+      "AI-POWERED BRAND FILMS",
+      "GENERATIVE AI STORYTELLING",
+      "INTERACTIVE BRAND EXPERIENCES",
+      "AI CINEMATIC MARKETING",
+    ],
+    paragraphs: [
+      "Find out how 3D technology powered by AI can change the story of your brand into the cinema. Our group employs the use of generative AI to produce amazing brand videos that mesh live-action with virtual environments to ensure a built-up visual experience. Our brand films powered by AI enhance your company's story engaging viewers with captivating visuals and creative narrative.",
+      "Through our AI brand films, the audience can become emotionally attached to your brand and be more aware of it. We combine the latest AI technology with traditional storytelling to create a brand film that is better than the competition. A unique audiovisual and interactive experience leaves a lasting impression and significantly enhances your brand value.",
+      "AI brand films are the marketing of the future whether you need a corporate presentation, a digital ad, or something for social media. With our creative approach, we'll ensure that your brand stands apart from the competition and is an experience to remember. AI filmmaking tells the story of your brand in the most futuristic and attention-grabbing way possible.",
+    ],
+  },
+  {
+    id: "digital-first-content",
+    title: "Digital-First Content",
+    video: VIDEOS[0],
+    theme: "light",
+    features: [
+      "PLATFORM-SPECIFIC CONTENT",
+      "AI-DRIVEN CONTENT CREATION",
+      "CONTEXTUALLY RELEVANT CONTENT",
+      "PERFORMANCE OPTIMIZATION WITH AI ANALYTICS",
+    ],
+    paragraphs: [
+      "In a digital-first world, we consume content faster than ever, and it has to hit home right away. Through the use of AI, we create fast, appealing content for you that resonates with your audience. Our content engages online users instantly, whether they are visiting your website, scrolling your mobile app, or simply seeing it on social media.",
+      "Using advanced AI, we craft contextually relevant content that is tailored to meet the exact requirements of your target audience. We know that each platform needs its own design, so the vibes of your content always suit the message at the right time. Whether to help you move views on your advertising message, E-commerce business, or any web service, and more!",
+      "Translating the content into appropriate media as per the audience requirement ensures effective engagement. Through the use of AI analytics, we keep a track of engagement and optimize it for maximum effectiveness. Regardless of whether you are launching a product, building brand awareness, or running a campaign, our content delivers results on all digital platforms.",
+    ],
+  },
+  {
+    id: "ai-powered-campaigns",
+    title: "AI Powered Campaigns",
+    video: VIDEOS[2],
+    theme: "dark",
+    features: [
+      "MAXIMIZE MARKETING IMPACT",
+      "DATA-DRIVEN DECISIONS",
+      "MARKET ANALYSIS & OPTIMIZATION",
+      "SCALABLE AI CAMPAIGNS",
+    ],
+    paragraphs: [
+      "Make full use of the potential of your marketing campaigns to drive better results and increase profits. We use AI technology to create data-driven strategies to help you reach your intended audience as effectively as possible. We closely examine how users behave and what campaigns look like, we make sure you do not waste any of your dollars.",
+      "The use of AI technology can enhance your marketing campaigns in all aspects. We analyze and predict the market from the vast data. The accurate analysis helps to optimize the campaigns. Our approach guarantees the fulfilment of all performance objectives, resulting in substantial returns on your ad expenditures.",
+      "Incorporate AI into the heart of your marketing campaign and you will easily scale your marketing campaigns. By relying on our data-driven strategies, it is easy to adapt to market trends and consumer behavior to keep your marketing campaigns effective. AI powered marketing campaigns provide result-driven services, from social media marketing to email marketing.",
+    ],
+  },
+  {
+    id: "visual-identity",
+    title: "Visual Identity System",
+    video: VIDEOS[1],
+    theme: "light",
+    features: [
+      "AI-DRIVEN BRANDING FRAMEWORKS",
+      "CUSTOM DESIGN SYSTEMS",
+      "VISUAL IDENTITY SOLUTIONS",
+      "UI/UX DESIGN & INTERACTIVE ASSETS",
+    ],
+    paragraphs: [
+      "Coin a powerful AI-driven visual identity system which can precisely and strategically define your brand and its behavior in the long-term. We develop scalable branding frameworks to ensure visual consistency at all touchpoints, including the digital world, print and social media, packaging, advertising, and experiences. Each element is made so that its message is recognisable, strengthened by the brand identity selected that will operate firmly on the market.",
+      "We will establish the suitable visual language, brand aesthetic, and intelligent design systems within today's AI-enabled ecosystem, in keeping with your organizational values, industry practices, and competitive landscape. All the elements, from detailed brand guidelines and visual governance frameworks to logo architecture, colour psychology, typography systems and iconography, is created to ensure consistency and adaptability as your brand evolves.",
+      "We offer comprehensive visual identity solutions including logotypes, colour palettes, typographic hierarchies, digital assets, UI/UX components, packaging imagery, brand collateral, motion graphics and interactive design systems. We provide long-term brand value, connection, and recall by creating a pleasing identity through effective design that speaks to your audience and differentiates you in a crowded online and offline marketplace.",
+    ],
+  },
+];
+
+export default function ServicesPage() {
+  const pageRef = useRef<HTMLDivElement>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  useGSAP(
+    () => {
+      // Hero title split text animation
+      const heroTitle = document.querySelector(".hero-title");
+      if (heroTitle) {
+        const split = SplitText.create(heroTitle, { type: "chars, words" });
+        gsap.fromTo(
+          split.chars,
+          {
+            opacity: 0,
+            y: 80,
+            rotateX: -90,
+            filter: "blur(10px)",
+          },
+          {
+            opacity: 1,
+            y: 0,
+            rotateX: 0,
+            filter: "blur(0px)",
+            duration: 1,
+            stagger: { each: 0.03, from: "start" },
+            ease: "back.out(1.7)",
+            delay: 0.5,
+          }
+        );
+      }
+
+      // Each service section animations
+      const sections = gsap.utils.toArray<HTMLElement>(".service-section");
+      sections.forEach((section, sectionIndex) => {
+        const title = section.querySelector(".service-title");
+        const features = section.querySelectorAll(".service-feature");
+        const paragraphs = section.querySelectorAll(".service-paragraph");
+        const video = section.querySelector(".service-video");
+
+        // Video parallax
+        if (video) {
+          gsap.fromTo(
+            video,
+            { scale: 1.3, y: -50 },
+            {
+              scale: 1,
+              y: 50,
+              ease: "none",
+              scrollTrigger: {
+                trigger: section,
+                start: "top bottom",
+                end: "bottom top",
+                scrub: 1.5,
+              },
+            }
+          );
+        }
+
+        // Title split text animation
+        if (title) {
+          const titleSplit = SplitText.create(title, { type: "chars, words" });
+          gsap.fromTo(
+            titleSplit.chars,
+            {
+              opacity: 0,
+              y: 60,
+              rotateY: -45,
+              scale: 0.8,
+            },
+            {
+              opacity: 1,
+              y: 0,
+              rotateY: 0,
+              scale: 1,
+              duration: 0.8,
+              stagger: { each: 0.02, from: "start" },
+              ease: "power3.out",
+              scrollTrigger: {
+                trigger: section,
+                start: "top 75%",
+                toggleActions: "play none none reverse",
+              },
+            }
+          );
+        }
+
+        // Features - typewriter-like stagger
+        if (features.length) {
+          features.forEach((feature, i) => {
+            const featureText = feature.textContent || "";
+            feature.innerHTML = featureText
+              .split("")
+              .map((char) => `<span class="inline-block">${char === " " ? "&nbsp;" : char}</span>`)
+              .join("");
+            
+            gsap.fromTo(
+              feature.querySelectorAll("span"),
+              { opacity: 0, y: 10 },
+              {
+                opacity: 1,
+                y: 0,
+                duration: 0.03,
+                stagger: 0.015,
+                ease: "none",
+                scrollTrigger: {
+                  trigger: section,
+                  start: `top ${70 - i * 5}%`,
+                  toggleActions: "play none none reverse",
+                },
+              }
+            );
+          });
+        }
+
+        // Paragraphs - smooth fade with blur
+        if (paragraphs.length) {
+          gsap.fromTo(
+            paragraphs,
+            { 
+              y: 40, 
+              opacity: 0,
+              filter: "blur(8px)",
+            },
+            {
+              y: 0,
+              opacity: 1,
+              filter: "blur(0px)",
+              duration: 1,
+              stagger: 0.2,
+              ease: "power2.out",
+              scrollTrigger: {
+                trigger: section,
+                start: "top 55%",
+                toggleActions: "play none none reverse",
+              },
+            }
+          );
+        }
+      });
+
+      // Video showcase zoom animations
+      const videoShowcases = gsap.utils.toArray<HTMLElement>(".video-showcase");
+      videoShowcases.forEach((showcase) => {
+        const video = showcase.querySelector(".showcase-video");
+        const overlay = showcase.querySelector(".showcase-overlay");
+        const title = showcase.querySelector(".showcase-title");
+        const subtitle = showcase.querySelector(".showcase-subtitle");
+
+        // Video zoom out on scroll
+        if (video) {
+          gsap.fromTo(
+            video,
+            { scale: 1.5 },
+            {
+              scale: 1,
+              ease: "none",
+              scrollTrigger: {
+                trigger: showcase,
+                start: "top bottom",
+                end: "bottom top",
+                scrub: 1,
+              },
+            }
+          );
+        }
+
+        // Overlay fade
+        if (overlay) {
+          gsap.fromTo(
+            overlay,
+            { opacity: 0.8 },
+            {
+              opacity: 0.4,
+              ease: "none",
+              scrollTrigger: {
+                trigger: showcase,
+                start: "top center",
+                end: "bottom center",
+                scrub: 1,
+              },
+            }
+          );
+        }
+
+        // Title animation
+        if (title) {
+          const titleSplit = SplitText.create(title, { type: "chars" });
+          gsap.fromTo(
+            titleSplit.chars,
+            { opacity: 0, y: 50, rotateX: -90 },
+            {
+              opacity: 1,
+              y: 0,
+              rotateX: 0,
+              duration: 0.8,
+              stagger: 0.03,
+              ease: "back.out(1.7)",
+              scrollTrigger: {
+                trigger: showcase,
+                start: "top 60%",
+                toggleActions: "play none none reverse",
+              },
+            }
+          );
+        }
+
+        // Subtitle animation
+        if (subtitle) {
+          gsap.fromTo(
+            subtitle,
+            { opacity: 0, y: 30, filter: "blur(10px)" },
+            {
+              opacity: 1,
+              y: 0,
+              filter: "blur(0px)",
+              duration: 1,
+              ease: "power3.out",
+              scrollTrigger: {
+                trigger: showcase,
+                start: "top 55%",
+                toggleActions: "play none none reverse",
+              },
+            }
+          );
+        }
+      });
+
+      // Scroll to top button
+      gsap.to(".scroll-top-btn", {
+        opacity: 1,
+        pointerEvents: "auto",
+        scrollTrigger: {
+          trigger: pageRef.current,
+          start: "top -500",
+          toggleActions: "play none none reverse",
+        },
+      });
+    },
+    { scope: pageRef }
+  );
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  return (
+    <div ref={pageRef} className="relative">
+      {/* Hamburger Menu */}
+      <HamburgerMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} currentPage="services" />
+
+      {/* Fixed Header */}
+      <header className="fixed left-0 right-0 top-0 z-50 px-6 py-5 md:px-10 md:py-6">
+        <div className="mx-auto flex max-w-[1400px] items-center justify-between">
+          <Link href="/" className="flex items-center gap-2.5">
+            <Image
+              src="/assets/favicon.png"
+              alt="Contenaissance"
+              width={220}
+              height={66}
+              className="h-14 w-auto md:h-16"
+              priority
+            />
+          </Link>
+        </div>
+      </header>
+
+      {/* Fixed Hamburger Button */}
+      <button
+        type="button"
+        aria-label={menuOpen ? "Close menu" : "Open menu"}
+        onClick={() => setMenuOpen((v) => !v)}
+        className="group fixed right-5 top-5 z-[110] flex h-12 w-12 items-center justify-center rounded-full border border-zinc-700 bg-zinc-900/90 text-white shadow-[0_12px_30px_rgba(0,0,0,0.25)] backdrop-blur-md transition-all duration-300 hover:border-[#AE8C20]/50 hover:bg-[#AE8C20] hover:shadow-[0_16px_40px_rgba(174,140,32,0.35)] md:right-9 md:top-6 md:h-14 md:w-14"
+      >
+        {menuOpen ? (
+          <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 6l12 12M18 6L6 18" />
+          </svg>
+        ) : (
+          <span className="flex h-5 items-end gap-[3px]">
+            <span className="h-4 w-[2.5px] rounded-full bg-current transition-all duration-300 group-hover:h-5" />
+            <span className="h-5 w-[2.5px] rounded-full bg-current transition-all duration-300 group-hover:h-3" />
+            <span className="h-3 w-[2.5px] rounded-full bg-current transition-all duration-300 group-hover:h-5" />
+            <span className="h-4 w-[2.5px] rounded-full bg-current transition-all duration-300 group-hover:h-3" />
+          </span>
+        )}
+      </button>
+
+      {/* Hero Section - Dark */}
+      <section className="relative flex h-[70vh] items-end justify-center overflow-hidden bg-zinc-950 pb-16 md:h-[80vh] md:pb-20">
+        {/* Video Background */}
+        <div className="absolute inset-0">
+          <video
+            className="h-full w-full object-cover opacity-50"
+            autoPlay
+            loop
+            muted
+            playsInline
+          >
+            <source src={VIDEOS[0]} type="video/mp4" />
+          </video>
+          <div className="absolute inset-0 bg-gradient-to-b from-zinc-950/70 via-zinc-950/50 to-zinc-950" />
+        </div>
+
+        <h1 className="hero-title relative z-10 text-center text-6xl font-bold tracking-tight text-white sm:text-7xl md:text-8xl lg:text-9xl">
+          AI Services
+        </h1>
+      </section>
+
+      {/* Services Sections - Alternating Black/White with Video Showcases */}
+      {SERVICES.map((service, index) => {
+        const isDark = service.theme === "dark";
+        const showVideoShowcase = index === 1 || index === 3;
+        const showcaseIndex = index === 1 ? 0 : 1;
+        
+        return (
+          <div key={service.id}>
+            {/* Service Section */}
+            <section
+              id={service.id}
+              className={`service-section relative min-h-screen overflow-hidden ${
+                isDark ? "bg-zinc-950 text-white" : "bg-white text-zinc-950"
+              }`}
+            >
+              {/* Video Background */}
+              <div className="absolute inset-0 overflow-hidden">
+                <video
+                  className={`service-video h-full w-full object-cover ${
+                    isDark ? "opacity-30" : "opacity-20"
+                  }`}
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                >
+                  <source src={service.video} type="video/mp4" />
+                </video>
+                <div
+                  className={`absolute inset-0 ${
+                    isDark
+                      ? "bg-gradient-to-b from-zinc-950 via-zinc-950/85 to-zinc-950"
+                      : "bg-gradient-to-b from-white via-white/90 to-white"
+                  }`}
+                />
+              </div>
+
+              {/* Content */}
+              <div className="relative z-10 mx-auto max-w-[1400px] px-6 py-24 md:px-10 md:py-32 lg:py-40">
+                {/* Service Title */}
+                <h2
+                  className={`service-title mb-16 text-5xl font-bold tracking-tight sm:text-6xl md:mb-20 md:text-7xl lg:text-8xl ${
+                    isDark ? "text-white" : "text-zinc-950"
+                  }`}
+                  style={{ perspective: "1000px" }}
+                >
+                  {service.title}
+                </h2>
+
+                {/* Content Grid */}
+                <div className="grid gap-12 md:grid-cols-[280px_1fr] md:gap-16 lg:grid-cols-[320px_1fr] lg:gap-24">
+                  {/* Features List */}
+                  <div className="space-y-4">
+                    {service.features.map((feature, i) => (
+                      <div
+                        key={i}
+                        className="service-feature text-xs font-bold uppercase tracking-[0.15em] text-[#AE8C20] md:text-sm"
+                      >
+                        {feature}
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Paragraphs */}
+                  <div className="space-y-6 md:space-y-8">
+                    {service.paragraphs.map((para, i) => (
+                      <p
+                        key={i}
+                        className={`service-paragraph text-sm leading-relaxed md:text-base md:leading-loose ${
+                          isDark ? "text-zinc-400" : "text-zinc-600"
+                        }`}
+                      >
+                        {para}
+                      </p>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Decorative elements */}
+              {isDark && (
+                <div className="pointer-events-none absolute inset-0">
+                  <div className="absolute right-0 top-1/4 h-[500px] w-[500px] translate-x-1/2 rounded-full bg-[#AE8C20]/5 blur-[150px]" />
+                </div>
+              )}
+              {!isDark && (
+                <div className="pointer-events-none absolute inset-0">
+                  <div className="absolute left-0 bottom-1/4 h-[500px] w-[500px] -translate-x-1/2 rounded-full bg-[#AE8C20]/10 blur-[150px]" />
+                </div>
+              )}
+            </section>
+
+            {/* Video Showcase - appears after certain sections */}
+            {showVideoShowcase && VIDEO_SHOWCASES[showcaseIndex] && (
+              <section className="video-showcase relative h-[70vh] overflow-hidden md:h-[80vh]">
+                {/* Full-screen video with zoom */}
+                <div className="absolute inset-0 overflow-hidden">
+                  <video
+                    className="showcase-video h-full w-full object-cover"
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                  >
+                    <source src={VIDEO_SHOWCASES[showcaseIndex].video} type="video/mp4" />
+                  </video>
+                  <div className="showcase-overlay absolute inset-0 bg-zinc-950/60" />
+                </div>
+
+                {/* Centered text overlay */}
+                <div className="relative z-10 flex h-full flex-col items-center justify-center px-6 text-center">
+                  <h3
+                    className="showcase-title text-4xl font-bold tracking-tight text-white sm:text-5xl md:text-6xl lg:text-7xl"
+                    style={{ perspective: "1000px" }}
+                  >
+                    {VIDEO_SHOWCASES[showcaseIndex].title}
+                  </h3>
+                  <p className="showcase-subtitle mt-4 text-lg text-white/70 md:mt-6 md:text-xl">
+                    {VIDEO_SHOWCASES[showcaseIndex].subtitle}
+                  </p>
+                </div>
+
+                {/* Corner accent lines */}
+                <div className="pointer-events-none absolute left-8 top-8 h-20 w-20 border-l-2 border-t-2 border-[#AE8C20]/40 md:left-12 md:top-12" />
+                <div className="pointer-events-none absolute bottom-8 right-8 h-20 w-20 border-b-2 border-r-2 border-[#AE8C20]/40 md:bottom-12 md:right-12" />
+              </section>
+            )}
+          </div>
+        );
+      })}
+
+      {/* Footer */}
+      <CTAFooter />
+
+      {/* Scroll to Top Button */}
+      <button
+        onClick={scrollToTop}
+        className="scroll-top-btn fixed bottom-8 right-8 z-50 flex h-12 w-12 items-center justify-center rounded-full border border-[#AE8C20]/50 bg-zinc-900/90 text-white opacity-0 backdrop-blur-md transition-all hover:border-[#AE8C20] hover:bg-[#AE8C20] hover:text-zinc-950"
+        style={{ pointerEvents: "none" }}
+      >
+        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+        </svg>
+      </button>
+    </div>
+  );
+}

@@ -12,43 +12,27 @@ const USE_CASES = [
     title: "AI Brand Films",
     description:
       "Discover how to turn your brand story into a cinematic experience via AI-driven 3D technology. We use generative AI to make brand films with dynamic live action in a synthetic environment that boosts your brand and captures imagination!",
+    gridArea: "brand",
   },
   {
     title: "Digital-First Content",
     description:
       "Design high-velocity content for any modern digital consumption platform. Using advanced AI tools, we help you craft compelling and contextual visuals that connect with your audience across diverse social ecosystems.",
+    gridArea: "digital",
   },
   {
     title: "AI-Powered Campaigns",
     description:
       "Enhance campaigns with AI and scale marketing. Our strategies are based on data and performance, guaranteeing you the best ROI for your digital marketing budget.",
+    gridArea: "campaigns",
   },
   {
     title: "Visual Identity Systems",
     description:
       "Create your brand's AI-driven visual identity system. We design brand frameworks that are memorable and scalable and apply the necessary look and feel to brand touchpoints in an AI-enabled world.",
+    gridArea: "identity",
   },
 ];
-
-// Chain link component
-function ChainLink({ className = "" }: { className?: string }) {
-  return (
-    <div className={`chain-link relative h-6 w-3 ${className}`}>
-      <div className="chain-run-link absolute inset-0 rounded-full border-2 border-[#AE8C20]/60" />
-    </div>
-  );
-}
-
-// Vertical chain segment
-function ChainSegment({ length = 5 }: { length?: number }) {
-  return (
-    <div className="chain-segment flex flex-col items-center -space-y-1">
-      {Array.from({ length }).map((_, i) => (
-        <ChainLink key={i} />
-      ))}
-    </div>
-  );
-}
 
 export function ExpertiseSection() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -72,81 +56,53 @@ export function ExpertiseSection() {
         }
       );
 
-      // Main chain - smooth scale with scrub
-      gsap.fromTo(
-        ".main-chain",
-        { scaleY: 0, transformOrigin: "top center" },
-        {
-          scaleY: 1,
-          ease: "none",
-          scrollTrigger: {
-            trigger: ".chain-container",
-            start: "top 90%",
-            end: "top 65%",
-            scrub: 0.6,
-          },
-        }
-      );
+      // Cards overlap animation - cards come from different directions and stack
+      const cards = gsap.utils.toArray<HTMLElement>(".use-case-card");
+      
+      // Starting positions for overlap effect (cards spread out, then converge)
+      const startingPositions = [
+        { x: -120, y: 150, rotation: -8, scale: 0.9 },   // Card 1: from left
+        { x: 120, y: 200, rotation: 6, scale: 0.9 },    // Card 2: from right
+        { x: -100, y: 180, rotation: -5, scale: 0.9 },  // Card 3: from left
+        { x: 100, y: 220, rotation: 7, scale: 0.9 },    // Card 4: from right
+      ];
 
-      // Cards reveal with smooth scrub-based animation
-      const cards = gsap.utils.toArray<HTMLElement>(".hanging-card");
+      // Final overlapping positions (slight offsets for stacked look)
+      const finalPositions = [
+        { x: 0, y: 0, rotation: 0, scale: 1 },
+        { x: 0, y: -15, rotation: 0, scale: 1 },
+        { x: 0, y: -10, rotation: 0, scale: 1 },
+        { x: 0, y: -20, rotation: 0, scale: 1 },
+      ];
+
       cards.forEach((card, i) => {
-        const connector = card.querySelector(".card-connector");
-        const cardBody = card.querySelector(".card-body");
+        // Set z-index for proper stacking
+        gsap.set(card, { zIndex: cards.length - i });
 
-        // Connector chain - smooth scrub
         gsap.fromTo(
-          connector,
-          { scaleY: 0, transformOrigin: "top center" },
+          card,
           {
-            scaleY: 1,
-            ease: "none",
-            scrollTrigger: {
-              trigger: ".chain-container",
-              start: `top ${85 - i * 3}%`,
-              end: `top ${65 - i * 3}%`,
-              scrub: 0.5,
-            },
-          }
-        );
-
-        // Card body - smooth reveal with gentle movement
-        gsap.fromTo(
-          cardBody,
-          {
-            y: -50,
+            x: startingPositions[i].x,
+            y: startingPositions[i].y,
+            rotation: startingPositions[i].rotation,
+            scale: startingPositions[i].scale,
             opacity: 0,
-            rotation: i % 2 === 0 ? -5 : 5,
-            transformOrigin: "top center",
           },
           {
-            y: 0,
+            x: finalPositions[i].x,
+            y: finalPositions[i].y,
+            rotation: finalPositions[i].rotation,
+            scale: finalPositions[i].scale,
             opacity: 1,
-            rotation: 0,
             ease: "none",
             scrollTrigger: {
-              trigger: ".chain-container",
-              start: `top ${80 - i * 3}%`,
-              end: `top ${55 - i * 3}%`,
-              scrub: 0.7,
+              trigger: ".cards-container",
+              start: `top ${90 - i * 5}%`,
+              end: `top ${45 - i * 5}%`,
+              scrub: 0.8,
             },
           }
         );
-      });
-
-      // Subtle chain energy effect - optimized for performance
-      // Only animate a subset of links and use lighter effects
-      const chainLinks = gsap.utils.toArray<HTMLElement>(".chain-run-link");
-      chainLinks.forEach((link, i) => {
-        gsap.to(link, {
-          borderColor: "rgba(174, 140, 32, 0.85)",
-          boxShadow: "0 0 8px rgba(174, 140, 32, 0.3)",
-          duration: 1.5,
-          delay: i * 0.02,
-          repeat: -1,
-          yoyo: true,
-          ease: "sine.inOut",
-        });
       });
     },
     { scope: sectionRef }
@@ -180,48 +136,37 @@ export function ExpertiseSection() {
           </p>
         </div>
 
-        {/* Chain container */}
-        <div className="chain-container relative mt-16 lg:mt-20">
-          {/* Main horizontal chain bar - full width */}
-          <div className="main-chain relative flex h-10 w-full items-center justify-center">
-            {/* Horizontal chain - spans full width */}
-            <div className="flex w-full items-center justify-center gap-0">
-              {Array.from({ length: 70 }).map((_, i) => (
-                <div
-                  key={i}
-                  className="chain-run-link chain-link h-3 w-5 shrink-0 rounded-full border-2 border-[#AE8C20]/50 -ml-1 first:ml-0"
-                />
-              ))}
-            </div>
-            {/* Hook at top */}
-            <div className="absolute -top-6 left-1/2 -translate-x-1/2">
-              <div className="h-8 w-8 rounded-full border-4 border-[#AE8C20]/70 bg-white" />
-              <div className="absolute left-1/2 top-6 h-4 w-1 -translate-x-1/2 bg-[#AE8C20]/70" />
-            </div>
-          </div>
-
-          {/* Hanging cards grid */}
-          <div className="relative mt-4 grid grid-cols-1 gap-x-4 sm:grid-cols-2 lg:grid-cols-4">
-            {USE_CASES.map((useCase, index) => (
-              <div
-                key={useCase.title}
-                className="hanging-card relative flex flex-col items-center pt-12"
-              >
-                {/* Connector chain from main bar to card */}
-                <div className="card-connector absolute -top-9 left-1/2 z-20 -translate-x-1/2">
-                  <ChainSegment length={4} />
-                </div>
-
-                {/* Card body */}
+        {/* Bento Grid Cards Container */}
+        <div className="cards-container relative mt-16 lg:mt-20">
+          {/* Scattered bento-style grid layout */}
+          <div 
+            className="relative grid gap-5 md:gap-6"
+            style={{
+              gridTemplateColumns: "repeat(12, 1fr)",
+              gridTemplateRows: "auto auto auto",
+              gridTemplateAreas: `
+                "brand brand brand brand brand digital digital digital digital digital digital digital"
+                ". campaigns campaigns campaigns campaigns campaigns identity identity identity identity identity ."
+              `,
+            }}
+          >
+            {USE_CASES.map((useCase, index) => {
+              const offsetStyles = [
+                { marginTop: "0" },
+                { marginTop: "2rem" },
+                { marginTop: "1rem" },
+                { marginTop: "2.5rem" },
+              ];
+              
+              return (
                 <article
-                  className="card-body group relative w-full overflow-hidden rounded-3xl border border-zinc-200/70 bg-white p-6 shadow-[0_10px_40px_-12px_rgba(24,24,27,0.1)] transition-all duration-500 hover:-translate-y-1 hover:border-[#AE8C20]/40 hover:shadow-[0_30px_70px_-20px_rgba(174,140,32,0.35)] md:p-7"
-                  style={{ marginTop: "0.75rem" }}
+                  key={useCase.title}
+                  className="use-case-card group relative overflow-hidden rounded-2xl border border-zinc-200/70 bg-white p-6 shadow-[0_20px_50px_-15px_rgba(24,24,27,0.15)] transition-all duration-500 hover:-translate-y-2 hover:border-[#AE8C20]/40 hover:shadow-[0_35px_80px_-20px_rgba(174,140,32,0.3)] md:p-7 lg:p-8 will-change-transform"
+                  style={{ 
+                    gridArea: useCase.gridArea,
+                    ...offsetStyles[index],
+                  }}
                 >
-                  {/* Pin/hook at top of card */}
-                  <div className="absolute -top-3 left-1/2 z-30 -translate-x-1/2">
-                    <div className="h-6 w-6 rounded-full border-3 border-[#AE8C20] bg-gradient-to-br from-[#D4AF37] to-[#AE8C20] shadow-lg" />
-                  </div>
-
                   {/* Shine sweep on hover */}
                   <span
                     aria-hidden
@@ -229,29 +174,29 @@ export function ExpertiseSection() {
                     style={{ mixBlendMode: "soft-light" }}
                   />
 
-                  {/* Top sheen line */}
+                  {/* Top accent line */}
                   <span
                     aria-hidden
-                    className="pointer-events-none absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-[#AE8C20]/60 to-transparent opacity-50 transition-opacity duration-500 group-hover:opacity-100"
+                    className="pointer-events-none absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-[#AE8C20]/50 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100"
                   />
 
                   {/* Corner glow */}
                   <span
                     aria-hidden
-                    className="pointer-events-none absolute -right-20 -top-20 h-44 w-44 rounded-full bg-[#AE8C20]/0 blur-3xl transition-all duration-700 group-hover:bg-[#AE8C20]/25"
+                    className="pointer-events-none absolute -right-20 -top-20 h-44 w-44 rounded-full bg-[#AE8C20]/0 blur-3xl transition-all duration-700 group-hover:bg-[#AE8C20]/20"
                   />
 
-                  <div className="relative flex flex-1 flex-col">
+                  <div className="relative flex h-full flex-col">
                     {/* Use case badge */}
                     <span className="inline-flex w-fit items-center rounded-md bg-[#AE8C20]/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-[#AE8C20]">
                       Use Case
                     </span>
 
-                    <h3 className="mt-4 text-xl font-bold leading-tight text-zinc-900 md:text-2xl">
+                    <h3 className="mt-4 text-xl font-bold leading-tight text-zinc-900 md:text-2xl lg:text-3xl">
                       {useCase.title}
                     </h3>
 
-                    <p className="mt-3 flex-1 text-sm leading-relaxed text-zinc-600">
+                    <p className="mt-3 flex-1 text-sm leading-relaxed text-zinc-600 md:text-base">
                       {useCase.description}
                     </p>
 
@@ -259,7 +204,7 @@ export function ExpertiseSection() {
                       href="#contact"
                       className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-[#AE8C20] transition-all duration-300 group-hover:gap-3"
                     >
-                      Explore More
+                      Explore Now
                       <svg
                         className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"
                         fill="none"
@@ -272,8 +217,8 @@ export function ExpertiseSection() {
                     </a>
                   </div>
                 </article>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </div>
