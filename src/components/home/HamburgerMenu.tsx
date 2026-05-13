@@ -14,10 +14,11 @@ const NAV_LINKS = [
 ];
 
 const SOCIAL_LINKS = [
-  { label: "LinkedIn", href: "https://linkedin.com" },
-  { label: "Instagram", href: "https://instagram.com" },
-  { label: "Meta", href: "https://meta.com" },
-  { label: "YouTube", href: "https://youtube.com" },
+  { label: "Instagram", href: "https://www.instagram.com/contenaissance/" },
+  { label: "LinkedIn", href: "https://www.linkedin.com/company/108385521/" },
+  { label: "YouTube", href: "https://www.youtube.com/@Contenaissance" },
+  { label: "Facebook", href: "https://www.facebook.com/profile.php?id=61579738437856" },
+  { label: "X", href: "https://x.com/contenaissance" },
 ];
 
 const LANGUAGES = [
