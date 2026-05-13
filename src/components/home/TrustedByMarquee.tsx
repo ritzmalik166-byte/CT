@@ -37,7 +37,7 @@ const COMPANIES = [
   },
   { 
     name: "Gemini", 
-    logo: "/assets/Gemini.png",
+    logo: "/assets/google.png",
     description: "Google's multimodal AI model capable of understanding text, images, and code."
   },
 ];

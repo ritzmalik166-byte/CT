@@ -55,92 +55,98 @@ export function ExpertiseSection() {
 
   useGSAP(
     () => {
-      // Header animation
-      gsap.from(".expertise-header", {
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: "top 78%",
-          toggleActions: "play none none none",
-        },
-        y: 30,
-        opacity: 0,
-        duration: 0.9,
-        ease: "power3.out",
-      });
+      // Header animation - smooth scrub-based reveal
+      gsap.fromTo(
+        ".expertise-header",
+        { y: 60, opacity: 0 },
+        {
+          y: 0,
+          opacity: 1,
+          ease: "none",
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: "top 85%",
+            end: "top 55%",
+            scrub: 0.8,
+          },
+        }
+      );
 
-      // Main chain drops down
-      gsap.from(".main-chain", {
-        scrollTrigger: {
-          trigger: ".chain-container",
-          start: "top 85%",
-          toggleActions: "play none none none",
-        },
-        scaleY: 0,
-        transformOrigin: "top center",
-        duration: 0.8,
-        ease: "power2.out",
-      });
+      // Main chain - smooth scale with scrub
+      gsap.fromTo(
+        ".main-chain",
+        { scaleY: 0, transformOrigin: "top center" },
+        {
+          scaleY: 1,
+          ease: "none",
+          scrollTrigger: {
+            trigger: ".chain-container",
+            start: "top 90%",
+            end: "top 65%",
+            scrub: 0.6,
+          },
+        }
+      );
 
-      // Cards drop and swing into place
+      // Cards reveal with smooth scrub-based animation
       const cards = gsap.utils.toArray<HTMLElement>(".hanging-card");
       cards.forEach((card, i) => {
         const connector = card.querySelector(".card-connector");
         const cardBody = card.querySelector(".card-body");
 
-        // Set initial hidden state
-        gsap.set(connector, { scaleY: 0, transformOrigin: "top center" });
-        gsap.set(cardBody, {
-          y: -100,
-          opacity: 0,
-          rotation: i % 2 === 0 ? -12 : 12,
-          transformOrigin: "top center",
-        });
-
-        const tl = gsap.timeline({
-          scrollTrigger: {
-            trigger: ".chain-container",
-            start: "top 82%",
-            toggleActions: "play none none none",
-          },
-        });
-
-        // Connector chain drops
-        tl.to(
+        // Connector chain - smooth scrub
+        gsap.fromTo(
           connector,
+          { scaleY: 0, transformOrigin: "top center" },
           {
             scaleY: 1,
-            duration: 0.5,
-            ease: "power2.out",
-          },
-          i * 0.18
+            ease: "none",
+            scrollTrigger: {
+              trigger: ".chain-container",
+              start: `top ${85 - i * 3}%`,
+              end: `top ${65 - i * 3}%`,
+              scrub: 0.5,
+            },
+          }
         );
 
-        // Card drops with swing
-        tl.to(
+        // Card body - smooth reveal with gentle movement
+        gsap.fromTo(
           cardBody,
+          {
+            y: -50,
+            opacity: 0,
+            rotation: i % 2 === 0 ? -5 : 5,
+            transformOrigin: "top center",
+          },
           {
             y: 0,
             opacity: 1,
             rotation: 0,
-            duration: 0.9,
-            ease: "elastic.out(1, 0.5)",
-          },
-          i * 0.18 + 0.25
+            ease: "none",
+            scrollTrigger: {
+              trigger: ".chain-container",
+              start: `top ${80 - i * 3}%`,
+              end: `top ${55 - i * 3}%`,
+              scrub: 0.7,
+            },
+          }
         );
       });
 
-      // Continuous chain energy effect.
-      gsap.to(".chain-run-link", {
-        borderColor: "rgba(174, 140, 32, 0.95)",
-        boxShadow: "0 0 14px rgba(174, 140, 32, 0.45)",
-        scale: 1.08,
-        duration: 0.45,
-        stagger: {
-          each: 0.035,
+      // Subtle chain energy effect - optimized for performance
+      // Only animate a subset of links and use lighter effects
+      const chainLinks = gsap.utils.toArray<HTMLElement>(".chain-run-link");
+      chainLinks.forEach((link, i) => {
+        gsap.to(link, {
+          borderColor: "rgba(174, 140, 32, 0.85)",
+          boxShadow: "0 0 8px rgba(174, 140, 32, 0.3)",
+          duration: 1.5,
+          delay: i * 0.02,
           repeat: -1,
           yoyo: true,
-        },
-        ease: "sine.inOut",
+          ease: "sine.inOut",
+        });
       });
     },
     { scope: sectionRef }
