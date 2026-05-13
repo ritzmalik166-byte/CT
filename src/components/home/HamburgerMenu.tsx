@@ -1,6 +1,6 @@
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, type Variants } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -33,38 +33,41 @@ interface HamburgerMenuProps {
   currentPage?: "studio" | "services" | "portfolio" | "contact";
 }
 
+const curtainEase = [0.22, 1, 0.36, 1] as const;
+const curtainExitEase = [0.65, 0, 0.35, 1] as const;
+
 // Left curtain - comes from left (SLOW)
-const leftCurtainVariants = {
+const leftCurtainVariants: Variants = {
   hidden: { x: "-100%", skewX: -2 },
   visible: {
     x: 0,
     skewX: 0,
-    transition: { duration: 1.4, ease: [0.22, 1, 0.36, 1] },
+    transition: { duration: 1.4, ease: curtainEase },
   },
   exit: {
     x: "-100%",
     skewX: 2,
-    transition: { duration: 1, ease: [0.65, 0, 0.35, 1], delay: 0.2 },
+    transition: { duration: 1, ease: curtainExitEase, delay: 0.2 },
   },
 };
 
 // Right curtain - comes from right (SLOW)
-const rightCurtainVariants = {
+const rightCurtainVariants: Variants = {
   hidden: { x: "100%", skewX: 2 },
   visible: {
     x: 0,
     skewX: 0,
-    transition: { duration: 1.4, ease: [0.22, 1, 0.36, 1] },
+    transition: { duration: 1.4, ease: curtainEase },
   },
   exit: {
     x: "100%",
     skewX: -2,
-    transition: { duration: 1, ease: [0.65, 0, 0.35, 1], delay: 0.2 },
+    transition: { duration: 1, ease: curtainExitEase, delay: 0.2 },
   },
 };
 
 // Content appears after curtains close (SLOW)
-const contentVariants = {
+const contentVariants: Variants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
@@ -82,24 +85,24 @@ const contentVariants = {
 };
 
 // Individual item fade-in (SLOW)
-const itemVariants = {
+const itemVariants: Variants = {
   hidden: { opacity: 0, y: 30, filter: "blur(6px)" },
   visible: {
     opacity: 1,
     y: 0,
     filter: "blur(0px)",
-    transition: { duration: 1, ease: [0.22, 1, 0.36, 1] },
+    transition: { duration: 1, ease: curtainEase },
   },
 };
 
 // Nav link animation (SLOW)
-const navLinkVariants = {
+const navLinkVariants: Variants = {
   hidden: { opacity: 0, y: 40, filter: "blur(12px)" },
   visible: {
     opacity: 1,
     y: 0,
     filter: "blur(0px)",
-    transition: { duration: 1.2, ease: [0.22, 1, 0.36, 1] },
+    transition: { duration: 1.2, ease: curtainEase },
   },
 };
 
