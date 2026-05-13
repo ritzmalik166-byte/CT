@@ -211,8 +211,7 @@ export function HamburgerMenu({ isOpen, onClose, currentPage = "studio" }: Hambu
                 const linkPage = link.label.toLowerCase() as typeof currentPage;
                 const isCurrentPage = linkPage === currentPage;
                 const isHovered = hoveredNav === link.label;
-                const showUnderline = isCurrentPage || isHovered;
-                
+
                 return (
                   <motion.div key={link.label} variants={navLinkVariants} custom={i}>
                     <Link
@@ -229,11 +228,6 @@ export function HamburgerMenu({ isOpen, onClose, currentPage = "studio" }: Hambu
                       }`}
                     >
                       {link.label}
-                      <span
-                        className={`absolute -bottom-2 left-1/2 h-[2px] -translate-x-1/2 bg-[#AE8C20] transition-all duration-300 ${
-                          showUnderline ? "w-full" : "w-0 group-hover:w-full"
-                        }`}
-                      />
                     </Link>
                   </motion.div>
                 );

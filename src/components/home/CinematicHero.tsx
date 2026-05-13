@@ -187,7 +187,7 @@ export function CinematicHero() {
           video: {
             width: "calc(100% - 2rem)",
             height: "28svh",
-            top: "5rem",
+            top: "6.5rem",
             left: "1rem",
             borderRadius: "1.5rem",
           },
@@ -201,7 +201,7 @@ export function CinematicHero() {
           video: {
             width: "calc(100% - 4rem)",
             height: "32vh",
-            top: "5.5rem",
+            top: "7.5rem",
             left: "2rem",
             borderRadius: "2rem",
           },
@@ -215,7 +215,7 @@ export function CinematicHero() {
           video: {
             width: "85%",
             height: "38vh",
-            top: "6rem",
+            top: "8.5rem",
             left: "7.5%",
             borderRadius: "2.25rem",
           },
@@ -327,7 +327,7 @@ export function CinematicHero() {
         </div>
 
         {/* Floating particles background for the reveal section */}
-        <div className="absolute inset-x-0 top-[calc(4rem+28svh)] bottom-0 z-0 overflow-hidden sm:top-[calc(5rem+32vh)] md:top-[calc(5.5rem+36vh)]">
+        <div className="absolute inset-x-0 top-[calc(5.5rem+28svh)] bottom-0 z-0 overflow-hidden sm:top-[calc(7rem+32vh)] md:top-[calc(8rem+36vh)]">
           <FloatingParticles 
             className="absolute inset-0 h-full w-full" 
             particleCount={280}
@@ -338,7 +338,7 @@ export function CinematicHero() {
         </div>
 
         {/* Revealed content after scroll - below video */}
-        <div className="reveal-content absolute inset-x-0 bottom-0 top-[calc(5rem+30svh)] z-20 mx-auto flex w-full max-w-[1200px] flex-col items-center justify-center px-6 py-10 text-center opacity-0 sm:top-[calc(5.5rem+34vh)] md:top-[calc(6rem+39vh)] md:py-14">
+        <div className="reveal-content absolute inset-x-0 bottom-0 top-[calc(6.5rem+30svh)] z-20 mx-auto flex w-full max-w-[1200px] flex-col items-center justify-center px-6 py-10 text-center opacity-0 sm:top-[calc(7.5rem+34vh)] md:top-[calc(8.5rem+39vh)] md:py-14">
           {/* Spinning circle - top left corner (only visible when reveal-content is visible) */}
           <Image
             src="/assets/circle_revolve.png"

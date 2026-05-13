@@ -12,9 +12,9 @@ import { HamburgerMenu } from "@/components/home/HamburgerMenu";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger, SplitText);
 
-// ── Replace this URL once you deploy your Google Apps Script ──────────────────
-const GOOGLE_SCRIPT_URL = "YOUR_GOOGLE_APPS_SCRIPT_URL_HERE";
-// ─────────────────────────────────────────────────────────────────────────────
+
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycby8DOgFwRAa65kLZaBohncDPmIrzPvOP2mf3-Row9835UrUl6QknU_NoOANwivOpps9/exec";
+
 
 const SERVICES = [
   "AI Brand Films",
@@ -34,10 +34,57 @@ interface FormData {
   message: string;
 }
 
+type FormErrors = Partial<Record<keyof FormData, string>>;
+
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+const NAME_REGEX = /^[A-Za-z][A-Za-z\s.'-]{1,49}$/;
+// Allow +, spaces, dashes, parentheses, but require 7–15 digits in total
+const PHONE_DIGITS_REGEX = /^[+\d][\d\s().-]{6,18}$/;
+
+const validateField = (name: keyof FormData, value: string): string => {
+  const v = value.trim();
+  switch (name) {
+    case "fullName":
+      if (!v) return "Full name is required.";
+      if (v.length < 2) return "Name must be at least 2 characters.";
+      if (!NAME_REGEX.test(v)) return "Use letters, spaces, hyphens or apostrophes only.";
+      return "";
+    case "email":
+      if (!v) return "Email is required.";
+      if (!EMAIL_REGEX.test(v)) return "Enter a valid email address.";
+      return "";
+    case "phone":
+      if (!v) return ""; // optional
+      if (!PHONE_DIGITS_REGEX.test(v)) return "Enter a valid phone number.";
+      if ((v.match(/\d/g) || []).length < 7) return "Phone must have at least 7 digits.";
+      return "";
+    case "service":
+      if (!v) return "Please choose a service.";
+      return "";
+    case "message":
+      if (!v) return "Message is required.";
+      if (v.length < 10) return "Message must be at least 10 characters.";
+      if (v.length > 1500) return "Message is too long (max 1500 characters).";
+      return "";
+    default:
+      return "";
+  }
+};
+
+const validateAll = (form: FormData): FormErrors => {
+  const errors: FormErrors = {};
+  (Object.keys(form) as (keyof FormData)[]).forEach((k) => {
+    const msg = validateField(k, form[k]);
+    if (msg) errors[k] = msg;
+  });
+  return errors;
+};
+
 export default function ContactPage() {
   const pageRef = useRef<HTMLDivElement>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [status, setStatus] = useState<Status>("idle");
+  const [errorMsg, setErrorMsg] = useState<string>("");
   const [form, setForm] = useState<FormData>({
     fullName: "",
     email: "",
@@ -45,6 +92,8 @@ export default function ContactPage() {
     service: "",
     message: "",
   });
+  const [errors, setErrors] = useState<FormErrors>({});
+  const [touched, setTouched] = useState<Partial<Record<keyof FormData, boolean>>>({});
 
   useGSAP(
     () => {
@@ -142,37 +191,104 @@ export default function ContactPage() {
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
   ) => {
-    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    const name = e.target.name as keyof FormData;
+    const value = e.target.value;
+    setForm((prev) => ({ ...prev, [name]: value }));
+    // Re-validate live only if the user already touched the field
+    if (touched[name]) {
+      setErrors((prev) => ({ ...prev, [name]: validateField(name, value) }));
+    }
+  };
+
+  const handleBlur = (
+    e: React.FocusEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+  ) => {
+    const name = e.target.name as keyof FormData;
+    setTouched((prev) => ({ ...prev, [name]: true }));
+    setErrors((prev) => ({ ...prev, [name]: validateField(name, e.target.value) }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validate everything and surface errors
+    const allErrors = validateAll(form);
+    setErrors(allErrors);
+    setTouched({
+      fullName: true,
+      email: true,
+      phone: true,
+      service: true,
+      message: true,
+    });
+
+    if (Object.keys(allErrors).length > 0) {
+      setStatus("error");
+      setErrorMsg("Please fix the highlighted fields and try again.");
+      // Focus the first invalid field
+      const firstInvalid = (Object.keys(allErrors) as (keyof FormData)[])[0];
+      const el = document.querySelector<HTMLElement>(`[name="${firstInvalid}"]`);
+      el?.focus();
+      return;
+    }
+
     setStatus("loading");
+    setErrorMsg("");
 
     try {
-      const params = new URLSearchParams({
-        fullName: form.fullName,
-        email: form.email,
-        phone: form.phone,
-        service: form.service,
-        message: form.message,
+      // Field names match what the Google Apps Script doPost expects:
+      // fullName, email, subject (= service), message, contactNumber (= phone).
+      const payload = {
+        fullName: form.fullName.trim(),
+        email: form.email.trim(),
+        contactNumber: form.phone.trim(),
+        subject: form.service,
+        message: form.message.trim(),
         timestamp: new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" }),
+        source: typeof window !== "undefined" ? window.location.href : "contact-page",
+      };
+
+      // POST as text/plain — Apps Script reads it via e.postData.contents.
+      // text/plain avoids the CORS preflight, while no-cors keeps the request fire-and-forget.
+      await fetch(GOOGLE_SCRIPT_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(payload),
       });
 
-      await fetch(`${GOOGLE_SCRIPT_URL}?${params.toString()}`, {
-        method: "GET",
-        mode: "no-cors",
-      });
+      // eslint-disable-next-line no-console
+      console.info("[contact] lead submitted", payload);
 
       setStatus("success");
+      setErrorMsg("");
       setForm({ fullName: "", email: "", phone: "", service: "", message: "" });
-    } catch {
+      setErrors({});
+      setTouched({});
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error("[contact] submission failed", err);
       setStatus("error");
+      setErrorMsg("Could not reach our server. Check your network and try again.");
     }
   };
 
   const inputBase =
     "w-full rounded-2xl border border-zinc-800 bg-zinc-900/60 px-5 py-4 text-sm text-white placeholder-zinc-500 backdrop-blur-sm transition-all duration-300 outline-none focus:border-[#AE8C20]/70 focus:bg-zinc-900 focus:ring-2 focus:ring-[#AE8C20]/20 hover:border-zinc-700";
+  const errorClasses = "border-red-500/70 focus:border-red-500 focus:ring-red-500/20";
+
+  const fieldClass = (key: keyof FormData, extra = "") =>
+    `${inputBase} ${errors[key] ? errorClasses : ""} ${extra}`.trim();
+
+  const FieldError = ({ name }: { name: keyof FormData }) =>
+    errors[name] ? (
+      <p className="mt-2 flex items-start gap-1.5 text-xs text-red-400">
+        <svg className="mt-0.5 h-3.5 w-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
+        </svg>
+        {errors[name]}
+      </p>
+    ) : null;
 
   return (
     <div ref={pageRef} className="relative bg-zinc-950 text-white">
@@ -353,62 +469,86 @@ export default function ContactPage() {
               <div className="relative grid gap-5">
                 {/* Row 1 — Full name */}
                 <div className="form-field">
-                  <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.25em] text-zinc-500">
+                  <label htmlFor="fullName" className="mb-2 block text-[10px] font-bold uppercase tracking-[0.25em] text-zinc-500">
                     Full Name <span className="text-[#AE8C20]">*</span>
                   </label>
                   <input
+                    id="fullName"
                     name="fullName"
                     value={form.fullName}
                     onChange={handleChange}
+                    onBlur={handleBlur}
                     required
+                    autoComplete="name"
+                    maxLength={60}
+                    aria-invalid={!!errors.fullName}
+                    aria-describedby={errors.fullName ? "fullName-error" : undefined}
                     placeholder="Your full name"
-                    className={inputBase}
+                    className={fieldClass("fullName")}
                   />
+                  <FieldError name="fullName" />
                 </div>
 
                 {/* Row 2 — Email + Phone */}
                 <div className="form-field grid gap-5 sm:grid-cols-2">
                   <div>
-                    <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.25em] text-zinc-500">
+                    <label htmlFor="email" className="mb-2 block text-[10px] font-bold uppercase tracking-[0.25em] text-zinc-500">
                       Email Address <span className="text-[#AE8C20]">*</span>
                     </label>
                     <input
+                      id="email"
                       name="email"
                       type="email"
                       value={form.email}
                       onChange={handleChange}
+                      onBlur={handleBlur}
                       required
+                      autoComplete="email"
+                      inputMode="email"
+                      maxLength={100}
+                      aria-invalid={!!errors.email}
                       placeholder="you@example.com"
-                      className={inputBase}
+                      className={fieldClass("email")}
                     />
+                    <FieldError name="email" />
                   </div>
                   <div>
-                    <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.25em] text-zinc-500">
+                    <label htmlFor="phone" className="mb-2 block text-[10px] font-bold uppercase tracking-[0.25em] text-zinc-500">
                       Contact Number
                     </label>
                     <input
+                      id="phone"
                       name="phone"
                       type="tel"
                       value={form.phone}
                       onChange={handleChange}
+                      onBlur={handleBlur}
+                      autoComplete="tel"
+                      inputMode="tel"
+                      maxLength={20}
+                      aria-invalid={!!errors.phone}
                       placeholder="+91 98765 43210"
-                      className={inputBase}
+                      className={fieldClass("phone")}
                     />
+                    <FieldError name="phone" />
                   </div>
                 </div>
 
                 {/* Row 3 — Service Interest */}
                 <div className="form-field">
-                  <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.25em] text-zinc-500">
+                  <label htmlFor="service" className="mb-2 block text-[10px] font-bold uppercase tracking-[0.25em] text-zinc-500">
                     Service Interest <span className="text-[#AE8C20]">*</span>
                   </label>
                   <div className="relative">
                     <select
+                      id="service"
                       name="service"
                       value={form.service}
                       onChange={handleChange}
+                      onBlur={handleBlur}
                       required
-                      className={`${inputBase} cursor-pointer appearance-none pr-12`}
+                      aria-invalid={!!errors.service}
+                      className={fieldClass("service", "cursor-pointer appearance-none pr-12")}
                     >
                       <option value="" disabled>Select a service</option>
                       {SERVICES.map((s) => (
@@ -427,22 +567,33 @@ export default function ContactPage() {
                       <path strokeLinecap="round" strokeLinejoin="round" d="M6 9l6 6 6-6" />
                     </svg>
                   </div>
+                  <FieldError name="service" />
                 </div>
 
                 {/* Row 4 — Message */}
                 <div className="form-field">
-                  <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.25em] text-zinc-500">
+                  <label htmlFor="message" className="mb-2 block text-[10px] font-bold uppercase tracking-[0.25em] text-zinc-500">
                     Enquiry Message <span className="text-[#AE8C20]">*</span>
                   </label>
                   <textarea
+                    id="message"
                     name="message"
                     value={form.message}
                     onChange={handleChange}
+                    onBlur={handleBlur}
                     required
                     rows={6}
+                    maxLength={1500}
+                    aria-invalid={!!errors.message}
                     placeholder="Tell us about your project, goals, and timeline…"
-                    className={`${inputBase} resize-none`}
+                    className={fieldClass("message", "resize-none")}
                   />
+                  <div className="mt-1 flex items-center justify-between">
+                    <FieldError name="message" />
+                    <span className="ml-auto text-[10px] text-zinc-500">
+                      {form.message.length}/1500
+                    </span>
+                  </div>
                 </div>
 
                 {/* Submit */}
@@ -489,7 +640,7 @@ export default function ContactPage() {
                       <svg className="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
                       </svg>
-                      Something went wrong. Please try again or email us directly.
+                      {errorMsg || "Something went wrong. Please try again or email us directly."}
                     </div>
                   )}
                 </div>
