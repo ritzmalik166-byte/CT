@@ -72,7 +72,7 @@ export function CTAFooter() {
   return (
     <section ref={sectionRef} className="relative bg-zinc-950">
       {/* Dotted SVG background area above the footer */}
-      <div className="relative w-full h-[400px] sm:h-[480px] md:h-[550px]">
+      <div className="relative w-full h-[320px] sm:h-[480px] md:h-[550px]">
         {/* Dotted SVG */}
         <Image
           src="/assets/dotted.svg"
@@ -85,18 +85,18 @@ export function CTAFooter() {
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-zinc-950 to-transparent" />
 
         {/* AI Icons marquee — floats on the dotted surface */}
-        <div className="absolute inset-x-0 top-[28%] -translate-y-1/2">
+        <div className="absolute inset-x-0 top-[22%] -translate-y-1/2 sm:top-[28%]">
           <AIIconsMarquee />
         </div>
       </div>
 
       {/* Footer container with rounded top corners */}
-      <div className="relative -mt-32 sm:-mt-40 md:-mt-48 mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8">
+      <div className="relative -mt-24 sm:-mt-40 md:-mt-48 mx-auto max-w-[1440px] px-3 sm:px-6 lg:px-8">
         <footer
-          className="footer-container relative overflow-hidden rounded-t-[60px] sm:rounded-t-[80px] md:rounded-t-[100px] lg:rounded-t-[120px]"
+          className="footer-container relative overflow-hidden rounded-t-[40px] sm:rounded-t-[80px] md:rounded-t-[100px] lg:rounded-t-[120px]"
           style={{
             background: "rgba(17, 17, 19, 0.90)",
-            minHeight: "450px",
+            minHeight: "420px",
           }}
         >
           {/* Waves background */}
@@ -123,10 +123,10 @@ export function CTAFooter() {
           />
 
           {/* Footer content */}
-          <div className="relative z-10 px-6 pt-12 pb-6 sm:px-10 sm:pt-16 md:px-14 md:pt-20 lg:px-20">
-            <div className="flex flex-col gap-10 lg:flex-row lg:items-start lg:justify-between">
+          <div className="relative z-10 px-5 pt-10 pb-6 sm:px-10 sm:pt-16 md:px-14 md:pt-20 lg:px-20">
+            <div className="flex flex-col gap-8 lg:flex-row lg:items-start lg:justify-between">
               {/* Navigation links */}
-              <div className="grid grid-cols-2 gap-x-12 gap-y-3 sm:gap-x-16">
+              <div className="grid grid-cols-2 gap-x-8 gap-y-2.5 sm:gap-x-16">
                 {NAV_LINKS.map((link) => (
                   <Link
                     key={link.label}
@@ -143,17 +143,17 @@ export function CTAFooter() {
                 <p className="text-base text-white sm:text-lg">
                   Still have a questions
                 </p>
-                <form onSubmit={handleSubmit} className="mt-4 flex flex-col gap-3 sm:flex-row">
+                <form onSubmit={handleSubmit} className="mt-3 flex flex-col gap-2.5 sm:mt-4 sm:flex-row sm:gap-3">
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="Enter Your Email..."
-                    className="h-[50px] flex-1 rounded-full border-2 border-white bg-white px-6 text-sm text-zinc-900 placeholder:text-zinc-500 outline-none transition-all duration-300 focus:border-[#AE8C20] focus:ring-2 focus:ring-[#AE8C20]/30"
+                    className="h-[46px] flex-1 rounded-full border-2 border-white bg-white px-5 text-sm text-zinc-900 placeholder:text-zinc-500 outline-none transition-all duration-300 focus:border-[#AE8C20] focus:ring-2 focus:ring-[#AE8C20]/30 sm:h-[50px] sm:px-6"
                   />
                   <button
                     type="submit"
-                    className="h-[50px] shrink-0 rounded-full bg-[#AE8C20] px-8 text-sm font-semibold text-white shadow-[0_8px_20px_rgba(174,140,32,0.35)] transition-all duration-300 hover:bg-[#C9A730] hover:shadow-[0_12px_28px_rgba(174,140,32,0.45)]"
+                    className="h-[46px] shrink-0 rounded-full bg-[#AE8C20] px-6 text-sm font-semibold text-white shadow-[0_8px_20px_rgba(174,140,32,0.35)] transition-all duration-300 hover:bg-[#C9A730] hover:shadow-[0_12px_28px_rgba(174,140,32,0.45)] sm:h-[50px] sm:px-8"
                   >
                     send us
                   </button>
@@ -178,11 +178,11 @@ export function CTAFooter() {
             </h2>
 
             {/* Bottom bar */}
-            <div className="mt-8 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-6 sm:mt-10 md:flex-row">
-              <p className="text-sm text-white/60">
+            <div className="mt-8 flex flex-col items-center justify-between gap-3 border-t border-white/10 pt-6 text-center sm:mt-10 sm:gap-4 md:flex-row md:text-left">
+              <p className="text-xs text-white/60 sm:text-sm">
                 © {new Date().getFullYear()} Contenaissance. All rights reserved.
               </p>
-              <div className="flex flex-wrap items-center justify-center gap-4 text-sm text-white/60 sm:gap-6">
+              <div className="flex flex-wrap items-center justify-center gap-3 text-xs text-white/60 sm:gap-6 sm:text-sm">
                 <Link
                   href="#privacy"
                   className="transition-colors duration-300 hover:text-white"

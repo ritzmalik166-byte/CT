@@ -354,7 +354,7 @@ export default function ServicesPage() {
       <HamburgerMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} currentPage="services" />
 
       {/* Fixed Header */}
-      <header className="fixed left-0 right-0 top-0 z-50 px-6 py-5 md:px-10 md:py-6">
+      <header className="fixed left-0 right-0 top-0 z-50 px-4 py-4 sm:px-6 sm:py-5 md:px-10 md:py-6">
         <div className="mx-auto flex max-w-[1400px] items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5">
             <Image
@@ -362,7 +362,7 @@ export default function ServicesPage() {
               alt="Contenaissance"
               width={220}
               height={66}
-              className="h-14 w-auto md:h-16"
+              className="h-10 w-auto sm:h-12 md:h-16"
               priority
             />
           </Link>
@@ -374,7 +374,7 @@ export default function ServicesPage() {
         type="button"
         aria-label={menuOpen ? "Close menu" : "Open menu"}
         onClick={() => setMenuOpen((v) => !v)}
-        className="group fixed right-5 top-5 z-[110] flex h-12 w-12 items-center justify-center rounded-full border border-zinc-700 bg-zinc-900/90 text-white shadow-[0_12px_30px_rgba(0,0,0,0.25)] backdrop-blur-md transition-all duration-300 hover:border-[#AE8C20]/50 hover:bg-[#AE8C20] hover:shadow-[0_16px_40px_rgba(174,140,32,0.35)] md:right-9 md:top-6 md:h-14 md:w-14"
+        className="group fixed right-4 top-4 z-[110] flex h-10 w-10 items-center justify-center rounded-full border border-zinc-700 bg-zinc-900/90 text-white shadow-[0_12px_30px_rgba(0,0,0,0.25)] backdrop-blur-md transition-all duration-300 hover:border-[#AE8C20]/50 hover:bg-[#AE8C20] hover:shadow-[0_16px_40px_rgba(174,140,32,0.35)] sm:right-5 sm:top-5 sm:h-12 sm:w-12 md:right-9 md:top-6 md:h-14 md:w-14"
       >
         {menuOpen ? (
           <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
@@ -391,7 +391,7 @@ export default function ServicesPage() {
       </button>
 
       {/* Hero Section - Dark */}
-      <section className="relative flex h-[70vh] items-end justify-center overflow-hidden bg-zinc-950 pb-16 md:h-[80vh] md:pb-20">
+      <section className="relative flex h-[60vh] min-h-[420px] items-end justify-center overflow-hidden bg-zinc-950 px-4 pb-12 sm:h-[70vh] sm:px-6 sm:pb-16 md:h-[80vh] md:pb-20">
         {/* Video Background */}
         <div className="absolute inset-0">
           <video
@@ -406,7 +406,7 @@ export default function ServicesPage() {
           <div className="absolute inset-0 bg-gradient-to-b from-zinc-950/70 via-zinc-950/50 to-zinc-950" />
         </div>
 
-        <h1 className="hero-title relative z-10 text-center text-6xl font-bold tracking-tight text-white sm:text-7xl md:text-8xl lg:text-9xl">
+        <h1 className="hero-title relative z-10 text-center text-[clamp(2.75rem,12vw,9rem)] font-bold leading-[0.95] tracking-tight text-white">
           AI Services
         </h1>
       </section>
@@ -449,10 +449,10 @@ export default function ServicesPage() {
               </div>
 
               {/* Content */}
-              <div className="relative z-10 mx-auto max-w-[1400px] px-6 py-24 md:px-10 md:py-32 lg:py-40">
+              <div className="relative z-10 mx-auto max-w-[1400px] px-4 py-20 sm:px-6 sm:py-24 md:px-10 md:py-32 lg:py-40">
                 {/* Service Title */}
                 <h2
-                  className={`service-title mb-16 text-5xl font-bold tracking-tight sm:text-6xl md:mb-20 md:text-7xl lg:text-8xl ${
+                  className={`service-title mb-10 text-[clamp(2.25rem,8vw,7rem)] font-bold leading-[0.95] tracking-tight sm:mb-14 md:mb-20 ${
                     isDark ? "text-white" : "text-zinc-950"
                   }`}
                   style={{ perspective: "1000px" }}
@@ -461,13 +461,13 @@ export default function ServicesPage() {
                 </h2>
 
                 {/* Content Grid */}
-                <div className="grid gap-12 md:grid-cols-[280px_1fr] md:gap-16 lg:grid-cols-[320px_1fr] lg:gap-24">
+                <div className="grid gap-8 md:grid-cols-[260px_1fr] md:gap-12 lg:grid-cols-[320px_1fr] lg:gap-24">
                   {/* Features List */}
-                  <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-1 md:space-y-4">
                     {service.features.map((feature, i) => (
                       <div
                         key={i}
-                        className="service-feature text-xs font-bold uppercase tracking-[0.15em] text-[#AE8C20] md:text-sm"
+                        className="service-feature text-[10px] font-bold uppercase tracking-[0.15em] text-[#AE8C20] sm:text-xs md:text-sm"
                       >
                         {feature}
                       </div>
@@ -475,7 +475,7 @@ export default function ServicesPage() {
                   </div>
 
                   {/* Paragraphs */}
-                  <div className="space-y-6 md:space-y-8">
+                  <div className="space-y-5 md:space-y-8">
                     {service.paragraphs.map((para, i) => (
                       <p
                         key={i}
@@ -505,7 +505,7 @@ export default function ServicesPage() {
 
             {/* Video Showcase - appears after certain sections */}
             {showVideoShowcase && VIDEO_SHOWCASES[showcaseIndex] && (
-              <section className="video-showcase relative h-[70vh] overflow-hidden md:h-[80vh]">
+              <section className="video-showcase relative h-[55vh] min-h-[380px] overflow-hidden sm:h-[70vh] md:h-[80vh]">
                 {/* Full-screen video with zoom */}
                 <div className="absolute inset-0 overflow-hidden">
                   <video
@@ -521,21 +521,21 @@ export default function ServicesPage() {
                 </div>
 
                 {/* Centered text overlay */}
-                <div className="relative z-10 flex h-full flex-col items-center justify-center px-6 text-center">
+                <div className="relative z-10 flex h-full flex-col items-center justify-center px-4 text-center sm:px-6">
                   <h3
-                    className="showcase-title text-4xl font-bold tracking-tight text-white sm:text-5xl md:text-6xl lg:text-7xl"
+                    className="showcase-title text-[clamp(2rem,7vw,5rem)] font-bold leading-[1.05] tracking-tight text-white"
                     style={{ perspective: "1000px" }}
                   >
                     {VIDEO_SHOWCASES[showcaseIndex].title}
                   </h3>
-                  <p className="showcase-subtitle mt-4 text-lg text-white/70 md:mt-6 md:text-xl">
+                  <p className="showcase-subtitle mt-3 text-sm text-white/70 sm:mt-4 sm:text-base md:mt-6 md:text-xl">
                     {VIDEO_SHOWCASES[showcaseIndex].subtitle}
                   </p>
                 </div>
 
                 {/* Corner accent lines */}
-                <div className="pointer-events-none absolute left-8 top-8 h-20 w-20 border-l-2 border-t-2 border-[#AE8C20]/40 md:left-12 md:top-12" />
-                <div className="pointer-events-none absolute bottom-8 right-8 h-20 w-20 border-b-2 border-r-2 border-[#AE8C20]/40 md:bottom-12 md:right-12" />
+                <div className="pointer-events-none absolute left-4 top-4 h-12 w-12 border-l-2 border-t-2 border-[#AE8C20]/40 sm:left-8 sm:top-8 sm:h-20 sm:w-20 md:left-12 md:top-12" />
+                <div className="pointer-events-none absolute bottom-4 right-4 h-12 w-12 border-b-2 border-r-2 border-[#AE8C20]/40 sm:bottom-8 sm:right-8 sm:h-20 sm:w-20 md:bottom-12 md:right-12" />
               </section>
             )}
           </div>
@@ -548,7 +548,7 @@ export default function ServicesPage() {
       {/* Scroll to Top Button */}
       <button
         onClick={scrollToTop}
-        className="scroll-top-btn fixed bottom-8 right-8 z-50 flex h-12 w-12 items-center justify-center rounded-full border border-[#AE8C20]/50 bg-zinc-900/90 text-white opacity-0 backdrop-blur-md transition-all hover:border-[#AE8C20] hover:bg-[#AE8C20] hover:text-zinc-950"
+        className="scroll-top-btn fixed bottom-4 right-4 z-50 flex h-11 w-11 items-center justify-center rounded-full border border-[#AE8C20]/50 bg-zinc-900/90 text-white opacity-0 backdrop-blur-md transition-all hover:border-[#AE8C20] hover:bg-[#AE8C20] hover:text-zinc-950 sm:bottom-8 sm:right-8 sm:h-12 sm:w-12"
         style={{ pointerEvents: "none" }}
       >
         <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>

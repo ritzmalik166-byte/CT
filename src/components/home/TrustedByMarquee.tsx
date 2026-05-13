@@ -6,6 +6,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Image from "next/image";
 import { useRef, useState, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
+import { FloatingParticles } from "@/components/ui/FloatingParticles";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
@@ -230,7 +231,19 @@ export function TrustedByMarquee() {
       {/* Subtle gradient background */}
       <div className="absolute inset-0 bg-gradient-to-b from-zinc-50/50 to-white" />
 
-      <div className="relative mx-auto max-w-[1400px]">
+      {/* Golden floating particles */}
+      <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
+        <FloatingParticles
+          className="absolute inset-0 h-full w-full"
+          particleCount={140}
+          colors={["#AE8C20"]}
+          mouseRadius={180}
+          attractStrength={1.2}
+          speed={0.35}
+        />
+      </div>
+
+      <div className="relative z-10 mx-auto max-w-[1400px]">
         <p className="marquee-title text-center text-sm font-medium uppercase tracking-[0.2em] text-zinc-400">
           Trusted by innovative teams worldwide
         </p>
@@ -238,7 +251,7 @@ export function TrustedByMarquee() {
 
       <div 
         ref={marqueeRef} 
-        className="marquee-container mt-12 md:mt-16"
+        className="marquee-container relative z-10 mt-12 md:mt-16"
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >

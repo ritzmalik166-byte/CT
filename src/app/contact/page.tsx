@@ -295,7 +295,7 @@ export default function ContactPage() {
       <HamburgerMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} currentPage="contact" />
 
       {/* Fixed header */}
-      <header className="fixed left-0 right-0 top-0 z-50 px-6 py-5 md:px-10 md:py-6">
+      <header className="fixed left-0 right-0 top-0 z-50 px-4 py-4 sm:px-6 sm:py-5 md:px-10 md:py-6">
         <div className="mx-auto flex max-w-[1400px] items-center justify-between">
           <Link href="/" className="flex items-center">
             <Image
@@ -303,7 +303,7 @@ export default function ContactPage() {
               alt="Contenaissance"
               width={220}
               height={66}
-              className="h-14 w-auto md:h-16"
+              className="h-10 w-auto sm:h-12 md:h-16"
               priority
             />
           </Link>
@@ -315,7 +315,7 @@ export default function ContactPage() {
         type="button"
         aria-label={menuOpen ? "Close menu" : "Open menu"}
         onClick={() => setMenuOpen((v) => !v)}
-        className="group fixed right-5 top-5 z-[110] flex h-12 w-12 items-center justify-center rounded-full border border-zinc-700 bg-zinc-900/90 text-white shadow-[0_12px_30px_rgba(0,0,0,0.25)] backdrop-blur-md transition-all duration-300 hover:border-[#AE8C20]/50 hover:bg-[#AE8C20] md:right-9 md:top-6 md:h-14 md:w-14"
+        className="group fixed right-4 top-4 z-[110] flex h-10 w-10 items-center justify-center rounded-full border border-zinc-700 bg-zinc-900/90 text-white shadow-[0_12px_30px_rgba(0,0,0,0.25)] backdrop-blur-md transition-all duration-300 hover:border-[#AE8C20]/50 hover:bg-[#AE8C20] sm:right-5 sm:top-5 sm:h-12 sm:w-12 md:right-9 md:top-6 md:h-14 md:w-14"
       >
         {menuOpen ? (
           <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
@@ -332,7 +332,7 @@ export default function ContactPage() {
       </button>
 
       {/* ── HERO ─────────────────────────────────────────────────────── */}
-      <section className="relative px-6 pb-16 pt-36 md:px-10 md:pb-24 md:pt-48">
+      <section className="relative px-4 pb-14 pt-28 sm:px-6 sm:pb-16 sm:pt-36 md:px-10 md:pb-24 md:pt-48">
         {/* Background glows */}
         <div className="pointer-events-none absolute inset-0">
           <div className="absolute left-1/2 top-0 h-[700px] w-[700px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#AE8C20]/10 blur-[160px]" />
@@ -349,11 +349,11 @@ export default function ContactPage() {
         />
 
         <div className="relative z-10 mx-auto max-w-[1400px]">
-          <p className="mb-5 text-xs font-bold uppercase tracking-[0.35em] text-[#AE8C20]">
+          <p className="mb-4 text-[10px] font-bold uppercase tracking-[0.35em] text-[#AE8C20] sm:mb-5 sm:text-xs">
             Get in Touch
           </p>
           <h1
-            className="overflow-visible text-[clamp(3.5rem,11vw,9.5rem)] font-bold leading-[1] tracking-[-0.07em]"
+            className="overflow-visible text-[clamp(2.75rem,11vw,9.5rem)] font-bold leading-[1] tracking-[-0.07em]"
             style={{ perspective: "800px" }}
           >
             <span className="contact-title-line1 block pb-1">Let&apos;s Build</span>
@@ -362,19 +362,19 @@ export default function ContactPage() {
             </span>
           </h1>
 
-          <p className="contact-sub mt-8 max-w-xl text-sm leading-loose text-zinc-400 md:text-base">
+          <p className="contact-sub mt-6 max-w-xl text-sm leading-loose text-zinc-400 sm:mt-8 md:text-base">
             Tell us about your project and we&apos;ll get back to you within 24 hours. Let&apos;s create something extraordinary.
           </p>
         </div>
       </section>
 
       {/* ── MAIN CONTENT ─────────────────────────────────────────────── */}
-      <section className="relative px-6 pb-24 md:px-10 md:pb-32">
+      <section className="relative px-4 pb-20 sm:px-6 sm:pb-24 md:px-10 md:pb-32">
         <div className="mx-auto max-w-[1400px]">
-          <div className="grid gap-12 lg:grid-cols-[380px_1fr] lg:gap-20 xl:grid-cols-[440px_1fr]">
+          <div className="grid gap-10 lg:grid-cols-[380px_1fr] lg:gap-20 xl:grid-cols-[440px_1fr]">
 
             {/* LEFT — Contact Info */}
-            <div className="flex flex-col gap-8">
+            <div className="flex flex-col gap-6 sm:gap-8">
               {/* Info cards */}
               {[
                 {
@@ -408,16 +408,16 @@ export default function ContactPage() {
               ].map((item) => (
                 <div
                   key={item.label}
-                  className="contact-info-item flex items-start gap-4 rounded-2xl border border-zinc-800/60 bg-zinc-900/40 px-6 py-5 backdrop-blur-sm"
+                  className="contact-info-item flex items-start gap-3 rounded-2xl border border-zinc-800/60 bg-zinc-900/40 px-4 py-4 backdrop-blur-sm sm:gap-4 sm:px-6 sm:py-5"
                 >
-                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-[#AE8C20]/30 bg-[#AE8C20]/10 text-[#AE8C20]">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[#AE8C20]/30 bg-[#AE8C20]/10 text-[#AE8C20] sm:h-11 sm:w-11">
                     {item.icon}
                   </span>
-                  <div>
+                  <div className="min-w-0">
                     <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-zinc-500">
                       {item.label}
                     </p>
-                    <p className="mt-1 text-sm font-medium text-white">{item.value}</p>
+                    <p className="mt-1 break-words text-sm font-medium text-white">{item.value}</p>
                   </div>
                 </div>
               ))}
@@ -461,7 +461,7 @@ export default function ContactPage() {
             {/* RIGHT — Form */}
             <form
               onSubmit={handleSubmit}
-              className="contact-form relative rounded-[2rem] border border-zinc-800/60 bg-zinc-900/30 p-7 backdrop-blur-sm md:p-10"
+              className="contact-form relative rounded-2xl border border-zinc-800/60 bg-zinc-900/30 p-5 backdrop-blur-sm sm:rounded-[2rem] sm:p-7 md:p-10"
             >
               {/* Glow inside form */}
               <div className="pointer-events-none absolute right-0 top-0 h-64 w-64 translate-x-1/3 -translate-y-1/3 rounded-full bg-[#AE8C20]/6 blur-[100px]" />

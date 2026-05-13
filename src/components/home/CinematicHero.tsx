@@ -238,13 +238,13 @@ export function CinematicHero() {
       />
 
       {/* Persistent logo - fixed to viewport, always visible */}
-      <Link href="/" className="fixed left-5 top-5 z-[110] md:left-9 md:top-6">
+      <Link href="/" className="fixed left-4 top-4 z-[110] sm:left-5 sm:top-5 md:left-9 md:top-6">
         <Image
           src="/assets/favicon.png"
           alt="Contenaissance"
           width={220}
           height={66}
-          className="h-14 w-auto md:h-16"
+          className="h-10 w-auto sm:h-12 md:h-16"
           priority
         />
       </Link>
@@ -254,7 +254,7 @@ export function CinematicHero() {
         type="button"
         aria-label={menuOpen ? "Close menu" : "Open menu"}
         onClick={() => setMenuOpen((v) => !v)}
-        className="group fixed right-5 top-5 z-[110] flex h-12 w-12 items-center justify-center rounded-full border border-zinc-700 bg-zinc-900/90 text-white shadow-[0_12px_30px_rgba(0,0,0,0.25)] backdrop-blur-md transition-all duration-300 hover:border-[#AE8C20]/50 hover:bg-[#AE8C20] hover:shadow-[0_16px_40px_rgba(174,140,32,0.35)] md:right-9 md:top-6 md:h-14 md:w-14"
+        className="group fixed right-4 top-4 z-[110] flex h-10 w-10 items-center justify-center rounded-full border border-zinc-700 bg-zinc-900/90 text-white shadow-[0_12px_30px_rgba(0,0,0,0.25)] backdrop-blur-md transition-all duration-300 hover:border-[#AE8C20]/50 hover:bg-[#AE8C20] hover:shadow-[0_16px_40px_rgba(174,140,32,0.35)] sm:right-5 sm:top-5 sm:h-12 sm:w-12 md:right-9 md:top-6 md:h-14 md:w-14"
       >
         {menuOpen ? (
           <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
@@ -306,12 +306,12 @@ export function CinematicHero() {
         </div>
 
         {/* Spacer header — keeps hero layout balanced without duplicate logo */}
-        <header className="hero-nav absolute left-0 right-0 top-0 z-40 px-5 py-5 md:px-9 md:py-6">
+        <header className="hero-nav absolute left-0 right-0 top-0 z-40 px-4 py-4 sm:px-5 sm:py-5 md:px-9 md:py-6">
           <div className="mx-auto flex w-full max-w-[1400px] items-center justify-between">
             {/* Logo placeholder (actual logo is fixed above) */}
-            <span aria-hidden className="h-14 w-auto md:h-16" />
+            <span aria-hidden className="h-10 w-auto sm:h-12 md:h-16" />
             {/* Spacer to keep grid balance */}
-            <span aria-hidden className="h-12 w-12 md:h-14 md:w-14" />
+            <span aria-hidden className="h-10 w-10 sm:h-12 sm:w-12 md:h-14 md:w-14" />
           </div>
         </header>
 
@@ -338,27 +338,27 @@ export function CinematicHero() {
         </div>
 
         {/* Revealed content after scroll - below video */}
-        <div className="reveal-content absolute inset-x-0 bottom-0 top-[calc(6.5rem+30svh)] z-20 mx-auto flex w-full max-w-[1200px] flex-col items-center justify-center px-6 py-10 text-center opacity-0 sm:top-[calc(7.5rem+34vh)] md:top-[calc(8.5rem+39vh)] md:py-14">
+        <div className="reveal-content absolute inset-x-0 bottom-0 top-[calc(6.5rem+30svh)] z-20 mx-auto flex w-full max-w-[1200px] flex-col items-center justify-center px-4 py-8 text-center opacity-0 sm:top-[calc(7.5rem+34vh)] sm:px-6 sm:py-10 md:top-[calc(8.5rem+39vh)] md:py-14">
           {/* Spinning circle - top left corner (only visible when reveal-content is visible) */}
           <Image
             src="/assets/circle_revolve.png"
             alt=""
             width={180}
             height={180}
-            className="pointer-events-none absolute left-0 top-4 h-24 w-24 animate-spin-slow sm:left-2 sm:top-8 sm:h-28 sm:w-28 md:left-4 md:top-10 md:h-25 md:w-25 lg:left-8"
+            className="pointer-events-none absolute left-0 top-2 h-16 w-16 animate-spin-slow sm:left-2 sm:top-8 sm:h-24 sm:w-24 md:left-4 md:top-10 md:h-28 md:w-28 lg:left-8"
           />
-          <p className="reveal-tagline text-xl font-medium tracking-tight text-zinc-600 md:text-3xl">
+          <p className="reveal-tagline text-base font-medium tracking-tight text-zinc-600 sm:text-xl md:text-3xl">
             &ldquo;AI is changing so fast in 2026&rdquo;
           </p>
-          <div className="reveal-headline relative mt-6 flex items-center justify-center md:mt-8">
-            <h2 className="relative z-10 max-w-5xl text-[clamp(3rem,9vw,7.25rem)] font-bold leading-[0.88] tracking-[-0.06em] text-zinc-950">
+          <div className="reveal-headline relative mt-4 flex items-center justify-center sm:mt-6 md:mt-8">
+            <h2 className="relative z-10 max-w-5xl text-[clamp(2.5rem,9vw,7.25rem)] font-bold leading-[0.88] tracking-[-0.06em] text-zinc-950">
               But are you?
             </h2>
           </div>
           <Link
             ref={ctaButtonRef}
             href="#portfolio"
-            className="reveal-cta group relative mt-12 inline-flex items-center gap-3 overflow-hidden rounded-full bg-zinc-950 px-7 py-3 text-[0.68rem] font-bold uppercase tracking-[0.22em] text-white transition-all duration-300 hover:scale-105 hover:shadow-[0_0_30px_rgba(174,140,32,0.4)] md:mt-16"
+            className="reveal-cta group relative mt-8 inline-flex items-center gap-3 overflow-hidden rounded-full bg-zinc-950 px-6 py-3 text-[0.62rem] font-bold uppercase tracking-[0.22em] text-white transition-all duration-300 hover:scale-105 hover:shadow-[0_0_30px_rgba(174,140,32,0.4)] sm:mt-12 sm:px-7 sm:text-[0.68rem] md:mt-16"
           >
             <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-[#AE8C20] to-transparent opacity-0 transition-all duration-500 group-hover:translate-x-full group-hover:opacity-100" />
             <span className="absolute inset-0 bg-gradient-to-r from-[#AE8C20] via-[#D4AF37] to-[#AE8C20] opacity-0 transition-opacity duration-300 group-hover:opacity-100" />

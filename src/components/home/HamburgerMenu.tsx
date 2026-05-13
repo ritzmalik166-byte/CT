@@ -191,7 +191,7 @@ export function HamburgerMenu({ isOpen, onClose, currentPage = "studio" }: Hambu
             {/* Logo at top */}
             <motion.div
               variants={itemVariants}
-              className="absolute left-6 top-6 md:left-10 md:top-8"
+              className="absolute left-4 top-4 sm:left-6 sm:top-6 md:left-10 md:top-8"
             >
               <Link href="/" onClick={onClose} className="flex items-center gap-2.5">
                 <Image
@@ -199,7 +199,7 @@ export function HamburgerMenu({ isOpen, onClose, currentPage = "studio" }: Hambu
                   alt="Contenaissance"
                   width={200}
                   height={60}
-                  className="h-14 w-auto sm:h-16 md:h-20"
+                  className="h-10 w-auto sm:h-14 md:h-20"
                   priority
                 />
               </Link>
@@ -234,10 +234,10 @@ export function HamburgerMenu({ isOpen, onClose, currentPage = "studio" }: Hambu
               })}
             </nav>
 
-            {/* Language selector - bottom left */}
+            {/* Language selector - bottom left (hidden on mobile) */}
             <motion.div
               variants={itemVariants}
-              className="absolute bottom-8 left-6 md:bottom-10 md:left-10"
+              className="absolute bottom-6 left-4 hidden sm:block sm:bottom-8 sm:left-6 md:bottom-10 md:left-10"
             >
               <div className="relative">
                 <button
@@ -303,7 +303,7 @@ export function HamburgerMenu({ isOpen, onClose, currentPage = "studio" }: Hambu
             {/* Social links - bottom center */}
             <motion.ul
               variants={itemVariants}
-              className="absolute bottom-8 left-1/2 flex -translate-x-1/2 items-center gap-6 md:bottom-10 md:gap-10"
+              className="absolute bottom-6 left-1/2 flex -translate-x-1/2 flex-wrap items-center justify-center gap-x-4 gap-y-2 px-4 sm:bottom-8 sm:flex-nowrap sm:gap-6 md:bottom-10 md:gap-10"
             >
               {SOCIAL_LINKS.map((s) => (
                 <li key={s.label}>

@@ -157,7 +157,7 @@ export function AIIconsMarquee() {
   const WAVE_SPREAD = AI_ICONS.length; // spread delays across one set
 
   return (
-    <div className="relative w-full overflow-hidden py-10">
+    <div className="relative w-full overflow-hidden py-5 sm:py-10">
       <style>{`
         @keyframes marquee-icons {
           0%   { transform: translateX(0); }
@@ -200,7 +200,7 @@ export function AIIconsMarquee() {
           return (
             <div
               key={`${icon.id}-${i}`}
-              className="icon-bob mx-4 flex h-20 w-20 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white backdrop-blur-sm transition-colors duration-300 hover:border-[#AE8C20]/60 hover:bg-[#AE8C20]/15 hover:text-[#AE8C20] sm:mx-5 sm:h-24 sm:w-24"
+              className="icon-bob mx-2.5 flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white backdrop-blur-sm transition-colors duration-300 hover:border-[#AE8C20]/60 hover:bg-[#AE8C20]/15 hover:text-[#AE8C20] sm:mx-4 sm:h-20 sm:w-20 md:mx-5 md:h-24 md:w-24"
               style={
                 {
                   "--wave-dur": `${WAVE_PERIOD + (phaseIndex % 5) * 0.3}s`,
@@ -208,7 +208,7 @@ export function AIIconsMarquee() {
                 } as React.CSSProperties
               }
             >
-              <span className="h-9 w-9 sm:h-11 sm:w-11">{icon.svg}</span>
+              <span className="h-5 w-5 sm:h-9 sm:w-9 md:h-11 md:w-11">{icon.svg}</span>
             </div>
           );
         })}

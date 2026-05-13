@@ -247,7 +247,7 @@ export default function PortfolioPage() {
     <div ref={pageRef} className="relative overflow-hidden bg-zinc-950 text-white">
       <HamburgerMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} currentPage="portfolio" />
 
-      <header className="fixed left-0 right-0 top-0 z-50 px-6 py-5 md:px-10 md:py-6">
+      <header className="fixed left-0 right-0 top-0 z-50 px-4 py-4 sm:px-6 sm:py-5 md:px-10 md:py-6">
         <div className="mx-auto flex max-w-[1400px] items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5">
             <Image
@@ -255,7 +255,7 @@ export default function PortfolioPage() {
               alt="Contenaissance"
               width={220}
               height={66}
-              className="h-14 w-auto md:h-16"
+              className="h-10 w-auto sm:h-12 md:h-16"
               priority
             />
           </Link>
@@ -266,7 +266,7 @@ export default function PortfolioPage() {
         type="button"
         aria-label={menuOpen ? "Close menu" : "Open menu"}
         onClick={() => setMenuOpen((value) => !value)}
-        className="group fixed right-5 top-5 z-[110] flex h-12 w-12 items-center justify-center rounded-full border border-zinc-700 bg-zinc-900/90 text-white shadow-[0_12px_30px_rgba(0,0,0,0.25)] backdrop-blur-md transition-all duration-300 hover:border-[#AE8C20]/50 hover:bg-[#AE8C20] hover:shadow-[0_16px_40px_rgba(174,140,32,0.35)] md:right-9 md:top-6 md:h-14 md:w-14"
+        className="group fixed right-4 top-4 z-[110] flex h-10 w-10 items-center justify-center rounded-full border border-zinc-700 bg-zinc-900/90 text-white shadow-[0_12px_30px_rgba(0,0,0,0.25)] backdrop-blur-md transition-all duration-300 hover:border-[#AE8C20]/50 hover:bg-[#AE8C20] hover:shadow-[0_16px_40px_rgba(174,140,32,0.35)] sm:right-5 sm:top-5 sm:h-12 sm:w-12 md:right-9 md:top-6 md:h-14 md:w-14"
       >
         {menuOpen ? (
           <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
@@ -282,18 +282,18 @@ export default function PortfolioPage() {
         )}
       </button>
 
-      <section className="portfolio-hero relative overflow-hidden bg-zinc-950 px-6 pb-24 pt-32 md:px-10 md:pb-32 md:pt-40">
+      <section className="portfolio-hero relative overflow-hidden bg-zinc-950 px-4 pb-20 pt-28 sm:px-6 sm:pb-24 sm:pt-32 md:px-10 md:pb-32 md:pt-40">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(174,140,32,0.20),transparent_30%),linear-gradient(135deg,#5A3917_0%,#09090b_38%,#09090b_100%)]" />
         <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_bottom,transparent,rgba(9,9,11,0.55)_75%,#09090b)]" />
 
         <div className="relative z-10 mx-auto w-full max-w-[1400px]">
           {/* Heading row */}
-          <div className="grid gap-10 md:grid-cols-[1fr_420px] md:items-start lg:grid-cols-[1fr_520px]">
+          <div className="grid gap-8 md:grid-cols-[1fr_420px] md:items-start md:gap-10 lg:grid-cols-[1fr_520px]">
             <div>
-              <p className="mb-6 text-xs font-bold uppercase tracking-[0.35em] text-[#AE8C20]">
+              <p className="mb-4 text-[10px] font-bold uppercase tracking-[0.35em] text-[#AE8C20] sm:mb-6 sm:text-xs">
                 Curated Portfolio
               </p>
-              <h1 className="portfolio-hero-title max-w-4xl text-[clamp(4rem,12vw,10rem)] font-normal leading-[0.82] tracking-[-0.08em] text-white">
+              <h1 className="portfolio-hero-title max-w-4xl text-[clamp(3rem,12vw,10rem)] font-normal leading-[0.85] tracking-[-0.08em] text-white">
                 Creative
                 <br />
                 Portraits
@@ -306,11 +306,11 @@ export default function PortfolioPage() {
           </div>
 
           {/* Image row - sits below the text */}
-          <div className="mt-14 grid grid-cols-2 gap-4 sm:gap-5 md:mt-20 md:grid-cols-4 md:gap-6">
+          <div className="mt-10 grid grid-cols-2 gap-3 sm:mt-14 sm:gap-5 md:mt-20 md:grid-cols-4 md:gap-6">
             {HERO_IMAGES.map((image) => (
               <div
                 key={image.src}
-                className={`hero-art-card relative aspect-[4/5] overflow-hidden rounded-[1.75rem] border border-white/10 bg-white/5 shadow-[0_30px_80px_rgba(0,0,0,0.45)] backdrop-blur-sm transition-transform duration-500 hover:-translate-y-2 hover:rotate-0 ${image.rotate} ${image.translate}`}
+                className={`hero-art-card relative aspect-[4/5] overflow-hidden rounded-2xl border border-white/10 bg-white/5 shadow-[0_30px_80px_rgba(0,0,0,0.45)] backdrop-blur-sm transition-transform duration-500 hover:-translate-y-2 hover:rotate-0 sm:rounded-[1.75rem] ${image.rotate} ${image.translate}`}
               >
                 <Image
                   src={image.src}
@@ -326,23 +326,23 @@ export default function PortfolioPage() {
         </div>
       </section>
 
-      <section className="relative overflow-hidden bg-black px-6 py-24 text-white md:px-10 md:py-32">
+      <section className="relative overflow-hidden bg-black px-4 py-20 text-white sm:px-6 sm:py-24 md:px-10 md:py-32">
         <div className="pointer-events-none absolute left-1/2 top-0 h-[520px] w-[520px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#AE8C20]/10 blur-[160px]" />
 
         <div className="relative mx-auto max-w-[1400px]">
-          <div className="mb-14 text-center">
-            <p className="mb-4 text-xs font-bold uppercase tracking-[0.35em] text-[#AE8C20]">
+          <div className="mb-10 text-center sm:mb-14">
+            <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.35em] text-[#AE8C20] sm:mb-4 sm:text-xs">
               Featured Productions
             </p>
-            <h2 className="animated-section-title bg-white text-white bg-clip-text text-[clamp(3rem,8vw,8rem)] font-bold uppercase leading-[0.82] tracking-[-0.07em] text-transparent">
+            <h2 className="animated-section-title bg-white text-white bg-clip-text text-[clamp(2.5rem,8vw,8rem)] font-bold uppercase leading-[0.92] tracking-[-0.07em] text-transparent">
               Brand Films
             </h2>
-            <p className="mt-6 text-sm leading-loose text-zinc-400 md:text-base">
+            <p className="mt-4 text-sm leading-loose text-zinc-400 sm:mt-6 md:text-base">
               Hover any card to preview the reel. Click to open the cinematic player.
             </p>
           </div>
 
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+          <div className="grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-3 xl:grid-cols-5">
             {AI_REELS.map((reel, index) => (
               <button
                 key={reel.id}
@@ -352,7 +352,7 @@ export default function PortfolioPage() {
                 onMouseLeave={() => handleReelHover(index, false)}
                 onFocus={() => handleReelHover(index, true)}
                 onBlur={() => handleReelHover(index, false)}
-                className="reel-card group relative aspect-[9/16] cursor-pointer overflow-hidden rounded-[1.75rem] border border-white/10 bg-zinc-900 text-left shadow-[0_24px_70px_rgba(0,0,0,0.45)] transition-all duration-500 hover:-translate-y-2 hover:border-[#AE8C20]/45 hover:shadow-[0_32px_90px_rgba(174,140,32,0.35)]"
+                className="reel-card group relative aspect-[9/16] cursor-pointer overflow-hidden rounded-xl border border-white/10 bg-zinc-900 text-left shadow-[0_24px_70px_rgba(0,0,0,0.45)] transition-all duration-500 hover:-translate-y-2 hover:border-[#AE8C20]/45 hover:shadow-[0_32px_90px_rgba(174,140,32,0.35)] sm:rounded-[1.75rem]"
               >
                 <video
                   ref={(el) => {
@@ -386,14 +386,14 @@ export default function PortfolioPage() {
                   </span>
                 </div> */}
 
-                <div className="absolute inset-x-0 bottom-0 z-10 p-5">
-                  <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-[#D4AF37]">
+                <div className="absolute inset-x-0 bottom-0 z-10 p-3 sm:p-5">
+                  <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-[#D4AF37] sm:text-[10px] sm:tracking-[0.25em]">
                     {reel.subtitle}
                   </p>
-                  <h3 className="mt-1.5 text-lg font-bold leading-tight text-white drop-shadow-md md:text-xl">
+                  <h3 className="mt-1 text-sm font-bold leading-tight text-white drop-shadow-md sm:mt-1.5 sm:text-lg md:text-xl">
                     {reel.title}
                   </h3>
-                  <span className="mt-3 inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-white/70 transition-all duration-300 group-hover:gap-2 group-hover:text-[#D4AF37]">
+                  <span className="mt-2 inline-flex items-center gap-1 text-[9px] font-semibold uppercase tracking-[0.18em] text-white/70 transition-all duration-300 group-hover:gap-2 group-hover:text-[#D4AF37] sm:mt-3 sm:text-[10px] sm:tracking-[0.2em]">
                     Watch
                     <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.4}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
@@ -408,25 +408,25 @@ export default function PortfolioPage() {
 
       <ReelModal reel={activeReel} onClose={() => setActiveReel(null)} />
 
-      <section className="relative overflow-hidden bg-zinc-950 px-4 py-24 text-white sm:px-6 md:px-10 md:py-32">
+      <section className="relative overflow-hidden bg-zinc-950 px-4 py-20 text-white sm:px-6 sm:py-24 md:px-10 md:py-32">
         <div className="mx-auto max-w-[1400px]">
-          <div className="mx-auto mb-14 max-w-4xl text-center">
-            <p className="mb-4 text-xs font-bold uppercase tracking-[0.35em] text-[#AE8C20]">
+          <div className="mx-auto mb-10 max-w-4xl text-center sm:mb-14">
+            <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.35em] text-[#AE8C20] sm:mb-4 sm:text-xs">
               Visual Systems
             </p>
-            <h2 className="animated-section-title text-[clamp(3rem,8vw,8rem)] font-bold leading-[0.85] tracking-[-0.07em]">
+            <h2 className="animated-section-title text-[clamp(2.5rem,8vw,8rem)] font-bold leading-[0.9] tracking-[-0.07em]">
               Curated Portfolio
             </h2>
-            <p className="mt-6 text-sm leading-loose text-zinc-400 md:text-base">
+            <p className="mt-4 text-sm leading-loose text-zinc-400 sm:mt-6 md:text-base">
               A selection of high-impact visual experiences designed to elevate brands and create lasting impressions.
             </p>
           </div>
 
-          <div className="grid grid-cols-12 gap-3 auto-rows-[130px] sm:auto-rows-[160px] md:auto-rows-[200px] md:gap-4">
+          <div className="grid grid-cols-12 auto-rows-[110px] gap-2.5 sm:auto-rows-[160px] sm:gap-3 md:auto-rows-[200px] md:gap-4">
             {GALLERY_IMAGES.map((image) => (
               <div
                 key={image.src}
-                className={`gallery-tile group col-span-12 overflow-hidden border border-white/10 bg-zinc-900 sm:col-span-6 ${image.span}`}
+                className={`gallery-tile group col-span-6 overflow-hidden border border-white/10 bg-zinc-900 ${image.span}`}
               >
                 <Image
                   src={image.src}
@@ -438,33 +438,33 @@ export default function PortfolioPage() {
               </div>
             ))}
 
-            <div className="gallery-tile col-span-12 flex flex-col justify-center border border-white/10 bg-white p-5 text-zinc-950 md:col-span-4 md:p-7">
-              <div className="flex flex-row items-center gap-8 md:flex-col md:items-start md:gap-5">
+            <div className="gallery-tile col-span-12 flex flex-col justify-center border border-white/10 bg-white p-4 text-zinc-950 sm:col-span-6 sm:p-5 md:col-span-4 md:p-7">
+              <div className="flex flex-row items-center justify-around gap-4 sm:gap-8 md:flex-col md:items-start md:justify-start md:gap-5">
                 <div>
-                  <h3 className="text-4xl font-bold tracking-tight md:text-5xl">100+</h3>
-                  <p className="mt-1 text-xs text-zinc-500 md:text-sm">Satisfied Clients</p>
+                  <h3 className="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">100+</h3>
+                  <p className="mt-1 text-[11px] text-zinc-500 sm:text-xs md:text-sm">Satisfied Clients</p>
                 </div>
-                <div className="h-8 w-px shrink-0 bg-zinc-200 md:hidden" />
+                <div className="h-10 w-px shrink-0 bg-zinc-200 md:hidden" />
                 <div>
-                  <h3 className="text-4xl font-bold tracking-tight md:text-5xl">500+</h3>
-                  <p className="mt-1 text-xs text-zinc-500 md:text-sm">Projects Delivered</p>
+                  <h3 className="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">500+</h3>
+                  <p className="mt-1 text-[11px] text-zinc-500 sm:text-xs md:text-sm">Projects Delivered</p>
                 </div>
               </div>
             </div>
 
-            <div className="gallery-tile col-span-12 flex flex-col justify-center border border-white/10 bg-[#AE8C20] p-5 text-zinc-950 md:col-span-5 md:p-7">
-              <h3 className="text-lg font-bold leading-snug tracking-tight md:text-2xl">
+            <div className="gallery-tile col-span-12 flex flex-col justify-center border border-white/10 bg-[#AE8C20] p-4 text-zinc-950 sm:col-span-6 sm:p-5 md:col-span-5 md:p-7">
+              <h3 className="text-base font-bold leading-snug tracking-tight sm:text-lg md:text-2xl">
                 Built to perform.<br />Designed to impress.
               </h3>
-              <p className="mt-3 text-xs leading-relaxed text-zinc-900/70 md:text-sm">
+              <p className="mt-2 text-[11px] leading-relaxed text-zinc-900/70 sm:mt-3 sm:text-xs md:text-sm">
                 We craft refined digital experiences where creative vision meets strategic execution.
               </p>
               <Link
                 href="/services"
-                className="mt-4 inline-flex w-fit items-center gap-2 rounded-full bg-zinc-950 px-5 py-2.5 text-xs font-bold text-white transition-all duration-300 hover:bg-white hover:text-zinc-950 md:mt-5 md:text-sm"
+                className="mt-3 inline-flex w-fit items-center gap-2 rounded-full bg-zinc-950 px-4 py-2 text-[11px] font-bold text-white transition-all duration-300 hover:bg-white hover:text-zinc-950 sm:mt-4 sm:px-5 sm:py-2.5 sm:text-xs md:mt-5 md:text-sm"
               >
                 Explore Services
-                <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.4}>
+                <svg className="h-3 w-3 sm:h-3.5 sm:w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.4}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
                 </svg>
               </Link>
