@@ -189,24 +189,27 @@ export default function ServicesPage() {
           );
         }
 
-        // Features - typewriter-like stagger
+        // Features — word-level reveal (keeps words like "AI" intact; outer tag stays <p>)
         if (features.length) {
           features.forEach((feature, i) => {
-            const featureText = feature.textContent || "";
-            feature.innerHTML = featureText
-              .split("")
-              .map((char) => `<span class="inline-block">${char === " " ? "&nbsp;" : char}</span>`)
-              .join("");
-            
+            const featureText = (feature.textContent || "").trim();
+            const words = featureText.split(/\s+/).filter(Boolean);
+            feature.innerHTML = words
+              .map(
+                (word) =>
+                  `<span class="service-feature-word inline-block max-w-full break-words md:whitespace-nowrap">${word}</span>`
+              )
+              .join(" ");
+
             gsap.fromTo(
-              feature.querySelectorAll("span"),
-              { opacity: 0, y: 10 },
+              feature.querySelectorAll(".service-feature-word"),
+              { opacity: 0, y: 8 },
               {
                 opacity: 1,
                 y: 0,
-                duration: 0.03,
-                stagger: 0.015,
-                ease: "none",
+                duration: 0.12,
+                stagger: 0.05,
+                ease: "power2.out",
                 scrollTrigger: {
                   trigger: section,
                   start: `top ${70 - i * 5}%`,
@@ -461,21 +464,21 @@ export default function ServicesPage() {
                 </h2>
 
                 {/* Content Grid */}
-                <div className="grid gap-8 md:grid-cols-[260px_1fr] md:gap-12 lg:grid-cols-[320px_1fr] lg:gap-24">
-                  {/* Features List - centered on mobile, left on larger */}
-                  <div className="grid grid-cols-2 gap-3 text-center sm:gap-4 md:grid-cols-1 md:space-y-4 md:text-left">
+                <div className="grid gap-8 md:grid-cols-[minmax(280px,30%)_1fr] md:items-start md:gap-10 lg:grid-cols-[minmax(320px,32%)_1fr] lg:gap-16">
+                  {/* Golden feature lines — stacked tight, aligned to top */}
+                  <div className="flex flex-col gap-1 text-center sm:gap-1.5 md:gap-2 md:text-left lg:gap-2.5">
                     {service.features.map((feature, i) => (
-                      <div
+                      <p
                         key={i}
-                        className="service-feature text-[10px] font-bold uppercase tracking-[0.08em] text-[#AE8C20] sm:text-xs sm:tracking-[0.1em] md:text-sm md:tracking-[0.12em]"
+                        className="service-feature m-0 text-[10px] font-bold uppercase leading-none tracking-[0.04em] text-[#AE8C20] sm:text-[11px] sm:tracking-[0.05em] md:text-xs md:tracking-[0.06em] lg:text-[13px]"
                       >
                         {feature}
-                      </div>
+                      </p>
                     ))}
                   </div>
 
                   {/* Paragraphs - centered on mobile, left on larger */}
-                  <div className="space-y-5 text-center md:space-y-8 md:text-left">
+                  <div className=" text-center  md:text-left">
                     {service.paragraphs.map((para, i) => (
                       <p
                         key={i}

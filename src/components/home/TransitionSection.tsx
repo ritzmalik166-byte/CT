@@ -30,7 +30,7 @@ const TESTIMONIALS: Testimonial[] = [
     variant: "featured",
     name: "Sarah Mitchell",
     role: "Founder • Elevate AI",
-    image: "/assets/ct-testimonial.jpg",
+    image: "/assets/testimonial_sample.jpg",
   },
   {
     variant: "quote",
@@ -138,14 +138,14 @@ function FeaturedCard({ item }: { item: Extract<Testimonial, { variant: "feature
 
       {/* Text overlay — centered below lg to match stacked layout */}
       <div className="absolute inset-x-0 bottom-0 z-10 flex flex-col items-center px-4 pb-4 pt-24 text-center sm:px-5 sm:pb-5 lg:items-start lg:p-6 lg:text-left">
-        <h3 className="text-xl font-semibold text-white sm:text-2xl">{item.name}</h3>
-        <p className="mt-1 text-sm text-white/75">{item.role}</p>
-        <button
+        {/* <h3 className="text-xl font-semibold text-white sm:text-2xl">{item.name}</h3>
+        <p className="mt-1 text-sm text-white/75">{item.role}</p> */}
+        {/* <button
           type="button"
           className="mt-4 flex items-center justify-center gap-2 text-sm font-medium text-[#D4AF37] transition-colors hover:text-[#E8C547] lg:justify-start"
         >
           <span className="border-b border-[#D4AF37]/60 pb-0.5">Watch Video</span>
-        </button>
+        </button> */}
       </div>
     </article>
   );
