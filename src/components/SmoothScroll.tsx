@@ -4,7 +4,6 @@ import { useEffect } from "react";
 import Lenis from "lenis";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-
 import "lenis/dist/lenis.css";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -13,142 +12,86 @@ interface SmoothScrollProps {
   children: React.ReactNode;
 }
 
-/**
- * Desktop:
- * Full cinematic smooth scroll
- *
- * Mobile / Tablet:
- * Lighter smooth scroll optimized for performance
- */
-function isMobileDevice(): boolean {
+function isTouchDevice(): boolean {
   if (typeof window === "undefined") return false;
-
-  return (
-    window.innerWidth < 1024 ||
-    !window.matchMedia("(pointer: fine)").matches
-  );
+  return !window.matchMedia("(pointer: fine)").matches;
 }
 
 export function SmoothScroll({ children }: SmoothScrollProps) {
   useEffect(() => {
-    if (
-      typeof window === "undefined" ||
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches
-    ) {
-      return;
-    }
+    if (typeof window === "undefined") return;
+
+    // Always respect reduced motion
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
     let lenis: Lenis | null = null;
     let rafId = 0;
 
-    /**
-     * Better GSAP performance
-     */
     ScrollTrigger.config({
       limitCallbacks: true,
       ignoreMobileResize: true,
     });
 
     const startLenis = () => {
-      const mobile = isMobileDevice();
+      const touch = isTouchDevice();
 
       lenis = new Lenis({
-        duration: mobile ? 0.5 : 0.85,
+        // On touch devices: only smooth wheel events (e.g. Magic Trackpad, bluetooth mouse)
+        // Native finger scroll is left completely alone — it runs on compositor thread
+        smoothWheel: true,
+        syncTouch: false,          // ← KEY: never intercept native touch momentum
 
-        easing: (t) =>
-          mobile
-            ? 1 - Math.pow(1 - t, 3)
-            : Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        wheelMultiplier: touch ? 1 : 1,
+        touchMultiplier: 1,        // irrelevant when syncTouch is false
+
+        duration: touch ? 0.6 : 0.9,
+
+        // Expo-out on desktop, quint-out on touch (lighter math, less main-thread work)
+        easing: touch
+          ? (t) => 1 - Math.pow(1 - t, 5)          // quintic ease-out
+          : (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // expo ease-out
+
+        lerp: touch ? 0.12 : 0.1, // higher = snappier (less lag)
 
         orientation: "vertical",
         gestureOrientation: "vertical",
-
-        smoothWheel: true,
-        syncTouch: mobile,
-
-        wheelMultiplier: mobile ? 0.9 : 1,
-        touchMultiplier: mobile ? 0.8 : 1,
-
-        lerp: mobile ? 0.09 : 0.16,
-
         autoRaf: false,
       });
 
-      /**
-       * Sync GSAP with Lenis
-       */
+      // Sync GSAP ScrollTrigger with Lenis's scroll position
       lenis.on("scroll", ScrollTrigger.update);
 
+      // Tight RAF loop — no extra work inside
       const raf = (time: number) => {
         lenis?.raf(time);
         rafId = requestAnimationFrame(raf);
       };
-
       rafId = requestAnimationFrame(raf);
     };
 
     const stopLenis = () => {
       cancelAnimationFrame(rafId);
-
-      if (lenis) {
-        lenis.destroy();
-        lenis = null;
-      }
+      lenis?.destroy();
+      lenis = null;
     };
 
     const applyMode = () => {
       stopLenis();
-
-      /**
-       * Disable previous normalization
-       */
-      ScrollTrigger.normalizeScroll(false);
-
-      /**
-       * Start Lenis on ALL devices
-       * but lighter on mobile
-       */
+      ScrollTrigger.normalizeScroll(false); // never normalize on mobile
       startLenis();
-
-      /**
-       * Refresh GSAP calculations
-       */
-      requestAnimationFrame(() => {
-        ScrollTrigger.refresh(true);
-      });
+      requestAnimationFrame(() => ScrollTrigger.refresh(true));
     };
 
     applyMode();
 
-    /**
-     * Handle resize/device changes
-     */
-    const mediaQueries = [
-      window.matchMedia("(min-width: 1024px)"),
-      window.matchMedia("(pointer: fine)"),
-    ];
+    const mq = window.matchMedia("(pointer: fine)");
+    mq.addEventListener("change", applyMode);
 
-    mediaQueries.forEach((mq) => {
-      mq.addEventListener("change", applyMode);
-    });
-
-    /**
-     * Cleanup
-     */
     return () => {
-      mediaQueries.forEach((mq) => {
-        mq.removeEventListener("change", applyMode);
-      });
-
+      mq.removeEventListener("change", applyMode);
       stopLenis();
-
       ScrollTrigger.normalizeScroll(false);
-
-      ScrollTrigger.config({
-        limitCallbacks: false,
-        ignoreMobileResize: false,
-      });
-
+      ScrollTrigger.config({ limitCallbacks: false, ignoreMobileResize: false });
       ScrollTrigger.refresh(true);
     };
   }, []);
