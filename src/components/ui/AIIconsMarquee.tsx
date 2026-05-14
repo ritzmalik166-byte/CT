@@ -157,12 +157,21 @@ export function AIIconsMarquee() {
   const WAVE_SPREAD = AI_ICONS.length; // spread delays across one set
 
   return (
-    <div className="relative w-full overflow-hidden py-5 sm:py-10">
+    <div className="relative w-full overflow-hidden py-4 sm:py-8 md:py-10">
       <style>{`
         @keyframes marquee-icons {
           0%   { transform: translateX(0); }
           100% { transform: translateX(-33.333%); }
         }
+        /* Mobile: gentler wave */
+        @keyframes icon-wave-mobile {
+          0%   { transform: translateY(0px) scale(1) rotate(0deg); }
+          25%  { transform: translateY(-8px) scale(1.04) rotate(-1.5deg); }
+          50%  { transform: translateY(-12px) scale(1.06) rotate(0deg); }
+          75%  { transform: translateY(-8px) scale(1.04) rotate(1.5deg); }
+          100% { transform: translateY(0px) scale(1) rotate(0deg); }
+        }
+        /* Desktop: more dramatic wave */
         @keyframes icon-wave {
           0%   { transform: translateY(0px) scale(1) rotate(0deg); }
           25%  { transform: translateY(-22px) scale(1.1) rotate(-3deg); }
@@ -180,17 +189,22 @@ export function AIIconsMarquee() {
           animation-play-state: paused;
         }
         .icon-bob {
-          animation: icon-wave var(--wave-dur) ease-in-out infinite;
+          animation: icon-wave-mobile var(--wave-dur) ease-in-out infinite;
           animation-delay: var(--wave-delay);
+        }
+        @media (min-width: 640px) {
+          .icon-bob {
+            animation-name: icon-wave;
+          }
         }
         .icon-bob:hover {
           animation-play-state: paused;
         }
       `}</style>
 
-      {/* Left / right fade masks */}
-      <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-24 bg-gradient-to-r from-zinc-950 to-transparent" />
-      <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-24 bg-gradient-to-l from-zinc-950 to-transparent" />
+      {/* Left / right fade masks — smaller on mobile */}
+      <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-12 bg-gradient-to-r from-zinc-950 to-transparent sm:w-20 md:w-24" />
+      <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-12 bg-gradient-to-l from-zinc-950 to-transparent sm:w-20 md:w-24" />
 
       <div className="icons-marquee-track">
         {ICONS_LOOP.map((icon, i) => {
@@ -200,7 +214,7 @@ export function AIIconsMarquee() {
           return (
             <div
               key={`${icon.id}-${i}`}
-              className="icon-bob mx-2.5 flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white backdrop-blur-sm transition-colors duration-300 hover:border-[#AE8C20]/60 hover:bg-[#AE8C20]/15 hover:text-[#AE8C20] sm:mx-4 sm:h-20 sm:w-20 md:mx-5 md:h-24 md:w-24"
+              className="icon-bob mx-2 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/15 bg-white/5 text-white backdrop-blur-sm transition-colors duration-300 hover:border-[#AE8C20]/60 hover:bg-[#AE8C20]/15 hover:text-[#AE8C20] sm:mx-3.5 sm:h-16 sm:w-16 md:mx-5 md:h-20 md:w-20 lg:h-24 lg:w-24"
               style={
                 {
                   "--wave-dur": `${WAVE_PERIOD + (phaseIndex % 5) * 0.3}s`,
@@ -208,7 +222,7 @@ export function AIIconsMarquee() {
                 } as React.CSSProperties
               }
             >
-              <span className="h-5 w-5 sm:h-9 sm:w-9 md:h-11 md:w-11">{icon.svg}</span>
+              <span className="h-5 w-5 sm:h-7 sm:w-7 md:h-9 md:w-9 lg:h-11 lg:w-11">{icon.svg}</span>
             </div>
           );
         })}

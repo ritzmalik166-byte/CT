@@ -348,7 +348,7 @@ export default function ContactPage() {
           }}
         />
 
-        <div className="relative z-10 mx-auto max-w-[1400px]">
+        <div className="relative z-10 mx-auto max-w-[1400px] text-center lg:text-left">
           <p className="mb-4 text-[10px] font-bold uppercase tracking-[0.35em] text-[#AE8C20] sm:mb-5 sm:text-xs">
             Get in Touch
           </p>
@@ -362,7 +362,7 @@ export default function ContactPage() {
             </span>
           </h1>
 
-          <p className="contact-sub mt-6 max-w-xl text-sm leading-loose text-zinc-400 sm:mt-8 md:text-base">
+          <p className="contact-sub mx-auto mt-6 max-w-xl text-sm leading-loose text-zinc-400 sm:mt-8 md:text-base lg:mx-0">
             Tell us about your project and we&apos;ll get back to you within 24 hours. Let&apos;s create something extraordinary.
           </p>
         </div>

@@ -85,7 +85,7 @@ export function CTAFooter() {
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-zinc-950 to-transparent" />
 
         {/* AI Icons marquee — floats on the dotted surface */}
-        <div className="absolute inset-x-0 top-[22%] -translate-y-1/2 sm:top-[28%]">
+        <div className="absolute inset-x-0 top-[18%] sm:top-[24%] md:top-[28%]">
           <AIIconsMarquee />
         </div>
       </div>
@@ -93,10 +93,10 @@ export function CTAFooter() {
       {/* Footer container with rounded top corners */}
       <div className="relative -mt-24 sm:-mt-40 md:-mt-48 mx-auto max-w-[1440px] px-3 sm:px-6 lg:px-8">
         <footer
-          className="footer-container relative overflow-hidden rounded-t-[40px] sm:rounded-t-[80px] md:rounded-t-[100px] lg:rounded-t-[120px]"
+          className="footer-container relative overflow-hidden rounded-t-[32px] sm:rounded-t-[60px] md:rounded-t-[80px] lg:rounded-t-[120px]"
           style={{
             background: "rgba(17, 17, 19, 0.90)",
-            minHeight: "420px",
+            minHeight: "320px",
           }}
         >
           {/* Waves background */}
@@ -123,15 +123,16 @@ export function CTAFooter() {
           />
 
           {/* Footer content */}
-          <div className="relative z-10 px-5 pt-10 pb-6 sm:px-10 sm:pt-16 md:px-14 md:pt-20 lg:px-20">
-            <div className="flex flex-col gap-8 lg:flex-row lg:items-start lg:justify-between">
+          <div className="relative z-10 px-4 pt-8 pb-6 sm:px-8 sm:pt-12 md:px-12 md:pt-16 lg:px-20 lg:pt-20">
+            {/* Mobile / Tablet: center-aligned, stacked; lg+: side-by-side */}
+            <div className="flex flex-col items-center gap-8 text-center lg:flex-row lg:items-start lg:justify-between lg:text-left">
               {/* Navigation links */}
-              <div className="grid grid-cols-2 gap-x-8 gap-y-2.5 sm:gap-x-16">
+              <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 sm:gap-x-10 lg:grid lg:grid-cols-2 lg:gap-x-12 lg:gap-y-2.5 lg:justify-start">
                 {NAV_LINKS.map((link) => (
                   <Link
                     key={link.label}
                     href={link.href}
-                    className="text-base font-medium text-white/80 transition-colors duration-300 hover:text-white sm:text-lg"
+                    className="text-sm font-medium text-white/80 transition-colors duration-300 hover:text-[#D4AF37] sm:text-base lg:text-lg"
                   >
                     {link.label}
                   </Link>
@@ -139,9 +140,9 @@ export function CTAFooter() {
               </div>
 
               {/* Email subscription */}
-              <div className="w-full max-w-md lg:max-w-lg">
-                <p className="text-base text-white sm:text-lg">
-                  Still have a questions
+              <div className="w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg">
+                <p className="text-sm text-white sm:text-base lg:text-lg">
+                  Still have a Question ?
                 </p>
                 <form onSubmit={handleSubmit} className="mt-3 flex flex-col gap-2.5 sm:mt-4 sm:flex-row sm:gap-3">
                   <input
@@ -149,22 +150,23 @@ export function CTAFooter() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="Enter Your Email..."
-                    className="h-[46px] flex-1 rounded-full border-2 border-white bg-white px-5 text-sm text-zinc-900 placeholder:text-zinc-500 outline-none transition-all duration-300 focus:border-[#AE8C20] focus:ring-2 focus:ring-[#AE8C20]/30 sm:h-[50px] sm:px-6"
+                    className="h-12 w-full flex-1 rounded-full border-2 border-white bg-white px-5 py-3 text-center text-sm text-zinc-900 placeholder:text-zinc-400 outline-none transition-all duration-300 focus:border-[#AE8C20] focus:ring-2 focus:ring-[#AE8C20]/30 sm:h-[48px] sm:px-6 sm:text-left md:h-[52px] md:px-7"
                   />
                   <button
                     type="submit"
-                    className="h-[46px] shrink-0 rounded-full bg-[#AE8C20] px-6 text-sm font-semibold text-white shadow-[0_8px_20px_rgba(174,140,32,0.35)] transition-all duration-300 hover:bg-[#C9A730] hover:shadow-[0_12px_28px_rgba(174,140,32,0.45)] sm:h-[50px] sm:px-8"
+                    className="h-12 shrink-0 rounded-full bg-[#AE8C20] px-6 text-sm font-semibold text-white shadow-[0_8px_20px_rgba(174,140,32,0.35)] transition-all duration-300 hover:bg-[#C9A730] hover:shadow-[0_12px_28px_rgba(174,140,32,0.45)] sm:h-[48px] sm:px-7 md:h-[52px] md:px-8"
                   >
-                    send us
+                    Send Us
                   </button>
                 </form>
               </div>
             </div>
 
-            {/* Large brand text */}
+            {/* Large brand text — smaller on mobile */}
             <h2
               ref={brandTextRef}
-              className="mt-12 overflow-hidden text-center text-[clamp(2.5rem,12vw,8rem)] font-bold leading-none tracking-tight text-white sm:mt-16 md:mt-20"
+              className="mt-10 overflow-hidden text-center font-bold leading-none tracking-tight text-white sm:mt-14 md:mt-16 lg:mt-20"
+              style={{ fontSize: "clamp(1.75rem, 9vw, 8rem)" }}
             >
               {BRAND_TEXT.split("").map((letter, index) => (
                 <span
@@ -178,11 +180,11 @@ export function CTAFooter() {
             </h2>
 
             {/* Bottom bar */}
-            <div className="mt-8 flex flex-col items-center justify-between gap-3 border-t border-white/10 pt-6 text-center sm:mt-10 sm:gap-4 md:flex-row md:text-left">
-              <p className="text-xs text-white/60 sm:text-sm">
+            <div className="mt-6 flex flex-col items-center justify-center gap-3 border-t border-white/10 pt-5 text-center sm:mt-8 sm:gap-4 md:mt-10 lg:flex-row lg:justify-between lg:text-left">
+              <p className="text-[11px] text-white/60 sm:text-xs md:text-sm">
                 © {new Date().getFullYear()} Contenaissance. All rights reserved.
               </p>
-              <div className="flex flex-wrap items-center justify-center gap-3 text-xs text-white/60 sm:gap-6 sm:text-sm">
+              <div className="flex flex-wrap items-center justify-center gap-2.5 text-[11px] text-white/60 sm:gap-4 sm:text-xs md:gap-6 md:text-sm">
                 <Link
                   href="#privacy"
                   className="transition-colors duration-300 hover:text-white"

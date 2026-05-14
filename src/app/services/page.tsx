@@ -450,9 +450,9 @@ export default function ServicesPage() {
 
               {/* Content */}
               <div className="relative z-10 mx-auto max-w-[1400px] px-4 py-20 sm:px-6 sm:py-24 md:px-10 md:py-32 lg:py-40">
-                {/* Service Title */}
+                {/* Service Title - centered on mobile/tablet */}
                 <h2
-                  className={`service-title mb-10 text-[clamp(2.25rem,8vw,7rem)] font-bold leading-[0.95] tracking-tight sm:mb-14 md:mb-20 ${
+                  className={`service-title mb-10 text-center text-[clamp(2.25rem,8vw,7rem)] font-bold leading-[0.95] tracking-tight sm:mb-14 md:mb-20 lg:text-left ${
                     isDark ? "text-white" : "text-zinc-950"
                   }`}
                   style={{ perspective: "1000px" }}
@@ -462,20 +462,20 @@ export default function ServicesPage() {
 
                 {/* Content Grid */}
                 <div className="grid gap-8 md:grid-cols-[260px_1fr] md:gap-12 lg:grid-cols-[320px_1fr] lg:gap-24">
-                  {/* Features List */}
-                  <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-1 md:space-y-4">
+                  {/* Features List - centered on mobile, left on larger */}
+                  <div className="grid grid-cols-2 gap-3 text-center sm:gap-4 md:grid-cols-1 md:space-y-4 md:text-left">
                     {service.features.map((feature, i) => (
                       <div
                         key={i}
-                        className="service-feature text-[10px] font-bold uppercase tracking-[0.15em] text-[#AE8C20] sm:text-xs md:text-sm"
+                        className="service-feature text-[10px] font-bold uppercase tracking-[0.08em] text-[#AE8C20] sm:text-xs sm:tracking-[0.1em] md:text-sm md:tracking-[0.12em]"
                       >
                         {feature}
                       </div>
                     ))}
                   </div>
 
-                  {/* Paragraphs */}
-                  <div className="space-y-5 md:space-y-8">
+                  {/* Paragraphs - centered on mobile, left on larger */}
+                  <div className="space-y-5 text-center md:space-y-8 md:text-left">
                     {service.paragraphs.map((para, i) => (
                       <p
                         key={i}

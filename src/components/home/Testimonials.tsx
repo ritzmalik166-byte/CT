@@ -60,9 +60,48 @@ const SHOWCASE_REELS: ShowcaseReel[] = [
   },
 ];
 
+function ReelCard({
+  reel,
+  onOpen,
+}: {
+  reel: ShowcaseReel;
+  onOpen: (r: ShowcaseReel) => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={() => onOpen(reel)}
+      className="group relative h-full w-full cursor-pointer overflow-hidden rounded-[1.75rem] border-2 border-[#AE8C20]/40 bg-zinc-900 text-left shadow-[0_40px_90px_-25px_rgba(0,0,0,0.95),0_0_70px_-12px_rgba(174,140,32,0.4)] outline-none transition-colors duration-300 hover:border-[#AE8C20]/80 focus-visible:ring-2 focus-visible:ring-[#AE8C20]"
+      aria-label={`Open ${reel.title}`}
+    >
+      <video
+        src={reel.video}
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="metadata"
+        className="h-full w-full object-cover"
+      />
+
+      <div className="pointer-events-none absolute inset-0 rounded-[1.75rem] ring-1 ring-inset ring-white/15" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-white/15 to-transparent" />
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+
+      <div className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#AE8C20]/90 shadow-lg shadow-[#AE8C20]/40 backdrop-blur-sm">
+          <svg className="ml-1 h-6 w-6 text-zinc-950" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M8 5v14l11-7z" />
+          </svg>
+        </div>
+      </div>
+    </button>
+  );
+}
+
 export function Testimonials() {
   const sectionRef = useRef<HTMLElement>(null);
-  const showcaseRef = useRef<HTMLDivElement>(null);
+  const showcaseDesktopRef = useRef<HTMLDivElement>(null);
   const [openReel, setOpenReel] = useState<ShowcaseReel | null>(null);
 
   useGSAP(
@@ -79,108 +118,105 @@ export function Testimonials() {
         ease: "power3.out",
       });
 
-      const cards = gsap.utils.toArray<HTMLElement>(".deck-card");
-      const n = cards.length;
-      const center = (n - 1) / 2;
+      const mm = gsap.matchMedia();
 
-      // Arc layout matching peachweb screenshot exactly
-      const fanSpread = 200; // px between cards horizontally
-      const rotationSpread = 18; // degrees rotation per card from center (Y axis)
-      const arcHeight = 25; // px - how much outer cards drop down to form the arc curve
+      mm.add("(min-width: 1024px)", () => {
+        const cards = gsap.utils.toArray<HTMLElement>(".deck-card");
+        const el = showcaseDesktopRef.current;
+        if (!cards.length || !el) return;
 
-      // Initial: all cards stacked at center, hidden
-      cards.forEach((card) => {
-        gsap.set(card, {
-          xPercent: -50,
-          yPercent: -50,
-          x: 0,
-          y: 0,
-          rotationY: 0,
-          rotationZ: 0,
-          scale: 0.9,
-          opacity: 0,
-          zIndex: 1,
-        });
-      });
+        const n = cards.length;
+        const center = (n - 1) / 2;
+        const fanSpread = 200;
+        const rotationSpread = 18;
+        const arcHeight = 25;
 
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: showcaseRef.current,
-          start: "top top",
-          end: "+=4000",
-          pin: true,
-          pinSpacing: true,
-          scrub: 0.6,
-          anticipatePin: 1,
-        },
-      });
-
-      // Phase 1: Fan out into the arc formation (0% -> 40%)
-      cards.forEach((card, i) => {
-        const offset = i - center; // -3, -2, -1, 0, 1, 2, 3 for 7 cards
-        const normalizedOffset = offset / center; // -1 to 1
-        
-        // Horizontal spread
-        const targetX = offset * fanSpread;
-        
-        // Y axis rotation: left cards rotate positive (left edge toward viewer)
-        // right cards rotate negative (right edge toward viewer)
-        const targetRotY = -offset * rotationSpread;
-        
-        // Arc curve: outer cards drop down, center stays up (parabola)
-        const targetY = Math.pow(normalizedOffset, 2) * arcHeight * 3;
-        
-        // Subtle Z rotation for natural tilt
-        const targetRotZ = offset * -1.5;
-        
-        // Scale: center cards slightly larger
-        const targetScale = 1 - Math.abs(normalizedOffset) * 0.08;
-
-        tl.to(
-          card,
-          {
-            x: targetX,
-            y: targetY,
-            rotationY: targetRotY,
-            rotationZ: targetRotZ,
-            scale: targetScale,
-            opacity: 1,
-            zIndex: Math.round((1 - Math.abs(normalizedOffset)) * 10), // center on top
-            duration: 0.4,
-            ease: "power2.out",
-          },
-          0
-        );
-      });
-
-      // Phase 2: Hold the arc visible (40% -> 55%)
-      tl.to({}, { duration: 0.15 });
-
-      // Phase 3: Sweep entire arc to the left and exit (55% -> 100%)
-      cards.forEach((card, i) => {
-        const offset = i - center;
-        const currentX = offset * fanSpread;
-        const exitX = currentX - 1400; // sweep everything left
-        const delay = (n - 1 - i) * 0.025; // rightmost cards exit slightly later
-
-        tl.to(
-          card,
-          {
-            x: exitX,
-            rotationY: 55, // tilt more as they exit
+        cards.forEach((card) => {
+          gsap.set(card, {
+            xPercent: -50,
+            yPercent: -50,
+            x: 0,
+            y: 0,
+            rotationY: 0,
+            rotationZ: 0,
+            scale: 0.9,
             opacity: 0,
-            duration: 0.45,
-            ease: "power2.in",
+            zIndex: 1,
+          });
+        });
+
+        const tl = gsap.timeline({
+          scrollTrigger: {
+            trigger: el,
+            start: "top top",
+            end: "+=4000",
+            pin: true,
+            pinSpacing: true,
+            scrub: 0.6,
+            anticipatePin: 1,
           },
-          0.55 + delay
-        );
+        });
+
+        cards.forEach((card, i) => {
+          const offset = i - center;
+          const normalizedOffset = offset / center;
+          const targetX = offset * fanSpread;
+          const targetRotY = -offset * rotationSpread;
+          const targetY = Math.pow(normalizedOffset, 2) * arcHeight * 3;
+          const targetRotZ = offset * -1.5;
+          const targetScale = 1 - Math.abs(normalizedOffset) * 0.08;
+
+          tl.to(
+            card,
+            {
+              x: targetX,
+              y: targetY,
+              rotationY: targetRotY,
+              rotationZ: targetRotZ,
+              scale: targetScale,
+              opacity: 1,
+              zIndex: Math.round((1 - Math.abs(normalizedOffset)) * 10),
+              duration: 0.4,
+              ease: "power2.out",
+            },
+            0
+          );
+        });
+
+        tl.to({}, { duration: 0.15 });
+
+        cards.forEach((card, i) => {
+          const offset = i - center;
+          const currentX = offset * fanSpread;
+          const exitX = currentX - 1400;
+          const delay = (n - 1 - i) * 0.025;
+
+          tl.to(
+            card,
+            {
+              x: exitX,
+              rotationY: 55,
+              opacity: 0,
+              duration: 0.45,
+              ease: "power2.in",
+            },
+            0.55 + delay
+          );
+        });
+
+        return () => {
+          tl.scrollTrigger?.kill();
+          tl.kill();
+        };
       });
+
+      return () => mm.revert();
     },
     { scope: sectionRef }
   );
 
   return (
-    <section ref={sectionRef} className="dark-pin-section relative bg-zinc-950">
+    <section ref={sectionRef} className="dark-pin-section relative overflow-x-hidden bg-zinc-950">
       {/* Ambient glow */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute left-1/2 top-0 h-[800px] w-[800px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#AE8C20]/5 blur-[120px]" />
@@ -189,116 +225,85 @@ export function Testimonials() {
       </div>
 
       {/* Header */}
-      <div className="relative mx-auto max-w-[1400px] px-6 pt-24 md:pt-32">
+      <div className="relative mx-auto max-w-[1400px] px-4 pt-16 sm:px-6 sm:pt-20 lg:pt-32">
         <div className="testimonials-header mx-auto max-w-3xl text-center">
           <span className="inline-flex items-center gap-2 rounded-full border border-[#AE8C20]/20 bg-[#AE8C20]/10 px-4 py-1.5 text-sm font-medium text-[#AE8C20]">
             <span className="h-1.5 w-1.5 rounded-full bg-[#AE8C20]" />
             Customer Love
           </span>
-          <h2 className="mt-6 text-display-lg font-bold text-white">
-           Visually Stunning 3D{" "}
-            <span className="text-[#AE8C20]">Websites</span>
+          <h2
+            className="mt-5 font-bold tracking-tight text-white sm:mt-6"
+            style={{ fontSize: "clamp(1.5rem, 5vw, 3.5rem)", lineHeight: 1.1 }}
+          >
+            Visually Stunning 3D <span className="text-[#AE8C20]">Websites</span>
           </h2>
-          {/* <p className="mt-4 text-lg text-zinc-400">
-            Join thousands of teams building the future with Contenaissance.
-          </p> */}
         </div>
       </div>
 
-      {/* 3D card showcase (scroll-driven, GSAP-pinned) */}
-      <div ref={showcaseRef} className="deck-showcase relative h-screen">
+      {/* ─────────────────────────────────────────────────────────────────
+          DESKTOP (lg+): 3D pinned scroll deck with sweep exit
+      ───────────────────────────────────────────────────────────────── */}
+      <div ref={showcaseDesktopRef} className="relative hidden h-screen lg:block">
         <div className="flex h-screen items-center justify-center overflow-hidden">
-          {/* Subtle floor glow */}
           <div className="pointer-events-none absolute bottom-1/4 left-1/2 h-40 w-[60%] -translate-x-1/2 rounded-full bg-[#AE8C20]/10 blur-[80px]" />
 
-          {/* Hint text */}
-          <div className="pointer-events-none absolute bottom-12 left-1/2 -translate-x-1/2 text-center">
+          <div className="pointer-events-none absolute bottom-12 left-1/2 z-10 -translate-x-1/2 text-center">
             <span className="text-xs font-semibold uppercase tracking-[0.3em] text-zinc-500">
               Scroll to explore
             </span>
           </div>
 
-          {/* Perspective stage */}
           <div
             className="relative h-full w-full"
             style={{ perspective: "2000px", perspectiveOrigin: "50% 45%" }}
           >
-            {SHOWCASE_REELS.map((reel, i) => (
+            {SHOWCASE_REELS.map((reel) => (
               <div
-                key={reel.id}
-                className="deck-card absolute left-1/2 top-[45%] h-[380px] w-[200px] md:h-[480px] md:w-[260px] lg:h-[520px] lg:w-[280px]"
+                key={`d-${reel.id}`}
+                className="deck-card absolute left-1/2 top-[45%] h-[520px] w-[280px]"
                 style={{
                   transformStyle: "preserve-3d",
                   willChange: "transform, opacity",
                 }}
               >
-                <button
-                  type="button"
-                  onClick={() => setOpenReel(reel)}
-                  className="group relative h-full w-full cursor-pointer overflow-hidden rounded-[1.75rem] border-2 border-[#AE8C20]/40 bg-zinc-900 text-left shadow-[0_40px_90px_-25px_rgba(0,0,0,0.95),0_0_70px_-12px_rgba(174,140,32,0.4)] outline-none transition-colors duration-300 hover:border-[#AE8C20]/80 focus-visible:ring-2 focus-visible:ring-[#AE8C20]"
-                  aria-label={`Open ${reel.title}`}
-                >
-                  <video
-                    src={reel.video}
-                    autoPlay
-                    muted
-                    loop
-                    playsInline
-                    preload="metadata"
-                    className="h-full w-full object-cover"
-                  />
-
-                  {/* Inner ring for premium feel */}
-                  <div className="pointer-events-none absolute inset-0 rounded-[1.75rem] ring-1 ring-inset ring-white/15" />
-
-                  {/* Top sheen */}
-                  <div className="pointer-events-none absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-white/15 to-transparent" />
-
-                  {/* Bottom vignette */}
-                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
-
-                  {/* Play icon overlay on hover */}
-                  <div className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-                    <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#AE8C20]/90 shadow-lg shadow-[#AE8C20]/40 backdrop-blur-sm">
-                      <svg className="ml-1 h-6 w-6 text-zinc-950" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M8 5v14l11-7z" />
-                      </svg>
-                    </div>
-                  </div>
-
-                  {/* Card label */}
-                  {/* <div className="absolute bottom-3 left-3 right-3">
-                    <div className="flex items-center justify-between rounded-xl border border-white/10 bg-black/50 px-3 py-2 backdrop-blur-md">
-                      <div>
-                        <div className="text-[9px] font-bold uppercase tracking-[0.2em] text-[#D4AF37]">
-                          Reel
-                        </div>
-                        <div className="text-[11px] font-semibold text-white">
-                          {String(i + 1).padStart(2, "0")} / {String(SHOWCASE_REELS.length).padStart(2, "0")}
-                        </div>
-                      </div>
-                      <div className="flex h-6 w-6 items-center justify-center rounded-full bg-[#AE8C20]/20">
-                        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#D4AF37]" />
-                      </div>
-                    </div>
-                  </div> */}
-                </button>
+                <ReelCard reel={reel} onOpen={setOpenReel} />
               </div>
             ))}
           </div>
         </div>
       </div>
 
-      {/* Trust badges */}
-      {/* <div className="relative mx-auto max-w-[1400px] px-6 pb-24 md:pb-32">
-        <div className="flex flex-wrap items-center justify-center gap-8 opacity-50">
-          {["G2 Leader 2024", "Product Hunt #1", "TrustRadius Top Rated", "Gartner Cool Vendor"].map((badge) => (
-            <div key={badge} className="text-sm font-medium text-zinc-500">
-              {badge}
-            </div>
+      {/* ─────────────────────────────────────────────────────────────────
+          MOBILE / TABLET (< lg): Simple swipeable card slider
+      ───────────────────────────────────────────────────────────────── */}
+      <div className="relative z-10 px-4 pb-14 pt-10 sm:px-6 sm:pb-16 sm:pt-12 lg:hidden">
+        <p className="mb-5 text-center text-xs text-zinc-400 sm:mb-6 sm:text-sm">
+          Swipe to browse — tap any card to view full screen
+        </p>
+
+        <div
+          className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth px-4 pb-4 sm:-mx-6 sm:gap-5 sm:px-6"
+          style={{ scrollbarWidth: "thin", scrollbarColor: "#AE8C20 #18181b" }}
+        >
+          {SHOWCASE_REELS.map((reel) => (
+            <article
+              key={`m-${reel.id}`}
+              className="w-[72vw] max-w-[260px] shrink-0 snap-center first:ml-0 last:mr-0 sm:w-[56vw] sm:max-w-[280px]"
+            >
+              <div className="relative aspect-[9/14] w-full overflow-hidden rounded-2xl border border-[#AE8C20]/35 bg-zinc-900 shadow-xl shadow-black/40">
+                <div className="absolute inset-0">
+                  <ReelCard reel={reel} onOpen={setOpenReel} />
+                </div>
+              </div>
+              <div className="mt-3 px-0.5 text-center">
+                <p className="text-sm font-semibold text-white">{reel.title}</p>
+                <p className="mt-1 text-[11px] leading-snug text-zinc-400">{reel.subtitle}</p>
+              </div>
+            </article>
           ))}
         </div>
-      </div> */}
+      </div>
+
       <ReelModal reel={openReel} onClose={() => setOpenReel(null)} />
     </section>
   );

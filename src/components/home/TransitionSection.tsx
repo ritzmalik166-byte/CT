@@ -3,6 +3,7 @@
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import Image from "next/image";
 import { useMemo, useRef } from "react";
 import { FloatingParticles } from "@/components/ui/FloatingParticles";
 
@@ -83,7 +84,7 @@ const TESTIMONIALS: Testimonial[] = [
 ─────────────────────────────────────────────────────────────── */
 function QuoteCard({ item }: { item: Extract<Testimonial, { variant: "quote" }> }) {
   return (
-    <article className="flex h-[340px] w-[260px] shrink-0 flex-col  bg-white p-5 sm:h-[380px] sm:w-[280px] sm:p-6 md:h-[400px] md:w-[300px]">
+    <article className="flex h-[320px] w-[min(78vw,240px)] shrink-0 flex-col bg-white p-4 shadow-sm ring-1 ring-zinc-200/80 sm:h-[350px] sm:w-[260px] sm:p-5 md:h-[380px] md:w-[280px] md:p-6 lg:h-[400px] lg:w-[300px]">
       {/* Orange quote mark */}
       <span className="text-4xl font-bold leading-none text-[#E85D04] sm:text-5xl" aria-hidden>
         &ldquo;&ldquo;
@@ -120,30 +121,29 @@ function QuoteCard({ item }: { item: Extract<Testimonial, { variant: "quote" }> 
 ─────────────────────────────────────────────────────────────── */
 function FeaturedCard({ item }: { item: Extract<Testimonial, { variant: "featured" }> }) {
   return (
-    <article className="relative flex h-full min-h-[340px] w-full flex-col overflow-hidden sm:min-h-[380px] md:min-h-[400px]">
-      {/* Background image with gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-[#1a1a1a] via-[#2d2d2d] to-[#1a1a1a]">
-        {/* Placeholder portrait gradient – replace with actual image if available */}
-        {/* <div className="absolute inset-0 bg-gradient-to-b from-zinc-600/30 via-zinc-500/20 to-zinc-900/90" /> */}
-        {/* Stylized portrait silhouette */}
-        <div className="absolute inset-0 flex items-center justify-center opacity-60">
-          {/* <svg
-            className="h-3/4 w-3/4 text-zinc-400"
-            viewBox="0 0 200 200"
-            fill="currentColor"
-          >
-            <ellipse cx="100" cy="70" rx="45" ry="55" />
-            <ellipse cx="100" cy="190" rx="70" ry="50" />
-          </svg> */}
-          <img src={item.image} alt={item.name} className="h-full w-full object-cover" />
-        </div>
+    <article className="relative w-full overflow-hidden rounded-2xl ring-1 ring-zinc-200/80 lg:h-full lg:min-h-[400px] lg:flex-shrink-0 lg:rounded-none lg:ring-0">
+      {/* Mobile / tablet: portrait card; lg+: fills left column */}
+      <div className="relative aspect-[3/4] w-full max-h-[min(68svh,520px)] min-h-[280px] sm:aspect-[4/5] sm:max-h-[min(62svh,560px)] sm:min-h-[320px] lg:absolute lg:inset-0 lg:aspect-auto lg:max-h-none lg:min-h-0">
+        <Image
+          src={item.image}
+          alt={`${item.name} — spotlight`}
+          fill
+          className="object-cover object-top sm:object-center"
+          sizes="(max-width: 1024px) 92vw, 320px"
+        />
       </div>
 
-      {/* Content overlay at bottom */}
-      <div className="relative z-10 mt-auto bg-gradient-to-t from-black/95 via-black/70 to-transparent p-5 sm:p-6">
+      {/* Vignette + bottom fade for readable text */}
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black via-black/35 to-transparent" />
+
+      {/* Text overlay — centered below lg to match stacked layout */}
+      <div className="absolute inset-x-0 bottom-0 z-10 flex flex-col items-center px-4 pb-4 pt-24 text-center sm:px-5 sm:pb-5 lg:items-start lg:p-6 lg:text-left">
         <h3 className="text-xl font-semibold text-white sm:text-2xl">{item.name}</h3>
-        <p className="mt-1 text-sm text-white/70">{item.role}</p>
-        <button className="mt-4 flex items-center gap-2 text-sm font-medium text-[#D4AF37] transition-colors hover:text-[#E8C547]">
+        <p className="mt-1 text-sm text-white/75">{item.role}</p>
+        <button
+          type="button"
+          className="mt-4 flex items-center justify-center gap-2 text-sm font-medium text-[#D4AF37] transition-colors hover:text-[#E8C547] lg:justify-start"
+        >
           <span className="border-b border-[#D4AF37]/60 pb-0.5">Watch Video</span>
         </button>
       </div>
@@ -233,9 +233,9 @@ export function TransitionSection() {
 
       <div className="relative z-10 mx-auto max-w-[1400px] px-4 sm:px-6">
         {/* Header */}
-        <div className="testimonial-header mb-10 flex flex-col items-start gap-4 sm:mb-12 md:mb-14 md:flex-row md:items-end md:justify-between md:gap-8">
-          <div className="max-w-xl">
-            <div className="flex items-center gap-3">
+        <div className="testimonial-header mb-10 flex flex-col items-center gap-4 text-center sm:mb-12 md:mb-14 md:flex-row md:items-end md:justify-between md:gap-8 md:text-left">
+          <div className="mx-auto flex w-full max-w-xl flex-col md:mx-0">
+            <div className="flex items-center justify-center gap-3 md:justify-start">
               <span className="h-px w-8 bg-[#AE8C20] sm:w-10" aria-hidden />
               <p className="text-[10px] font-bold uppercase tracking-[0.35em] text-[#AE8C20] sm:text-xs">
                 Client Stories
@@ -251,25 +251,27 @@ export function TransitionSection() {
               AI Driven Creative Excellence
             </h2>
           </div>
-          <p className="max-w-sm text-sm text-zinc-500 md:text-right md:text-base">
-          Where strategy design and AI unite
+          <p className="mx-auto max-w-sm text-sm text-zinc-500 md:mx-0 md:text-base md:text-right">
+            Where strategy design and AI unite
           </p>
         </div>
 
-        {/* Main grid: featured card left + scrolling quotes right */}
-        <div className="flex flex-col gap-5 lg:flex-row lg:items-stretch lg:gap-6">
-          {/* Featured Card – left side */}
+        {/* Stacked on mobile/tablet (featured → marquee); side-by-side from lg */}
+        <div className="flex flex-col gap-8 lg:flex-row lg:items-stretch lg:gap-6 xl:gap-8">
           {featured && (
-            <div className="quote-card-anim w-full shrink-0 lg:w-[280px] xl:w-[320px]">
+            <div className="quote-card-anim order-1 w-full shrink-0 lg:order-none lg:w-[280px] xl:w-[320px]">
               <FeaturedCard item={featured} />
             </div>
           )}
 
-          {/* Quote Cards – horizontal scrolling strip */}
-          <div className="relative flex-1 overflow-hidden">
+          {/* Quote marquee: full-width row below featured until lg */}
+          <div className="relative order-2 min-h-0 w-full min-w-0 flex-1 lg:order-none lg:self-stretch">
+            {/* Extend strip to viewport edges on small screens for scroll affordance */}
+            <div className="relative -mx-4 overflow-hidden px-4 sm:-mx-6 sm:px-6 lg:-mx-0 lg:overflow-hidden lg:px-0">
+
             {/* Fade edges */}
-            <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-8 bg-gradient-to-r from-[#fafafa] to-transparent sm:w-12" />
-            <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-8 bg-gradient-to-l from-[#fafafa] to-transparent sm:w-12" />
+            <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-6 bg-gradient-to-r from-[#fafafa] to-transparent sm:w-10 lg:left-0 lg:w-12" />
+            <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-6 bg-gradient-to-l from-[#fafafa] to-transparent sm:w-10 lg:right-0 lg:w-12" />
 
             <style>{`
               @keyframes testimonial-scroll {
@@ -279,7 +281,7 @@ export function TransitionSection() {
               .testimonial-track {
                 display: flex;
                 width: max-content;
-                gap: 1rem;
+                gap: 0.75rem;
                 animation: testimonial-scroll 40s linear infinite;
               }
               @media (min-width: 640px) {
@@ -288,12 +290,19 @@ export function TransitionSection() {
               .testimonial-track:hover {
                 animation-play-state: paused;
               }
+              @media (prefers-reduced-motion: reduce) {
+                .testimonial-track {
+                  animation: none !important;
+                  transform: translateX(0);
+                }
+              }
             `}</style>
 
-            <div className="testimonial-track py-2">
+            <div className="quote-card-anim testimonial-track py-1 sm:py-2">
               {loopItems.map((item, i) => (
                 <QuoteCard key={`q-${item.name}-${i}`} item={item} />
               ))}
+            </div>
             </div>
           </div>
         </div>

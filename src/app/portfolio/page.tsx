@@ -288,19 +288,19 @@ export default function PortfolioPage() {
 
         <div className="relative z-10 mx-auto w-full max-w-[1400px]">
           {/* Heading row */}
-          <div className="grid gap-8 md:grid-cols-[1fr_420px] md:items-start md:gap-10 lg:grid-cols-[1fr_520px]">
+          <div className="grid gap-6 text-center sm:gap-8 md:grid-cols-[1fr_340px] md:items-start md:gap-8 md:text-left lg:grid-cols-[1fr_480px] lg:gap-10">
             <div>
-              <p className="mb-4 text-[10px] font-bold uppercase tracking-[0.35em] text-[#AE8C20] sm:mb-6 sm:text-xs">
+              <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.35em] text-[#AE8C20] sm:mb-4 sm:text-xs md:mb-6">
                 Curated Portfolio
               </p>
-              <h1 className="portfolio-hero-title max-w-4xl text-[clamp(3rem,12vw,10rem)] font-normal leading-[0.85] tracking-[-0.08em] text-white">
+              <h1 className="portfolio-hero-title text-[2.75rem] font-normal leading-[0.9] tracking-[-0.06em] text-white sm:text-[3.5rem] md:text-[4.5rem] lg:text-[6rem] xl:text-[8rem]">
                 Creative
                 <br />
                 Portraits
               </h1>
             </div>
 
-            <p className="portfolio-hero-copy max-w-xl text-sm leading-loose text-zinc-300 md:mt-24 md:text-base">
+            <p className="portfolio-hero-copy mx-auto max-w-md text-sm leading-loose text-zinc-300 sm:max-w-lg md:mx-0 md:mt-16 md:text-[15px] lg:mt-24 lg:max-w-xl lg:text-base">
               We bring together elite creators, advanced AI, and strategic direction to craft visual experiences that position brands at the top, not just in the market, but in perception.
             </p>
           </div>
@@ -422,7 +422,7 @@ export default function PortfolioPage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-12 auto-rows-[110px] gap-2.5 sm:auto-rows-[160px] sm:gap-3 md:auto-rows-[200px] md:gap-4">
+          <div className="grid grid-cols-12 auto-rows-[110px] gap-2.5 sm:auto-rows-[140px] sm:gap-3 md:auto-rows-[180px] md:gap-4 lg:auto-rows-[200px]">
             {GALLERY_IMAGES.map((image) => (
               <div
                 key={image.src}
@@ -438,33 +438,35 @@ export default function PortfolioPage() {
               </div>
             ))}
 
-            <div className="gallery-tile col-span-12 flex flex-col justify-center border border-white/10 bg-white p-4 text-zinc-950 sm:col-span-6 sm:p-5 md:col-span-4 md:p-7">
-              <div className="flex flex-row items-center justify-around gap-4 sm:gap-8 md:flex-col md:items-start md:justify-start md:gap-5">
+            {/* Stats Card - spans 2 rows on mobile for enough height */}
+            <div className="gallery-tile col-span-6 row-span-2 flex flex-col justify-center border border-white/10 bg-white p-4 text-center text-zinc-950 sm:col-span-6 sm:p-5 md:col-span-4 md:row-span-1 md:p-6 md:text-left lg:p-7">
+              <div className="flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-6 md:flex-col md:items-start md:justify-start md:gap-4">
                 <div>
-                  <h3 className="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">100+</h3>
-                  <p className="mt-1 text-[11px] text-zinc-500 sm:text-xs md:text-sm">Satisfied Clients</p>
+                  <h3 className="text-2xl font-bold tracking-tight sm:text-3xl md:text-4xl lg:text-5xl">100+</h3>
+                  <p className="mt-0.5 text-[9px] text-zinc-500 sm:mt-1 sm:text-[10px] md:text-xs lg:text-sm">Satisfied Clients</p>
                 </div>
-                <div className="h-10 w-px shrink-0 bg-zinc-200 md:hidden" />
+                <div className="h-px w-10 shrink-0 bg-zinc-200 sm:h-8 sm:w-px md:hidden" />
                 <div>
-                  <h3 className="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">500+</h3>
-                  <p className="mt-1 text-[11px] text-zinc-500 sm:text-xs md:text-sm">Projects Delivered</p>
+                  <h3 className="text-2xl font-bold tracking-tight sm:text-3xl md:text-4xl lg:text-5xl">500+</h3>
+                  <p className="mt-0.5 text-[9px] text-zinc-500 sm:mt-1 sm:text-[10px] md:text-xs lg:text-sm">Projects Delivered</p>
                 </div>
               </div>
             </div>
 
-            <div className="gallery-tile col-span-12 flex flex-col justify-center border border-white/10 bg-[#AE8C20] p-4 text-zinc-950 sm:col-span-6 sm:p-5 md:col-span-5 md:p-7">
-              <h3 className="text-base font-bold leading-snug tracking-tight sm:text-lg md:text-2xl">
+            {/* CTA Card - spans 2 rows on mobile for enough height */}
+            <div className="gallery-tile col-span-6 row-span-2 flex flex-col justify-center border border-white/10 bg-[#AE8C20] p-4 text-center text-zinc-950 sm:col-span-6 sm:p-5 md:col-span-5 md:row-span-1 md:p-6 md:text-left lg:p-7">
+              <h3 className="text-xs font-bold leading-snug tracking-tight sm:text-sm md:text-base lg:text-xl xl:text-2xl">
                 Built to perform.<br />Designed to impress.
               </h3>
-              <p className="mt-2 text-[11px] leading-relaxed text-zinc-900/70 sm:mt-3 sm:text-xs md:text-sm">
+              <p className="mt-2 text-[9px] leading-relaxed text-zinc-900/70 sm:mt-2.5 sm:text-[10px] md:mt-3 md:text-xs lg:text-sm">
                 We craft refined digital experiences where creative vision meets strategic execution.
               </p>
               <Link
                 href="/services"
-                className="mt-3 inline-flex w-fit items-center gap-2 rounded-full bg-zinc-950 px-4 py-2 text-[11px] font-bold text-white transition-all duration-300 hover:bg-white hover:text-zinc-950 sm:mt-4 sm:px-5 sm:py-2.5 sm:text-xs md:mt-5 md:text-sm"
+                className="mx-auto mt-2.5 inline-flex w-fit items-center gap-1.5 rounded-full bg-zinc-950 px-3 py-1.5 text-[9px] font-bold text-white transition-all duration-300 hover:bg-white hover:text-zinc-950 sm:mt-3 sm:gap-2 sm:px-4 sm:py-2 sm:text-[10px] md:mx-0 md:mt-4 md:px-5 md:py-2.5 md:text-xs lg:text-sm"
               >
                 Explore Services
-                <svg className="h-3 w-3 sm:h-3.5 sm:w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.4}>
+                <svg className="h-2 w-2 sm:h-2.5 sm:w-2.5 md:h-3 md:w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.4}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
                 </svg>
               </Link>

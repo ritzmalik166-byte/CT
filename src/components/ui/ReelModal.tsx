@@ -99,34 +99,34 @@ export function ReelModal({ reel, onClose }: ReelModalProps) {
         >
           {/* Frosted backdrop */}
           <motion.div
-            className="absolute inset-0 bg-black/80 backdrop-blur-2xl"
+            className="absolute inset-0 bg-black/85 backdrop-blur-xl sm:bg-black/80 sm:backdrop-blur-2xl"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
           >
-            {/* Animated gold glow accents */}
+            {/* Animated gold glow accents - smaller on mobile */}
             <motion.div
-              className="absolute left-1/4 top-1/3 h-[400px] w-[400px] rounded-full bg-[#AE8C20]/20 blur-[120px]"
+              className="absolute left-1/4 top-1/4 h-[200px] w-[200px] rounded-full bg-[#AE8C20]/15 blur-[80px] sm:h-[300px] sm:w-[300px] sm:blur-[100px] md:top-1/3 md:h-[400px] md:w-[400px] md:bg-[#AE8C20]/20 md:blur-[120px]"
               animate={{
-                x: [0, 50, -30, 0],
-                y: [0, -30, 50, 0],
+                x: [0, 30, -20, 0],
+                y: [0, -20, 30, 0],
               }}
               transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
             />
             <motion.div
-              className="absolute right-1/4 bottom-1/3 h-[350px] w-[350px] rounded-full bg-[#C9A730]/15 blur-[100px]"
+              className="absolute bottom-1/4 right-1/4 h-[180px] w-[180px] rounded-full bg-[#C9A730]/10 blur-[70px] sm:h-[260px] sm:w-[260px] sm:blur-[90px] md:bottom-1/3 md:h-[350px] md:w-[350px] md:bg-[#C9A730]/15 md:blur-[100px]"
               animate={{
-                x: [0, -40, 30, 0],
-                y: [0, 40, -20, 0],
+                x: [0, -25, 20, 0],
+                y: [0, 25, -15, 0],
               }}
               transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
             />
           </motion.div>
 
-          {/* Modal content */}
+          {/* Modal content - scrollable on mobile */}
           <motion.div
-            className="relative z-10 flex w-full max-w-[1100px] flex-col items-center gap-8 px-4 md:flex-row md:items-stretch md:gap-12 md:px-8"
+            className="relative z-10 flex max-h-[95vh] w-full max-w-[1100px] flex-col items-center gap-4 overflow-y-auto px-4 py-10 sm:gap-6 sm:px-6 md:max-h-none md:flex-row md:items-stretch md:gap-10 md:overflow-visible md:py-0 lg:gap-12 lg:px-8"
             initial={{ scale: 0.6, opacity: 0, rotateY: 25, y: 60 }}
             animate={{ scale: 1, opacity: 1, rotateY: 0, y: 0 }}
             exit={{ scale: 0.85, opacity: 0, y: 30 }}
@@ -135,9 +135,9 @@ export function ReelModal({ reel, onClose }: ReelModalProps) {
             onClick={(e) => e.stopPropagation()}
           >
             {/* Video player */}
-            <div className="relative">
+            <div className="relative w-full max-w-[280px] shrink-0 sm:max-w-[320px] md:max-w-none md:w-auto">
               {/* Video container - vertical 9:16 aspect */}
-              <div className="relative aspect-[9/16] h-[68vh] max-h-[760px] min-h-[480px] overflow-hidden rounded-[2rem] border border-[#AE8C20]/45 bg-black shadow-[0_32px_90px_-22px_rgba(0,0,0,0.9),0_0_56px_-8px_rgba(174,140,32,0.35)]">
+              <div className="relative aspect-[9/16] h-auto w-full overflow-hidden rounded-2xl border border-[#AE8C20]/45 bg-black shadow-[0_20px_60px_-15px_rgba(0,0,0,0.9),0_0_40px_-8px_rgba(174,140,32,0.3)] sm:rounded-[1.5rem] md:h-[60vh] md:min-h-[400px] md:max-h-[680px] md:w-auto lg:h-[68vh] lg:min-h-[480px] lg:max-h-[760px] lg:rounded-[2rem] lg:shadow-[0_32px_90px_-22px_rgba(0,0,0,0.9),0_0_56px_-8px_rgba(174,140,32,0.35)]">
                 <video
                   ref={videoRef}
                   className="h-full w-full object-cover"
@@ -149,11 +149,11 @@ export function ReelModal({ reel, onClose }: ReelModalProps) {
                 />
 
                 {/* Gradient overlays */}
-                <div className="pointer-events-none absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-black/60 to-transparent" />
-                <div className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+                <div className="pointer-events-none absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-black/60 to-transparent sm:h-24 md:h-32" />
+                <div className="pointer-events-none absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-black/80 via-black/30 to-transparent sm:h-32 md:h-40" />
 
                 {/* Progress bar (top) */}
-                <div className="absolute inset-x-4 top-4 h-0.5 overflow-hidden rounded-full bg-white/20">
+                <div className="absolute inset-x-3 top-3 h-0.5 overflow-hidden rounded-full bg-white/20 sm:inset-x-4 sm:top-4">
                   <div
                     className="h-full rounded-full bg-gradient-to-r from-[#AE8C20] to-[#D4AF37] transition-all duration-100"
                     style={{ width: `${progress}%` }}
@@ -163,26 +163,26 @@ export function ReelModal({ reel, onClose }: ReelModalProps) {
                 {/* Mute toggle */}
                 <button
                   onClick={() => setIsMuted((m) => !m)}
-                  className="absolute right-4 top-8 flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-black/40 text-white backdrop-blur-md transition-all duration-300 hover:border-[#AE8C20]/60 hover:bg-[#AE8C20]/20"
+                  className="absolute right-3 top-6 flex h-8 w-8 items-center justify-center rounded-full border border-white/20 bg-black/40 text-white backdrop-blur-md transition-all duration-300 hover:border-[#AE8C20]/60 hover:bg-[#AE8C20]/20 sm:right-4 sm:top-8 sm:h-10 sm:w-10"
                   aria-label={isMuted ? "Unmute" : "Mute"}
                 >
                   {isMuted ? (
-                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <svg className="h-3.5 w-3.5 sm:h-4 sm:w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M17.25 9.75 19.5 12m0 0 2.25 2.25M19.5 12l2.25-2.25M19.5 12l-2.25 2.25m-10.5-6 4.72-4.72a.75.75 0 0 1 1.28.53v15.88a.75.75 0 0 1-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.009 9.009 0 0 1 2.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75Z" />
                     </svg>
                   ) : (
-                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <svg className="h-3.5 w-3.5 sm:h-4 sm:w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M19.114 5.636a9 9 0 0 1 0 12.728M16.463 8.288a5.25 5.25 0 0 1 0 7.424M6.75 8.25l4.72-4.72a.75.75 0 0 1 1.28.53v15.88a.75.75 0 0 1-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.009 9.009 0 0 1 2.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75Z" />
                     </svg>
                   )}
                 </button>
 
                 {/* Bottom label inside player */}
-                <div className="absolute inset-x-0 bottom-0 p-6">
-                  <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-[#D4AF37]">
+                <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5 md:p-6">
+                  <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-[#D4AF37] sm:text-[10px] sm:tracking-[0.25em]">
                     Now Playing
                   </p>
-                  <h3 className="mt-1 text-2xl font-bold text-white drop-shadow-lg">
+                  <h3 className="mt-0.5 text-lg font-bold text-white drop-shadow-lg sm:mt-1 sm:text-xl md:text-2xl">
                     {reel.title}
                   </h3>
                 </div>
@@ -191,53 +191,53 @@ export function ReelModal({ reel, onClose }: ReelModalProps) {
 
             {/* Side info panel */}
             <motion.div
-              className="flex max-w-md flex-col justify-center text-center md:text-left"
+              className="flex max-w-md flex-col justify-center px-2 text-center sm:px-0 md:text-left"
               initial={{ x: 30, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
               transition={{ delay: 0.3, duration: 0.5 }}
             >
-              <span className="inline-flex items-center gap-2 self-center rounded-full border border-[#AE8C20]/40 bg-[#AE8C20]/10 px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.2em] text-[#D4AF37] md:self-start">
-                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#D4AF37]" />
+              <span className="inline-flex items-center gap-1.5 self-center rounded-full border border-[#AE8C20]/40 bg-[#AE8C20]/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.15em] text-[#D4AF37] sm:gap-2 sm:px-4 sm:py-1.5 sm:text-[11px] sm:tracking-[0.2em] md:self-start">
+                <span className="h-1 w-1 animate-pulse rounded-full bg-[#D4AF37] sm:h-1.5 sm:w-1.5" />
                 Featured Reel
               </span>
 
-              <h2 className="mt-5 bg-gradient-to-r from-white via-white to-[#D4AF37] bg-clip-text text-4xl font-bold leading-[1.05] tracking-tight text-transparent md:text-5xl lg:text-6xl">
+              <h2 className="mt-3 bg-gradient-to-r from-white via-white to-[#D4AF37] bg-clip-text text-2xl font-bold leading-[1.1] tracking-tight text-transparent sm:mt-4 sm:text-3xl md:mt-5 md:text-4xl lg:text-5xl xl:text-6xl">
                 {reel.title}
               </h2>
 
-              <p className="mt-4 text-base text-zinc-300 md:text-lg">
+              <p className="mt-2 text-sm text-zinc-300 sm:mt-3 sm:text-base md:mt-4 md:text-lg">
                 {reel.subtitle}
               </p>
 
-              <p className="mt-6 text-sm leading-relaxed text-zinc-400">
+              <p className="mt-3 hidden text-sm leading-relaxed text-zinc-400 sm:mt-4 sm:block md:mt-6">
                 Crafted with cinematic precision. Every frame engineered to captivate, every cut designed to convert. This is storytelling reimagined for the AI era.
               </p>
 
               {/* CTA buttons */}
-              <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row md:items-start">
+              <div className="mt-4 flex flex-col items-center gap-2.5 sm:mt-6 sm:flex-row sm:gap-3 md:mt-8 md:items-start">
                 <a
                   href={INSTAGRAM_URL}
                   target="_blank"
                   rel="noreferrer"
-                  className="group inline-flex items-center gap-3 rounded-full bg-gradient-to-r from-[#AE8C20] to-[#D4AF37] px-6 py-3 text-sm font-bold uppercase tracking-wider text-zinc-950 shadow-lg shadow-[#AE8C20]/30 transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-[#AE8C20]/50"
+                  className="group inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#AE8C20] to-[#D4AF37] px-4 py-2 text-xs font-bold uppercase tracking-wider text-zinc-950 shadow-lg shadow-[#AE8C20]/30 transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-[#AE8C20]/50 sm:gap-3 sm:px-5 sm:py-2.5 sm:text-sm md:px-6 md:py-3"
                 >
                   Watch Full Reel
-                  <svg className="h-4 w-4 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <svg className="h-3 w-3 transition-transform group-hover:translate-x-1 sm:h-4 sm:w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
                   </svg>
                 </a>
 
                 <button
                   onClick={handleShare}
-                  className="group inline-flex items-center gap-2 rounded-full border border-white/20 px-6 py-3 text-sm font-semibold uppercase tracking-wider text-white transition-all duration-300 hover:border-[#AE8C20]/60 hover:bg-white/5"
+                  className="group inline-flex items-center gap-2 rounded-full border border-white/20 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-white transition-all duration-300 hover:border-[#AE8C20]/60 hover:bg-white/5 sm:px-5 sm:py-2.5 sm:text-sm md:px-6 md:py-3"
                 >
                   {shareStatus === "copied" ? "Link copied" : shareStatus === "failed" ? "Copy failed" : "Share"}
                   {shareStatus === "copied" ? (
-                    <svg className="h-4 w-4 text-[#D4AF37]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                    <svg className="h-3 w-3 text-[#D4AF37] sm:h-4 sm:w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
                     </svg>
                   ) : (
-                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <svg className="h-3 w-3 sm:h-4 sm:w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M7.217 10.907a2.25 2.25 0 1 0 0 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186 9.566-5.314m-9.566 7.5 9.566 5.314m0 0a2.25 2.25 0 1 0 3.935 2.186 2.25 2.25 0 0 0-3.935-2.186Zm0-12.814a2.25 2.25 0 1 0 3.933-2.185 2.25 2.25 0 0 0-3.933 2.185Z" />
                     </svg>
                   )}
@@ -245,24 +245,24 @@ export function ReelModal({ reel, onClose }: ReelModalProps) {
               </div>
             </motion.div>
 
-            {/* Close button - top right */}
+            {/* Close button - fixed position on mobile */}
             <motion.button
               onClick={onClose}
-              className="absolute -top-2 right-2 z-20 flex h-12 w-12 items-center justify-center rounded-full border border-white/20 bg-black/60 text-white backdrop-blur-md transition-all duration-300 hover:rotate-90 hover:border-[#AE8C20] hover:bg-[#AE8C20]/20 md:-top-4 md:-right-4"
+              className="fixed right-3 top-3 z-20 flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-black/70 text-white backdrop-blur-md transition-all duration-300 hover:rotate-90 hover:border-[#AE8C20] hover:bg-[#AE8C20]/20 sm:right-4 sm:top-4 sm:h-11 sm:w-11 md:absolute md:-right-4 md:-top-4 md:h-12 md:w-12 md:bg-black/60"
               initial={{ scale: 0, rotate: -90 }}
               animate={{ scale: 1, rotate: 0 }}
               transition={{ delay: 0.4, type: "spring", damping: 15 }}
               aria-label="Close"
             >
-              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <svg className="h-4 w-4 sm:h-5 sm:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
               </svg>
             </motion.button>
           </motion.div>
 
-          {/* Hint at bottom */}
+          {/* Hint at bottom - hidden on mobile */}
           <motion.div
-            className="absolute bottom-6 left-1/2 z-10 -translate-x-1/2 text-[11px] uppercase tracking-[0.25em] text-white/40"
+            className="absolute bottom-4 left-1/2 z-10 hidden -translate-x-1/2 text-[11px] uppercase tracking-[0.25em] text-white/40 sm:bottom-6 md:block"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6 }}
