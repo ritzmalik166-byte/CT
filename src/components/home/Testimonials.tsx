@@ -5,6 +5,8 @@ import { ReelModal } from "@/components/ui/ReelModal";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useRef, useState } from "react";
+import { Swiper, SwiperSlide } from "swiper/react";
+import "swiper/css";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
@@ -96,6 +98,53 @@ function ReelCard({
         </div>
       </div>
     </button>
+  );
+}
+
+/** Mobile Swiper slides only: no <button> so horizontal drag + nested page scroll behave reliably. */
+function ReelSwipeCard({
+  reel,
+  onOpen,
+}: {
+  reel: ShowcaseReel;
+  onOpen: (r: ShowcaseReel) => void;
+}) {
+  return (
+    <div
+      role="button"
+      tabIndex={0}
+      onClick={() => onOpen(reel)}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onOpen(reel);
+        }
+      }}
+      className="group relative h-full w-full cursor-pointer touch-manipulation overflow-hidden rounded-[1.75rem] border-2 border-[#AE8C20]/40 bg-zinc-900 text-left shadow-[0_40px_90px_-25px_rgba(0,0,0,0.95),0_0_70px_-12px_rgba(174,140,32,0.4)] outline-none transition-colors duration-300 hover:border-[#AE8C20]/80 focus-visible:ring-2 focus-visible:ring-[#AE8C20]"
+      aria-label={`Open ${reel.title}`}
+    >
+      <video
+        src={reel.video}
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="metadata"
+        className="pointer-events-none h-full w-full select-none object-cover [-webkit-touch-callout:none]"
+      />
+
+      <div className="pointer-events-none absolute inset-0 rounded-[1.75rem] ring-1 ring-inset ring-white/15" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-white/15 to-transparent" />
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+
+      <div className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#AE8C20]/90 shadow-lg shadow-[#AE8C20]/40 backdrop-blur-sm">
+          <svg className="ml-1 h-6 w-6 text-zinc-950" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M8 5v14l11-7z" />
+          </svg>
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -281,27 +330,35 @@ export function Testimonials() {
           Swipe to browse — tap any card to view full screen
         </p>
 
-        <div
-          className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth px-4 pb-4 sm:-mx-6 sm:gap-5 sm:px-6"
-          style={{ scrollbarWidth: "thin", scrollbarColor: "#AE8C20 #18181b" }}
-          data-lenis-prevent
-        >
-          {SHOWCASE_REELS.map((reel) => (
-            <article
-              key={`m-${reel.id}`}
-              className="w-[72vw] max-w-[260px] shrink-0 snap-center first:ml-0 last:mr-0 sm:w-[56vw] sm:max-w-[280px]"
-            >
-              <div className="relative aspect-[9/14] w-full overflow-hidden rounded-2xl border border-[#AE8C20]/35 bg-zinc-900 shadow-xl shadow-black/40">
-                <div className="absolute inset-0">
-                  <ReelCard reel={reel} onOpen={setOpenReel} />
-                </div>
-              </div>
-              <div className="mt-3 px-0.5 text-center">
-                <p className="text-sm font-semibold text-white">{reel.title}</p>
-                <p className="mt-1 text-[11px] leading-snug text-zinc-400">{reel.subtitle}</p>
-              </div>
-            </article>
-          ))}
+        <div className="-mx-4 pb-4 sm:-mx-6" data-lenis-prevent-touch>
+          <Swiper
+            slidesPerView="auto"
+            spaceBetween={16}
+            nested
+            slidesOffsetBefore={16}
+            slidesOffsetAfter={16}
+            threshold={12}
+            className="testimonials-mobile-swiper !overflow-x-clip pb-1 sm:!px-[6px]"
+            breakpoints={{
+              640: { spaceBetween: 20 },
+            }}
+          >
+            {SHOWCASE_REELS.map((reel) => (
+              <SwiperSlide key={`m-${reel.id}`} className="!w-[72vw] !max-w-[260px] sm:!w-[56vw] sm:!max-w-[280px]">
+                <article className="h-full">
+                  <div className="relative aspect-[9/14] w-full overflow-hidden rounded-2xl border border-[#AE8C20]/35 bg-zinc-900 shadow-xl shadow-black/40">
+                    <div className="absolute inset-0">
+                      <ReelSwipeCard reel={reel} onOpen={setOpenReel} />
+                    </div>
+                  </div>
+                  <div className="mt-3 px-0.5 text-center">
+                    <p className="text-sm font-semibold text-white">{reel.title}</p>
+                    <p className="mt-1 text-[11px] leading-snug text-zinc-400">{reel.subtitle}</p>
+                  </div>
+                </article>
+              </SwiperSlide>
+            ))}
+          </Swiper>
         </div>
       </div>
 
