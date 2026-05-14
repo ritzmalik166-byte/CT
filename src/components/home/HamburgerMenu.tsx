@@ -1,7 +1,6 @@
 "use client";
 
 import { AnimatePresence, motion, type Variants } from "framer-motion";
-import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
@@ -181,22 +180,7 @@ export function HamburgerMenu({ isOpen, onClose, currentPage = "studio" }: Hambu
             exit="exit"
             className="relative z-10 flex h-full flex-col items-center justify-center px-6"
           >
-            {/* Logo at top */}
-            <motion.div
-              variants={itemVariants}
-              className="absolute left-4 top-4 sm:left-6 sm:top-6 md:left-10 md:top-8"
-            >
-              <Link href="/" onClick={onClose} className="flex items-center gap-2.5">
-                <Image
-                  src="/assets/favicon.png"
-                  alt="Contenaissance"
-                  width={200}
-                  height={60}
-                  className="h-10 w-auto sm:h-14 md:h-20"
-                  priority
-                />
-              </Link>
-            </motion.div>
+            {/* Logo is the fixed site logo (z-[120]) so it is not duplicated here */}
 
             {/* Centered navigation */}
             <nav className="flex flex-col items-center gap-4 md:gap-6">

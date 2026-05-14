@@ -35,45 +35,45 @@ const TESTIMONIALS: Testimonial[] = [
   {
     variant: "quote",
     quote:
-      "Their AI powered workflow helped us scale content production faster while maintaining premium quality across every campaign.",
-    name: "Aarav Sharma",
-    role: "Marketing Director",
-    company: "Nova Digital",
+      "Fast, creative, and incredibly consistent their AI content workflow completely changed how we scale campaigns.",
+    name: "FAORFOX-EON",
+    role: "Marketing Head",
+    company: "Ritz Media World",
     initials: "AS",
   },
   {
     variant: "quote",
     quote:
-      "From intelligent automation to creative execution, the team delivered experiences that genuinely elevated our brand presence.",
-    name: "Ananya Verma",
-    role: "CMO",
-    company: "Lumina Labs",
+      "The quality felt premium from day one. Their AI-powered creatives gave our brand a much stronger digital identity.",
+    name: "ELDECO GROUP",
+    role: "Managing Director",
+    company: "Creative Thinks Media",
     initials: "AV",
   },
   {
     variant: "quote",
     quote:
-      "The combination of strategy, design, and AI innovation gave our business a completely new digital identity.",
-    name: "Rohan Mehta",
-    role: "Head of Brand",
+      "What impressed us most was how quickly they turned ideas into high-performing digital campaigns.",
+    name: "MADHUSUDHAN GHEE",
+    role: "Managing Director",
     company: "Northline AI",
     initials: "RM",
   },
   {
     variant: "quote",
     quote:
-      "Their ability to merge cinematic visuals with intelligent AI solutions made every deliverable feel futuristic and premium.",
-    name: "Ishita Kapoor",
-    role: "Creative Strategist",
+      "Their AI-driven approach helped us create engaging content for social media, ads, and brand launches effortlessly.",
+    name: "ESCORTS TRACTOR",
+    role: "Chief Communication Officer ",
     company: "BrightForge",
     initials: "IK",
   },
   {
     variant: "quote",
     quote:
-      "We needed a partner who could move fast without compromising innovation, creativity, or execution quality.",
-    name: "Vivaan Malhotra",
-    role: "Product Lead",
+      "The team understood both creativity and performance marketing, which made every campaign more effective.",
+    name: "SAYA GROUP",
+    role: "Director",
     company: "GreenByte",
     initials: "VM",
   },
@@ -107,8 +107,6 @@ function QuoteCard({ item }: { item: Extract<Testimonial, { variant: "quote" }> 
           <p className="text-sm font-semibold text-zinc-900">{item.name}</p>
           <p className="text-xs text-zinc-500">
             {item.role}
-            <br />
-            {item.company}
           </p>
         </div>
       </div>

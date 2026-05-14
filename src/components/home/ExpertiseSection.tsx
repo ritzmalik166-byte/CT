@@ -17,12 +17,12 @@ const USE_CASES = [
   {
     title: "Digital-First Content",
     description:
-      "Design high-velocity content for any modern digital consumption platform. Using advanced AI tools, we help you craft compelling and contextual visuals that connect with your audience across diverse social ecosystems.",
+      "Create high-performing AI-generated content for social media, advertising, reels, digital campaigns, branded storytelling, audience engagement, and multi-platform brand experiences across modern digital ecosystems.",
   },
   {
     title: "AI-Powered Campaigns",
     description:
-      "Enhance campaigns with AI and scale marketing. Our strategies are based on data and performance, guaranteeing you the best ROI for your digital marketing budget.",
+      "Enhance marketing campaigns with AI-driven creative strategy, automated content production, audience targeting, and performance-focused digital advertising.",
   },
   {
     title: "Visual Identity Systems",
@@ -114,11 +114,11 @@ export function ExpertiseSection() {
             <span className="h-1.5 w-1.5 rounded-full bg-[#AE8C20]" />
             Expertise
           </span>
-          <h2 className="mt-5 bg-gradient-to-r from-zinc-900 via-zinc-900 to-[#AE8C20] bg-clip-text text-3xl font-bold leading-[1.05] tracking-tight text-transparent sm:mt-6 sm:text-5xl md:text-6xl lg:text-7xl">
-            AI Services
+          <h2 className="mt-5 bg-gradient-to-r from-zinc-900 via-zinc-900 to-[#AE8C20] bg-clip-text text-2xl font-bold leading-[1.05] tracking-tight text-transparent sm:mt-6 sm:text-5xl md:text-6xl lg:text-7xl">
+          AI Creative Services
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-sm text-zinc-600 sm:mt-5 sm:text-base md:text-lg">
-            Merging human creative intuition with the raw power of neural intelligence.
+          AI-powered creative solutions for campaigns, content, branding, & digital experiences.
           </p>
         </div>
       </div>

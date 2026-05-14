@@ -247,26 +247,26 @@ export default function PortfolioPage() {
     <div ref={pageRef} className="relative overflow-hidden bg-zinc-950 text-white">
       <HamburgerMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} currentPage="portfolio" />
 
-      <header className="fixed left-0 right-0 top-0 z-50 px-4 py-4 sm:px-6 sm:py-5 md:px-10 md:py-6">
-        <div className="mx-auto flex max-w-[1400px] items-center justify-between">
-          <Link href="/" className="flex items-center gap-2.5">
-            <Image
-              src="/assets/favicon.png"
-              alt="Contenaissance"
-              width={220}
-              height={66}
-              className="h-10 w-auto sm:h-12 md:h-16"
-              priority
-            />
-          </Link>
-        </div>
-      </header>
+      <Link
+        href="/"
+        onClick={() => setMenuOpen(false)}
+        className="fixed left-4 top-4 z-[120] sm:left-5 sm:top-5 md:left-9 md:top-6"
+      >
+        <Image
+          src="/assets/favicon.png"
+          alt="Contenaissance"
+          width={220}
+          height={66}
+          className="h-10 w-auto sm:h-12 md:h-16"
+          priority
+        />
+      </Link>
 
       <button
         type="button"
         aria-label={menuOpen ? "Close menu" : "Open menu"}
         onClick={() => setMenuOpen((value) => !value)}
-        className="group fixed right-4 top-4 z-[110] flex h-10 w-10 items-center justify-center rounded-full border border-zinc-700 bg-zinc-900/90 text-white shadow-[0_12px_30px_rgba(0,0,0,0.25)] backdrop-blur-md transition-all duration-300 hover:border-[#AE8C20]/50 hover:bg-[#AE8C20] hover:shadow-[0_16px_40px_rgba(174,140,32,0.35)] sm:right-5 sm:top-5 sm:h-12 sm:w-12 md:right-9 md:top-6 md:h-14 md:w-14"
+        className="group fixed right-4 top-4 z-[120] flex h-10 w-10 items-center justify-center rounded-full border border-zinc-700 bg-zinc-900/90 text-white shadow-[0_12px_30px_rgba(0,0,0,0.25)] backdrop-blur-md transition-all duration-300 hover:border-[#AE8C20]/50 hover:bg-[#AE8C20] hover:shadow-[0_16px_40px_rgba(174,140,32,0.35)] sm:right-5 sm:top-5 sm:h-12 sm:w-12 md:right-9 md:top-6 md:h-14 md:w-14"
       >
         {menuOpen ? (
           <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
@@ -291,17 +291,17 @@ export default function PortfolioPage() {
           <div className="grid gap-6 text-center sm:gap-8 md:grid-cols-[1fr_340px] md:items-start md:gap-8 md:text-left lg:grid-cols-[1fr_480px] lg:gap-10">
             <div>
               <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.35em] text-[#AE8C20] sm:mb-4 sm:text-xs md:mb-6">
-                Curated Portfolio
+              AI Creative Experiences
               </p>
               <h1 className="portfolio-hero-title text-[2.75rem] font-normal leading-[0.9] tracking-[-0.06em] text-white sm:text-[3.5rem] md:text-[4.5rem] lg:text-[6rem] xl:text-[8rem]">
-                Creative
+                AI Creative
                 <br />
-                Portraits
+                Experiences
               </h1>
             </div>
 
             <p className="portfolio-hero-copy mx-auto max-w-md text-sm leading-loose text-zinc-300 sm:max-w-lg md:mx-0 md:mt-16 md:text-[15px] lg:mt-24 lg:max-w-xl lg:text-base">
-              We bring together elite creators, advanced AI, and strategic direction to craft visual experiences that position brands at the top, not just in the market, but in perception.
+            Explore AI-generated campaigns, digital content, visual storytelling, and creative experiences built for modern brands.
             </p>
           </div>
 
@@ -410,15 +410,15 @@ export default function PortfolioPage() {
 
       <section className="relative overflow-hidden bg-zinc-950 px-4 py-20 text-white sm:px-6 sm:py-24 md:px-10 md:py-32">
         <div className="mx-auto max-w-[1400px]">
-          <div className="mx-auto mb-10 max-w-4xl text-center sm:mb-14">
+          <div className="mx-auto mb-10 max-w-5xl text-center sm:mb-14">
             <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.35em] text-[#AE8C20] sm:mb-4 sm:text-xs">
               Visual Systems
             </p>
-            <h2 className="animated-section-title text-[clamp(2.5rem,8vw,8rem)] font-bold leading-[0.9] tracking-[-0.07em]">
-              Curated Portfolio
+            <h2 className="animated-section-title text-[clamp(2.5rem,8vw,6rem)] font-bold leading-[0.9] tracking-[-0.07em]">
+             AI Creative Experiences
             </h2>
             <p className="mt-4 text-sm leading-loose text-zinc-400 sm:mt-6 md:text-base">
-              A selection of high-impact visual experiences designed to elevate brands and create lasting impressions.
+            A Selection of AI-powered visuals, campaigns, and digital experiences crafted for modern brands.
             </p>
           </div>
 

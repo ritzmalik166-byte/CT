@@ -373,28 +373,27 @@ export default function ContactPage() {
     <div ref={pageRef} className="relative bg-zinc-950 text-white">
       <HamburgerMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} currentPage="contact" />
 
-      {/* Fixed header */}
-      <header className="fixed left-0 right-0 top-0 z-50 px-4 py-4 sm:px-6 sm:py-5 md:px-10 md:py-6">
-        <div className="mx-auto flex max-w-[1400px] items-center justify-between">
-          <Link href="/" className="flex items-center">
-            <Image
-              src="/assets/favicon.png"
-              alt="Contenaissance"
-              width={220}
-              height={66}
-              className="h-10 w-auto sm:h-12 md:h-16"
-              priority
-            />
-          </Link>
-        </div>
-      </header>
+      <Link
+        href="/"
+        onClick={() => setMenuOpen(false)}
+        className="fixed left-4 top-4 z-[120] sm:left-5 sm:top-5 md:left-9 md:top-6"
+      >
+        <Image
+          src="/assets/favicon.png"
+          alt="Contenaissance"
+          width={220}
+          height={66}
+          className="h-10 w-auto sm:h-12 md:h-16"
+          priority
+        />
+      </Link>
 
       {/* Hamburger */}
       <button
         type="button"
         aria-label={menuOpen ? "Close menu" : "Open menu"}
         onClick={() => setMenuOpen((v) => !v)}
-        className="group fixed right-4 top-4 z-[110] flex h-10 w-10 items-center justify-center rounded-full border border-zinc-700 bg-zinc-900/90 text-white shadow-[0_12px_30px_rgba(0,0,0,0.25)] backdrop-blur-md transition-all duration-300 hover:border-[#AE8C20]/50 hover:bg-[#AE8C20] sm:right-5 sm:top-5 sm:h-12 sm:w-12 md:right-9 md:top-6 md:h-14 md:w-14"
+        className="group fixed right-4 top-4 z-[120] flex h-10 w-10 items-center justify-center rounded-full border border-zinc-700 bg-zinc-900/90 text-white shadow-[0_12px_30px_rgba(0,0,0,0.25)] backdrop-blur-md transition-all duration-300 hover:border-[#AE8C20]/50 hover:bg-[#AE8C20] sm:right-5 sm:top-5 sm:h-12 sm:w-12 md:right-9 md:top-6 md:h-14 md:w-14"
       >
         {menuOpen ? (
           <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
@@ -482,7 +481,7 @@ export default function ContactPage() {
                     </svg>
                   ),
                   label: "Location",
-                  value: "Unit No. 404, 4Th Floor Corporate Park, Tower A1 Sector 142, Noida, Uttar Pradesh, India",
+                  value: "Unit No. 404, 4th Floor, Corporate Park Tower A1, Sector 142, Noida, Uttar Pradesh 201305, India",
                 },
               ].map((item) => (
                 <div

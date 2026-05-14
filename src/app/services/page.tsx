@@ -28,7 +28,7 @@ const VIDEO_SHOWCASES = [
   {
     video: VIDEOS[2],
     title: "Digital Innovation",
-    subtitle: "Where creativity meets technology",
+    subtitle: "Where Creativity Meets Technology",
   },
 ];
 
@@ -62,9 +62,9 @@ const SERVICES = [
       "PERFORMANCE OPTIMIZATION WITH AI ANALYTICS",
     ],
     paragraphs: [
-      "In a digital-first world, we consume content faster than ever, and it has to hit home right away. Through the use of AI, we create fast, appealing content for you that resonates with your audience. Our content engages online users instantly, whether they are visiting your website, scrolling your mobile app, or simply seeing it on social media.",
-      "Using advanced AI, we craft contextually relevant content that is tailored to meet the exact requirements of your target audience. We know that each platform needs its own design, so the vibes of your content always suit the message at the right time. Whether to help you move views on your advertising message, E-commerce business, or any web service, and more!",
-      "Translating the content into appropriate media as per the audience requirement ensures effective engagement. Through the use of AI analytics, we keep a track of engagement and optimize it for maximum effectiveness. Regardless of whether you are launching a product, building brand awareness, or running a campaign, our content delivers results on all digital platforms.",
+      "In today’s digital-first world, audiences consume content faster than ever, making high-quality AI-generated content and digital storytelling essential for modern brands. Using advanced AI-powered creative services, we create engaging visual content, social media creatives, website content, digital campaigns, branded visuals, and performance-driven marketing assets that instantly connect with your audience across every platform.",
+      "From social media marketing and AI-powered advertising campaigns to website visuals, e-commerce creatives, and mobile-first digital experiences, our AI creative studio develops platform-specific content tailored to audience behavior, engagement trends, and brand identity. Every visual and campaign is strategically designed to improve audience engagement, brand visibility, and digital performance.",
+      "Using AI content optimization, creative automation, and audience analytics, we continuously refine campaigns for maximum reach, engagement, and conversion rates. Whether you're launching a product, building brand awareness, scaling an e-commerce business, or running a digital marketing campaign, our AI-powered content solutions deliver impactful experiences across modern digital platforms.",
     ],
   },
   {
@@ -79,9 +79,9 @@ const SERVICES = [
       "SCALABLE AI CAMPAIGNS",
     ],
     paragraphs: [
-      "Make full use of the potential of your marketing campaigns to drive better results and increase profits. We use AI technology to create data-driven strategies to help you reach your intended audience as effectively as possible. We closely examine how users behave and what campaigns look like, we make sure you do not waste any of your dollars.",
-      "The use of AI technology can enhance your marketing campaigns in all aspects. We analyze and predict the market from the vast data. The accurate analysis helps to optimize the campaigns. Our approach guarantees the fulfilment of all performance objectives, resulting in substantial returns on your ad expenditures.",
-      "Incorporate AI into the heart of your marketing campaign and you will easily scale your marketing campaigns. By relying on our data-driven strategies, it is easy to adapt to market trends and consumer behavior to keep your marketing campaigns effective. AI powered marketing campaigns provide result-driven services, from social media marketing to email marketing.",
+      "Make full use of the potential of your AI-powered marketing campaigns to drive better results, improve audience engagement, and increase profits. We use advanced AI marketing technology and data-driven marketing strategies to help brands reach their target audience with maximum precision and performance. By analyzing user behavior, campaign performance, and audience insights, we ensure your advertising budget is optimized for the highest possible ROI.",
+"Our AI-powered campaign management enhances every aspect of modern digital marketing. Using predictive analytics, performance marketing, and AI audience targeting, we analyze large-scale data to optimize campaigns across multiple digital platforms. This intelligent approach helps improve conversion rates, strengthen brand visibility, and maximize returns on ad spend.", 
+"Integrating AI-driven marketing solutions into your campaigns allows businesses to scale faster and adapt to changing market trends and consumer behavior. From social media marketing and AI advertising campaigns to email marketing, digital branding, and performance-driven content strategies, our AI-powered services are designed to deliver measurable, result-oriented growth across every digital channel.",
     ],
   },
   {
@@ -356,28 +356,27 @@ export default function ServicesPage() {
       {/* Hamburger Menu */}
       <HamburgerMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} currentPage="services" />
 
-      {/* Fixed Header */}
-      <header className="fixed left-0 right-0 top-0 z-50 px-4 py-4 sm:px-6 sm:py-5 md:px-10 md:py-6">
-        <div className="mx-auto flex max-w-[1400px] items-center justify-between">
-          <Link href="/" className="flex items-center gap-2.5">
-            <Image
-              src="/assets/favicon.png"
-              alt="Contenaissance"
-              width={220}
-              height={66}
-              className="h-10 w-auto sm:h-12 md:h-16"
-              priority
-            />
-          </Link>
-        </div>
-      </header>
+      <Link
+        href="/"
+        onClick={() => setMenuOpen(false)}
+        className="fixed left-4 top-4 z-[120] sm:left-5 sm:top-5 md:left-9 md:top-6"
+      >
+        <Image
+          src="/assets/favicon.png"
+          alt="Contenaissance"
+          width={220}
+          height={66}
+          className="h-10 w-auto sm:h-12 md:h-16"
+          priority
+        />
+      </Link>
 
       {/* Fixed Hamburger Button */}
       <button
         type="button"
         aria-label={menuOpen ? "Close menu" : "Open menu"}
         onClick={() => setMenuOpen((v) => !v)}
-        className="group fixed right-4 top-4 z-[110] flex h-10 w-10 items-center justify-center rounded-full border border-zinc-700 bg-zinc-900/90 text-white shadow-[0_12px_30px_rgba(0,0,0,0.25)] backdrop-blur-md transition-all duration-300 hover:border-[#AE8C20]/50 hover:bg-[#AE8C20] hover:shadow-[0_16px_40px_rgba(174,140,32,0.35)] sm:right-5 sm:top-5 sm:h-12 sm:w-12 md:right-9 md:top-6 md:h-14 md:w-14"
+        className="group fixed right-4 top-4 z-[120] flex h-10 w-10 items-center justify-center rounded-full border border-zinc-700 bg-zinc-900/90 text-white shadow-[0_12px_30px_rgba(0,0,0,0.25)] backdrop-blur-md transition-all duration-300 hover:border-[#AE8C20]/50 hover:bg-[#AE8C20] hover:shadow-[0_16px_40px_rgba(174,140,32,0.35)] sm:right-5 sm:top-5 sm:h-12 sm:w-12 md:right-9 md:top-6 md:h-14 md:w-14"
       >
         {menuOpen ? (
           <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
@@ -464,13 +463,13 @@ export default function ServicesPage() {
                 </h2>
 
                 {/* Content Grid */}
-                <div className="grid gap-8 md:grid-cols-[minmax(280px,30%)_1fr] md:items-start md:gap-10 lg:grid-cols-[minmax(320px,32%)_1fr] lg:gap-16">
+                <div className="grid gap-[20px] md:grid-cols-[minmax(280px,30%)_1fr] md:items-start md:gap-10 lg:grid-cols-[minmax(320px,32%)_1fr] lg:gap-16">
                   {/* Golden feature lines — stacked tight, aligned to top */}
-                  <div className="flex flex-col gap-1 text-center sm:gap-1.5 md:gap-2 md:text-left lg:gap-2.5">
+                  <div className="flex flex-col gap-[20px] text-center sm:gap-1.5 md:gap-2 md:text-left lg:gap-2.5">
                     {service.features.map((feature, i) => (
                       <p
                         key={i}
-                        className="service-feature m-0 text-[10px] font-bold uppercase leading-none tracking-[0.04em] text-[#AE8C20] sm:text-[11px] sm:tracking-[0.05em] md:text-xs md:tracking-[0.06em] lg:text-[13px]"
+                        className="service-feature m-0 text-[18px] font-bold uppercase leading-none tracking-[0.04em] text-[#AE8C20] sm:text-[11px] sm:tracking-[0.05em] md:text-[18p] md:tracking-[0.06em] lg:text-[18px]"
                       >
                         {feature}
                       </p>

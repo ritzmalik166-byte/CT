@@ -6,7 +6,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Image from "next/image";
 import Link from "next/link";
 import { useRef, useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { FloatingParticles } from "@/components/ui/FloatingParticles";
 import { HamburgerMenu } from "./HamburgerMenu";
 
@@ -15,6 +15,14 @@ gsap.registerPlugin(useGSAP, ScrollTrigger);
 const HERO_VIDEO_URL =
   "https://lfnxmldvqzqsgjigzibk.supabase.co/storage/v1/object/public/Contenaisaance/Mzha%20Nhi%20Aaya-02.1.mp4";
 
+const REVEAL_HEADLINE_WORDS = [
+  { text: "But", rotate: -2.5 },
+  { text: "are", rotate: 0 },
+  { text: "you?", rotate: 2.5 },
+] as const;
+
+const TAGLINE_TEXT = "AI is changing so fast in 2026";
+
 export function CinematicHero() {
   const rootRef = useRef<HTMLDivElement>(null);
   const heroSectionRef = useRef<HTMLElement>(null);
@@ -22,6 +30,7 @@ export function CinematicHero() {
   const ctaButtonRef = useRef<HTMLAnchorElement>(null);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [menuOpen, setMenuOpen] = useState(false);
+  const prefersReducedMotion = useReducedMotion();
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -238,7 +247,7 @@ export function CinematicHero() {
       />
 
       {/* Persistent logo - fixed to viewport, always visible */}
-      <Link href="/" className="fixed left-4 top-4 z-[110] sm:left-5 sm:top-5 md:left-9 md:top-6">
+      <Link href="/" onClick={() => setMenuOpen(false)} className="fixed left-4 top-4 z-[120] sm:left-5 sm:top-5 md:left-9 md:top-6">
         <Image
           src="/assets/favicon.png"
           alt="Contenaissance"
@@ -254,7 +263,7 @@ export function CinematicHero() {
         type="button"
         aria-label={menuOpen ? "Close menu" : "Open menu"}
         onClick={() => setMenuOpen((v) => !v)}
-        className="group fixed right-4 top-4 z-[110] flex h-10 w-10 items-center justify-center rounded-full border border-zinc-700 bg-zinc-900/90 text-white shadow-[0_12px_30px_rgba(0,0,0,0.25)] backdrop-blur-md transition-all duration-300 hover:border-[#AE8C20]/50 hover:bg-[#AE8C20] hover:shadow-[0_16px_40px_rgba(174,140,32,0.35)] sm:right-5 sm:top-5 sm:h-12 sm:w-12 md:right-9 md:top-6 md:h-14 md:w-14"
+        className="group fixed right-4 top-4 z-[120] flex h-10 w-10 items-center justify-center rounded-full border border-zinc-700 bg-zinc-900/90 text-white shadow-[0_12px_30px_rgba(0,0,0,0.25)] backdrop-blur-md transition-all duration-300 hover:border-[#AE8C20]/50 hover:bg-[#AE8C20] hover:shadow-[0_16px_40px_rgba(174,140,32,0.35)] sm:right-5 sm:top-5 sm:h-12 sm:w-12 md:right-9 md:top-6 md:h-14 md:w-14"
       >
         {menuOpen ? (
           <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
@@ -341,19 +350,88 @@ export function CinematicHero() {
         <div className="reveal-content absolute inset-x-0 bottom-0 top-[calc(6.5rem+30svh)] z-20 mx-auto flex w-full max-w-[1200px] flex-col items-center justify-center px-4 py-8 text-center opacity-0 sm:top-[calc(7.5rem+34vh)] sm:px-6 sm:py-10 md:top-[calc(8.5rem+39vh)] md:py-14">
           {/* Spinning circle - top left corner (only visible when reveal-content is visible) */}
           <Image
-            src="/assets/circle_revolve.png"
+            src="/assets/circle_evolve.png"
             alt=""
             width={180}
             height={180}
             className="pointer-events-none absolute left-0 top-2 h-16 w-16 animate-spin-slow sm:left-2 sm:top-8 sm:h-24 sm:w-24 md:left-4 md:top-10 md:h-28 md:w-28 lg:left-8"
           />
-          <p className="reveal-tagline text-base font-medium tracking-tight text-zinc-600 sm:text-xl md:text-3xl">
-            &ldquo;AI is changing so fast in 2026&rdquo;
-          </p>
+          {prefersReducedMotion ? (
+            <p className="reveal-tagline text-base font-medium tracking-tight text-zinc-600 sm:text-xl md:text-3xl">
+              &ldquo;{TAGLINE_TEXT}&rdquo;
+            </p>
+          ) : (
+            <p
+              className="reveal-tagline text-center text-base font-medium tracking-tight text-zinc-600 sm:text-xl md:text-3xl [perspective:1100px]"
+            >
+              <span className="inline-block select-none" aria-hidden>
+                &ldquo;
+              </span>
+              {TAGLINE_TEXT.split("").map((char, i) =>
+                char === " " ? (
+                  <span key={`tagline-space-${i}`} className="inline-block w-[0.22em] shrink-0" aria-hidden />
+                ) : (
+                  <span
+                    key={`tagline-char-${i}-${char}`}
+                    className="tagline-char inline-block origin-[50%_90%] cursor-default text-zinc-600 [transform:translate3d(0,0,0)_scale(1)_rotateX(0deg)] transition-[transform,color,text-shadow,filter] duration-200 ease-[cubic-bezier(0.34,1.45,0.64,1)] will-change-transform [transform-style:preserve-3d] hover:relative hover:z-10 hover:text-zinc-950 hover:[transform:translate3d(0,-0.04em,1.4rem)_scale(1.42)_rotateX(10deg)] hover:[text-shadow:0_0.35em_0.5em_rgba(174,140,32,0.35)]"
+                  >
+                    {char}
+                  </span>
+                )
+              )}
+              <span className="inline-block select-none" aria-hidden>
+                &rdquo;
+              </span>
+            </p>
+          )}
           <div className="reveal-headline relative mt-4 flex items-center justify-center sm:mt-6 md:mt-8">
-            <h2 className="relative z-10 max-w-5xl text-[clamp(2.5rem,9vw,7.25rem)] font-bold leading-[0.88] tracking-[-0.06em] text-zinc-950">
-              But are you?
-            </h2>
+            {prefersReducedMotion ? (
+              <h2 className="relative z-10 max-w-5xl text-[clamp(2.5rem,9vw,7.25rem)] font-bold leading-[0.88] tracking-[-0.06em] text-zinc-950">
+                But are you?
+              </h2>
+            ) : (
+              <motion.h2
+                className="relative z-10 max-w-5xl cursor-default text-[clamp(2.5rem,9vw,7.25rem)] font-bold leading-[0.88] tracking-[-0.06em]"
+                initial="rest"
+                whileHover="hover"
+                variants={{
+                  rest: { scale: 1 },
+                  hover: {
+                    scale: 1.02,
+                    transition: {
+                      staggerChildren: 0.055,
+                      delayChildren: 0.03,
+                      duration: 0.35,
+                      ease: [0.22, 1, 0.36, 1],
+                    },
+                  },
+                }}
+              >
+                {REVEAL_HEADLINE_WORDS.map((w, i) => (
+                  <motion.span
+                    key={w.text}
+                    className={`inline-block text-zinc-950 ${i < REVEAL_HEADLINE_WORDS.length - 1 ? "mr-[0.12em]" : ""}`}
+                    variants={{
+                      rest: {
+                        y: 0,
+                        rotate: 0,
+                        color: "#0a0a0a",
+                        textShadow: "0 0 0 rgba(174, 140, 32, 0)",
+                      },
+                      hover: {
+                        y: -7,
+                        rotate: w.rotate,
+                        color: "#AE8C20",
+                        textShadow: "0 14px 40px rgba(174, 140, 32, 0.4)",
+                        transition: { type: "spring", stiffness: 440, damping: 20 },
+                      },
+                    }}
+                  >
+                    {w.text}
+                  </motion.span>
+                ))}
+              </motion.h2>
+            )}
           </div>
           <Link
             ref={ctaButtonRef}
