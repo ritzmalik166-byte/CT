@@ -4,7 +4,7 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Image from "next/image";
-import { useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { FloatingParticles } from "@/components/ui/FloatingParticles";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
@@ -36,46 +36,46 @@ const TESTIMONIALS: Testimonial[] = [
     variant: "quote",
     quote:
       "Their AI powered workflow helped us scale content production faster while maintaining premium quality across every campaign.",
-    name: "Sophia Williams",
+    name: "Aarav Sharma",
     role: "Marketing Director",
     company: "Nova Digital",
-    initials: "SW",
+    initials: "AS",
   },
   {
     variant: "quote",
     quote:
       "From intelligent automation to creative execution, the team delivered experiences that genuinely elevated our brand presence.",
-    name: "Elena Rossi",
+    name: "Ananya Verma",
     role: "CMO",
     company: "Lumina Labs",
-    initials: "ER",
+    initials: "AV",
   },
   {
     variant: "quote",
     quote:
       "The combination of strategy, design, and AI innovation gave our business a completely new digital identity.",
-    name: "Arjun Mehta",
+    name: "Rohan Mehta",
     role: "Head of Brand",
     company: "Northline AI",
-    initials: "AM",
+    initials: "RM",
   },
   {
     variant: "quote",
     quote:
       "Their ability to merge cinematic visuals with intelligent AI solutions made every deliverable feel futuristic and premium.",
-    name: "Emily Chen",
+    name: "Ishita Kapoor",
     role: "Creative Strategist",
     company: "BrightForge",
-    initials: "EC",
+    initials: "IK",
   },
   {
     variant: "quote",
     quote:
       "We needed a partner who could move fast without compromising innovation, creativity, or execution quality.",
-    name: "Nicolas Sanchez",
+    name: "Vivaan Malhotra",
     role: "Product Lead",
     company: "GreenByte",
-    initials: "NS",
+    initials: "VM",
   },
 ];
 
@@ -97,12 +97,12 @@ function QuoteCard({ item }: { item: Extract<Testimonial, { variant: "quote" }> 
 
       {/* Author info */}
       <div className="mt-5 flex items-center gap-3 border-t border-zinc-100 pt-4">
-        <div
+        {/* <div
           className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-zinc-800 text-[10px] font-bold text-white sm:h-10 sm:w-10 sm:text-[11px]"
           aria-hidden
         >
           {item.initials}
-        </div>
+        </div> */}
         <div className="min-w-0">
           <p className="text-sm font-semibold text-zinc-900">{item.name}</p>
           <p className="text-xs text-zinc-500">
@@ -119,18 +119,67 @@ function QuoteCard({ item }: { item: Extract<Testimonial, { variant: "quote" }> 
 /* ───────────────────────────────────────────────────────────────
    Featured Card – large image card on left
 ─────────────────────────────────────────────────────────────── */
+const FEATURED_PARALLAX_RANGE = 22;
+
 function FeaturedCard({ item }: { item: Extract<Testimonial, { variant: "featured" }> }) {
+  const articleRef = useRef<HTMLElement | null>(null);
+  const [motionOk, setMotionOk] = useState(true);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const apply = () => setMotionOk(!mq.matches);
+    apply();
+    mq.addEventListener("change", apply);
+    return () => mq.removeEventListener("change", apply);
+  }, []);
+
+  const [{ x, y }, setShift] = useState({ x: 0, y: 0 });
+
+  const onMove = useCallback(
+    (e: React.MouseEvent<HTMLElement>) => {
+      if (!motionOk) return;
+      const el = articleRef.current;
+      if (!el) return;
+      const r = el.getBoundingClientRect();
+      const nx = (e.clientX - r.left) / r.width;
+      const ny = (e.clientY - r.top) / r.height;
+      /* Normalized −1 … 1; move opposite to cursor for inward parallax depth */
+      const fx = nx * 2 - 1;
+      const fy = ny * 2 - 1;
+      setShift({ x: -fx * FEATURED_PARALLAX_RANGE, y: -fy * FEATURED_PARALLAX_RANGE });
+    },
+    [motionOk]
+  );
+
+  const clearShift = useCallback(() => {
+    setShift({ x: 0, y: 0 });
+  }, []);
+
   return (
-    <article className="relative w-full overflow-hidden rounded-2xl ring-1 ring-zinc-200/80 lg:h-full lg:min-h-[400px] lg:flex-shrink-0 lg:rounded-none lg:ring-0">
+    <article
+      ref={articleRef}
+      onMouseMove={onMove}
+      onMouseLeave={clearShift}
+      className="relative w-full overflow-hidden rounded-2xl ring-1 ring-zinc-200/80 lg:h-full lg:min-h-[400px] lg:flex-shrink-0 lg:rounded-none lg:ring-0"
+    >
       {/* Mobile / tablet: portrait card; lg+: fills left column */}
-      <div className="relative aspect-[3/4] w-full max-h-[min(68svh,520px)] min-h-[280px] sm:aspect-[4/5] sm:max-h-[min(62svh,560px)] sm:min-h-[320px] lg:absolute lg:inset-0 lg:aspect-auto lg:max-h-none lg:min-h-0">
-        <Image
-          src={item.image}
-          alt={`${item.name} — spotlight`}
-          fill
-          className="object-cover object-top sm:object-center"
-          sizes="(max-width: 1024px) 92vw, 320px"
-        />
+      <div className="relative aspect-[3/4] w-full max-h-[min(68svh,520px)] min-h-[280px] overflow-hidden sm:aspect-[4/5] sm:max-h-[min(62svh,560px)] sm:min-h-[320px] lg:absolute lg:inset-0 lg:aspect-auto lg:max-h-none lg:min-h-0">
+        <div
+          className={`absolute inset-0 will-change-transform ${motionOk ? "transition-[transform] duration-500 ease-[cubic-bezier(0.25,1,0.5,1)]" : ""}`}
+          style={{
+            transform: `translate3d(${x}px, ${y}px, 0) scale(1.1)`,
+            transformOrigin: "center center",
+          }}
+        >
+          <Image
+            src={item.image}
+            alt={`${item.name} — spotlight`}
+            fill
+            className="object-cover object-top sm:object-center"
+            sizes="(max-width: 1024px) 92vw, 320px"
+            priority={false}
+          />
+        </div>
       </div>
 
       {/* Vignette + bottom fade for readable text */}
