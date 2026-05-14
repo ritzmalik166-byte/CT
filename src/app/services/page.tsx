@@ -6,10 +6,9 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { SplitText } from "gsap/SplitText";
 import Image from "next/image";
 import Link from "next/link";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { CTAFooter } from "@/components/home/CTAFooter";
 import { HamburgerMenu } from "@/components/home/HamburgerMenu";
-import { useState } from "react";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger, SplitText);
 
@@ -32,7 +31,42 @@ const VIDEO_SHOWCASES = [
   },
 ];
 
-const SERVICES = [
+type ServiceParagraphSegment = string | { h: string; em?: boolean };
+
+type ServiceDefinition = {
+  id: string;
+  title: string;
+  video: string;
+  theme: "dark" | "light";
+  features: string[];
+  paragraphs: ServiceParagraphSegment[][];
+};
+
+function ServiceParagraphBody({
+  segments,
+  isDark,
+}: {
+  segments: ServiceParagraphSegment[];
+  isDark: boolean;
+}) {
+  const highlightClass = isDark
+    ? "font-bold text-[#AE8C20]"
+    : "font-bold text-zinc-950";
+  return segments.map((seg, i) =>
+    typeof seg === "string" ? (
+      <span key={i}>{seg}</span>
+    ) : (
+      <strong
+        key={i}
+        className={`${highlightClass}${seg.em ? " italic" : ""}`}
+      >
+        {seg.h}
+      </strong>
+    )
+  );
+}
+
+const SERVICES: ServiceDefinition[] = [
   {
     id: "ai-brand-films",
     title: "AI Brand Films",
@@ -45,9 +79,24 @@ const SERVICES = [
       "AI CINEMATIC MARKETING",
     ],
     paragraphs: [
-      "Find out how 3D technology powered by AI can change the story of your brand into the cinema. Our group employs the use of generative AI to produce amazing brand videos that mesh live-action with virtual environments to ensure a built-up visual experience. Our brand films powered by AI enhance your company's story engaging viewers with captivating visuals and creative narrative.",
-      "Through our AI brand films, the audience can become emotionally attached to your brand and be more aware of it. We combine the latest AI technology with traditional storytelling to create a brand film that is better than the competition. A unique audiovisual and interactive experience leaves a lasting impression and significantly enhances your brand value.",
-      "AI brand films are the marketing of the future whether you need a corporate presentation, a digital ad, or something for social media. With our creative approach, we'll ensure that your brand stands apart from the competition and is an experience to remember. AI filmmaking tells the story of your brand in the most futuristic and attention-grabbing way possible.",
+      [
+        "Find out how ",
+        { h: "3D technology powered by AI", em: true },
+        " can change the story of your brand into the cinema. Our group employs the use of ",
+        { h: "generative AI" },
+        " to produce amazing brand videos that mesh live-action with virtual environments to ensure a built-up visual experience. Our brand films powered by AI enhance your company's story engaging viewers with captivating visuals and creative narrative.",
+      ],
+      [
+        "Through our AI brand films, the audience can become emotionally attached to your brand and be more aware of it. We combine the latest ",
+        { h: "AI technology" },
+        " with traditional storytelling to create a brand film that is better than the competition. A unique audiovisual and interactive experience leaves a lasting impression and significantly enhances your brand value.",
+      ],
+      [
+        { h: "AI brand films" },
+        " are the marketing of the future whether you need a corporate presentation, a digital ad, or something for social media. With our creative approach, we'll ensure that your brand stands apart from the competition and is an experience to remember. ",
+        { h: "AI filmmaking" },
+        " tells the story of your brand in the most futuristic and attention-grabbing way possible.",
+      ],
     ],
   },
   {
@@ -62,9 +111,37 @@ const SERVICES = [
       "PERFORMANCE OPTIMIZATION WITH AI ANALYTICS",
     ],
     paragraphs: [
-      "In today’s digital-first world, audiences consume content faster than ever, making high-quality AI-generated content and digital storytelling essential for modern brands. Using advanced AI-powered creative services, we create engaging visual content, social media creatives, website content, digital campaigns, branded visuals, and performance-driven marketing assets that instantly connect with your audience across every platform.",
-      "From social media marketing and AI-powered advertising campaigns to website visuals, e-commerce creatives, and mobile-first digital experiences, our AI creative studio develops platform-specific content tailored to audience behavior, engagement trends, and brand identity. Every visual and campaign is strategically designed to improve audience engagement, brand visibility, and digital performance.",
-      "Using AI content optimization, creative automation, and audience analytics, we continuously refine campaigns for maximum reach, engagement, and conversion rates. Whether you're launching a product, building brand awareness, scaling an e-commerce business, or running a digital marketing campaign, our AI-powered content solutions deliver impactful experiences across modern digital platforms.",
+      [
+        "In today’s digital-first world, audiences consume content faster than ever, making ",
+        { h: "high-quality AI-generated content" },
+        " and ",
+        { h: "digital storytelling" },
+        " essential for modern brands. Using advanced ",
+        { h: "AI-powered creative services," },
+        " we create engaging visual content, social media creatives, website content, digital campaigns, branded visuals, and performance-driven marketing assets that instantly connect with your audience across every platform.",
+      ],
+      [
+        "From social media marketing and ",
+        { h: "AI-powered advertising campaigns" },
+        " to website visuals, e-commerce creatives, and mobile-first digital experiences, our AI creative studio develops platform-specific content tailored to audience behavior, engagement trends, and brand identity. Every visual and campaign is strategically designed to improve audience engagement, brand visibility, and digital performance.",
+      ],
+      [
+        "Using ",
+        { h: "AI content optimization," },
+        " ",
+        { h: "creative automation," },
+        " and ",
+        { h: "audience analytics," },
+        " we continuously refine campaigns for maximum reach, engagement, and conversion rates. Whether you're launching a product, building ",
+        { h: "brand awareness," },
+        " scaling an e-commerce ",
+        { h: "business," },
+        " or running a ",
+        { h: "digital marketing campaign," },
+        " our ",
+        { h: "AI-powered content solutions" },
+        " deliver impactful experiences across modern digital platforms.",
+      ],
     ],
   },
   {
@@ -79,9 +156,21 @@ const SERVICES = [
       "SCALABLE AI CAMPAIGNS",
     ],
     paragraphs: [
-      "Make full use of the potential of your AI-powered marketing campaigns to drive better results, improve audience engagement, and increase profits. We use advanced AI marketing technology and data-driven marketing strategies to help brands reach their target audience with maximum precision and performance. By analyzing user behavior, campaign performance, and audience insights, we ensure your advertising budget is optimized for the highest possible ROI.",
-"Our AI-powered campaign management enhances every aspect of modern digital marketing. Using predictive analytics, performance marketing, and AI audience targeting, we analyze large-scale data to optimize campaigns across multiple digital platforms. This intelligent approach helps improve conversion rates, strengthen brand visibility, and maximize returns on ad spend.", 
-"Integrating AI-driven marketing solutions into your campaigns allows businesses to scale faster and adapt to changing market trends and consumer behavior. From social media marketing and AI advertising campaigns to email marketing, digital branding, and performance-driven content strategies, our AI-powered services are designed to deliver measurable, result-oriented growth across every digital channel.",
+      [
+        "Make full use of the potential of your ",
+        { h: "AI-powered marketing campaigns" },
+        " to drive better results, improve audience engagement, and increase profits. We use advanced AI marketing technology and data-driven marketing strategies to help brands reach their target audience with maximum precision and performance. By analyzing user behavior, campaign performance, and audience insights, we ensure your advertising budget is optimized for the highest possible ROI.",
+      ],
+      [
+        "Our AI-powered campaign management enhances every aspect of modern digital marketing. Using predictive analytics, performance marketing, and AI audience targeting, we analyze large-scale data to optimize campaigns across multiple digital platforms. This intelligent approach helps improve conversion rates, strengthen brand visibility, and maximize returns on ad spend.",
+      ],
+      [
+        "Integrating AI-driven marketing solutions into your campaigns allows businesses to scale faster and adapt to changing market trends and consumer behavior. From social media marketing and ",
+        { h: "AI advertising campaigns" },
+        " to ",
+        { h: "email marketing, digital branding, and performance-driven content strategies," },
+        " our AI-powered services are designed to deliver measurable, result-oriented growth across every digital channel.",
+      ],
     ],
   },
   {
@@ -96,9 +185,21 @@ const SERVICES = [
       "UI/UX DESIGN & INTERACTIVE ASSETS",
     ],
     paragraphs: [
-      "Coin a powerful AI-driven visual identity system which can precisely and strategically define your brand and its behavior in the long-term. We develop scalable branding frameworks to ensure visual consistency at all touchpoints, including the digital world, print and social media, packaging, advertising, and experiences. Each element is made so that its message is recognisable, strengthened by the brand identity selected that will operate firmly on the market.",
-      "We will establish the suitable visual language, brand aesthetic, and intelligent design systems within today's AI-enabled ecosystem, in keeping with your organizational values, industry practices, and competitive landscape. All the elements, from detailed brand guidelines and visual governance frameworks to logo architecture, colour psychology, typography systems and iconography, is created to ensure consistency and adaptability as your brand evolves.",
-      "We offer comprehensive visual identity solutions including logotypes, colour palettes, typographic hierarchies, digital assets, UI/UX components, packaging imagery, brand collateral, motion graphics and interactive design systems. We provide long-term brand value, connection, and recall by creating a pleasing identity through effective design that speaks to your audience and differentiates you in a crowded online and offline marketplace.",
+      [
+        "Coin a powerful ",
+        { h: "AI-driven visual identity system" },
+        " which can precisely and strategically define your brand and its behavior in the long-term. We develop scalable branding frameworks to ensure visual consistency at all touchpoints, including the digital world, print and social media, packaging, advertising, and experiences. Each element is made so that its message is recognisable, strengthened by the brand identity selected that will operate firmly on the market.",
+      ],
+      [
+        "We will establish the suitable visual language, brand aesthetic, and intelligent design systems within today's AI-enabled ecosystem, in keeping with your organizational values, industry practices, and competitive landscape. All the elements, from detailed brand guidelines and visual governance frameworks to logo architecture, colour psychology, typography systems and iconography, is created to ensure consistency and adaptability as your brand evolves.",
+      ],
+      [
+        "We offer comprehensive visual identity solutions including ",
+        { h: "logotypes, colour palettes, typographic hierarchies, digital assets, UI/UX components, packaging imagery, brand collateral, motion graphics" },
+        " and ",
+        { h: "interactive design systems" },
+        ". We provide long-term brand value, connection, and recall by creating a pleasing identity through effective design that speaks to your audience and differentiates you in a crowded online and offline marketplace.",
+      ],
     ],
   },
 ];
@@ -469,7 +570,7 @@ export default function ServicesPage() {
                     {service.features.map((feature, i) => (
                       <p
                         key={i}
-                        className="service-feature m-0 text-[18px] font-bold uppercase leading-none tracking-[0.04em] text-[#AE8C20] sm:text-[11px] sm:tracking-[0.05em] md:text-[18p] md:tracking-[0.06em] lg:text-[18px]"
+                        className="service-feature m-0 text-[18px] font-bold uppercase leading-none tracking-[0.04em] text-[#AE8C20] sm:text-[11px] sm:tracking-[0.05em] md:text-[18px] md:tracking-[0.06em] lg:text-[18px]"
                       >
                         {feature}
                       </p>
@@ -478,14 +579,14 @@ export default function ServicesPage() {
 
                   {/* Paragraphs - centered on mobile, left on larger */}
                   <div className=" text-center  md:text-left">
-                    {service.paragraphs.map((para, i) => (
+                    {service.paragraphs.map((segments, i) => (
                       <p
                         key={i}
                         className={`service-paragraph text-sm leading-relaxed md:text-base md:leading-loose ${
                           isDark ? "text-zinc-400" : "text-zinc-600"
                         }`}
                       >
-                        {para}
+                        <ServiceParagraphBody segments={segments} isDark={isDark} />
                       </p>
                     ))}
                   </div>

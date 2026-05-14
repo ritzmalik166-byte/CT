@@ -348,13 +348,13 @@ export function CinematicHero() {
 
         {/* Revealed content after scroll - below video */}
         <div className="reveal-content absolute inset-x-0 bottom-0 top-[calc(6.5rem+30svh)] z-20 mx-auto flex w-full max-w-[1200px] flex-col items-center justify-center px-4 py-8 text-center opacity-0 sm:top-[calc(7.5rem+34vh)] sm:px-6 sm:py-10 md:top-[calc(8.5rem+39vh)] md:py-14">
-          {/* Spinning circle - top left corner (only visible when reveal-content is visible) */}
+          {/* Spinning circle — centered on mobile; anchored left from md */}
           <Image
             src="/assets/circle_evolve.png"
             alt=""
             width={180}
             height={180}
-            className="pointer-events-none absolute left-0 top-2 h-16 w-16 animate-spin-slow sm:left-2 sm:top-8 sm:h-24 sm:w-24 md:left-4 md:top-10 md:h-28 md:w-28 lg:left-8"
+            className="pointer-events-none absolute left-1/2 top-2 h-16 w-16 -translate-x-1/2 animate-spin-slow sm:top-8 sm:h-24 sm:w-24 md:left-4 md:top-10 md:h-28 md:w-28 md:translate-x-0 lg:left-8"
           />
           {prefersReducedMotion ? (
             <p className="reveal-tagline text-base font-medium tracking-tight text-zinc-600 sm:text-xl md:text-3xl">
