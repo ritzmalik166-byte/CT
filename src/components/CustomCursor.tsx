@@ -91,7 +91,7 @@ export function CustomCursor() {
       {/* Main cursor dot */}
       <motion.div
         ref={cursorRef}
-        className="pointer-events-none fixed left-0 top-0 z-[100000] mix-blend-difference"
+        className="pointer-events-none fixed left-0 top-0 z-[var(--z-cursor-dot)] mix-blend-difference"
         style={{
           x: cursorXSpring,
           y: cursorYSpring,
@@ -127,7 +127,7 @@ export function CustomCursor() {
 
       {/* Cursor ring */}
       <motion.div
-        className="pointer-events-none fixed left-0 top-0 z-[99999]"
+        className="pointer-events-none fixed left-0 top-0 z-[var(--z-cursor-ring)]"
         style={{
           x: cursorXSpring,
           y: cursorYSpring,

@@ -3,6 +3,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState, useRef } from "react";
 import { createPortal } from "react-dom";
+import { useLenisScrollLock } from "@/components/SmoothScrollProvider";
 
 interface Reel {
   id: number;
@@ -19,6 +20,7 @@ interface ReelModalProps {
 const INSTAGRAM_URL = "https://www.instagram.com/contenaissance/";
 
 export function ReelModal({ reel, onClose }: ReelModalProps) {
+  useLenisScrollLock(!!reel);
   const [isMuted, setIsMuted] = useState(false);
   const [progress, setProgress] = useState(0);
   const [shareStatus, setShareStatus] = useState<"idle" | "copied" | "failed">("idle");
@@ -91,7 +93,7 @@ export function ReelModal({ reel, onClose }: ReelModalProps) {
     <AnimatePresence>
       {reel && (
         <motion.div
-          className="fixed inset-0 z-[9999] flex items-center justify-center"
+          className="fixed inset-0 z-[var(--z-modal)] flex items-center justify-center"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}

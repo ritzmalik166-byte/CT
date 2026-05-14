@@ -284,6 +284,7 @@ export function Testimonials() {
         <div
           className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth px-4 pb-4 sm:-mx-6 sm:gap-5 sm:px-6"
           style={{ scrollbarWidth: "thin", scrollbarColor: "#AE8C20 #18181b" }}
+          data-lenis-prevent
         >
           {SHOWCASE_REELS.map((reel) => (
             <article

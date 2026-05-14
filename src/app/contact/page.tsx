@@ -376,7 +376,7 @@ export default function ContactPage() {
       <Link
         href="/"
         onClick={() => setMenuOpen(false)}
-        className="fixed left-4 top-4 z-[120] sm:left-5 sm:top-5 md:left-9 md:top-6"
+        className="fixed left-4 top-4 z-[var(--z-chrome)] sm:left-5 sm:top-5 md:left-9 md:top-6"
       >
         <Image
           src="/assets/favicon.png"
@@ -393,7 +393,7 @@ export default function ContactPage() {
         type="button"
         aria-label={menuOpen ? "Close menu" : "Open menu"}
         onClick={() => setMenuOpen((v) => !v)}
-        className="group fixed right-4 top-4 z-[120] flex h-10 w-10 items-center justify-center rounded-full border border-zinc-700 bg-zinc-900/90 text-white shadow-[0_12px_30px_rgba(0,0,0,0.25)] backdrop-blur-md transition-all duration-300 hover:border-[#AE8C20]/50 hover:bg-[#AE8C20] sm:right-5 sm:top-5 sm:h-12 sm:w-12 md:right-9 md:top-6 md:h-14 md:w-14"
+        className="group fixed right-4 top-4 z-[var(--z-chrome)] flex h-10 w-10 items-center justify-center rounded-full border border-zinc-700 bg-zinc-900/90 text-white shadow-[0_12px_30px_rgba(0,0,0,0.25)] backdrop-blur-md transition-all duration-300 hover:border-[#AE8C20]/50 hover:bg-[#AE8C20] sm:right-5 sm:top-5 sm:h-12 sm:w-12 md:right-9 md:top-6 md:h-14 md:w-14"
       >
         {menuOpen ? (
           <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>

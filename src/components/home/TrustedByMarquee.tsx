@@ -97,7 +97,7 @@ function TypewriterTooltip({ text, isVisible, position, logoName, anchorRect }: 
         left: `${Math.max(12, Math.min(left, window.innerWidth - tooltipWidth - 12))}px`,
         top: position === "top" ? "auto" : `${top}px`,
         bottom: position === "top" ? `${window.innerHeight - anchorRect.top + 16}px` : "auto",
-        zIndex: 99999,
+        zIndex: "var(--z-tooltip)",
       }}
     >
       <div 
