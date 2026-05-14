@@ -680,3 +680,12 @@ a, button {
     @apply font-sans;
   }
 }
+
+/* Coarse pointer (phones): native momentum scroll */
+@layer base {
+  @media (pointer: coarse) {
+    html {
+      -webkit-overflow-scrolling: touch;
+    }
+  }
+}
