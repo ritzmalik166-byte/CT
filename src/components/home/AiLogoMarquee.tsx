@@ -9,6 +9,9 @@ import { createPortal } from "react-dom";
 
 gsap.registerPlugin(useGSAP);
 
+const GEMINI_LOGO_URL =
+  "https://lfnxmldvqzqsgjigzibk.supabase.co/storage/v1/object/public/Contenaisaance/gemini.png";
+
 const aiLogos = [
   {
     src: "/assets/chatgpt.png",
@@ -21,7 +24,7 @@ const aiLogos = [
     description: "Anthropic's AI assistant focused on being helpful, harmless, and honest.",
   },
   {
-    src: "/assets/gemini.png",
+    src: GEMINI_LOGO_URL,
     alt: "Gemini",
     description: "Google's multimodal AI model capable of understanding text, images, and code.",
   },
