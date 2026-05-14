@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Inter } from "next/font/google";
 import "./globals.css";
-import { SmoothScroll } from "@/components/SmoothScroll";
 import { NoiseOverlay } from "@/components/NoiseOverlay";
 import { CustomCursor } from "@/components/CustomCursor";
 import { cn } from "@/lib/utils";
@@ -45,11 +44,9 @@ export default function RootLayout({
       className={cn("h-full", "antialiased", "overflow-x-hidden", geistSans.variable, geistMono.variable, "font-sans", inter.variable)}
     >
       <body className="min-h-full flex flex-col bg-white overflow-x-hidden" suppressHydrationWarning>
-        <SmoothScroll>
-          <NoiseOverlay />
-          <CustomCursor />
-          {children}
-        </SmoothScroll>
+        <NoiseOverlay />
+        <CustomCursor />
+        {children}
       </body>
     </html>
   );
