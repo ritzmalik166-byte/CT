@@ -3,6 +3,7 @@ import { Geist, Geist_Mono, Inter } from "next/font/google";
 import "./globals.css";
 import { NoiseOverlay } from "@/components/NoiseOverlay";
 import { CustomCursor } from "@/components/CustomCursor";
+import { SiteBootLoader } from "@/components/SiteBootLoader";
 import { SmoothScrollProvider } from "@/components/SmoothScrollProvider";
 import { cn } from "@/lib/utils";
 
@@ -47,7 +48,9 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col bg-white overflow-x-hidden" suppressHydrationWarning>
         <NoiseOverlay />
         <CustomCursor />
-        <SmoothScrollProvider>{children}</SmoothScrollProvider>
+        <SiteBootLoader>
+          <SmoothScrollProvider>{children}</SmoothScrollProvider>
+        </SiteBootLoader>
       </body>
     </html>
   );

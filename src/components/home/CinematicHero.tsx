@@ -9,11 +9,9 @@ import { useRef, useEffect, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { FloatingParticles } from "@/components/ui/FloatingParticles";
 import { HamburgerMenu } from "./HamburgerMenu";
+import { HERO_VIDEO_URL } from "@/lib/critical-assets";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
-
-const HERO_VIDEO_URL =
-  "https://lfnxmldvqzqsgjigzibk.supabase.co/storage/v1/object/public/Contenaisaance/Mzha%20Nhi%20Aaya-02.1.mp4";
 
 const REVEAL_HEADLINE_WORDS = [
   { text: "But", rotate: -2.5 },
