@@ -576,7 +576,7 @@ export default function ContactPage() {
               {/* Quote */}
               <blockquote className="contact-info-item border-l-2 border-[#AE8C20]/50 pl-6">
                 <p className="contact-quote-text text-sm italic leading-loose text-zinc-400">
-                  &ldquo;Where human creativity meets artificial precision — we craft experiences that define the future.&rdquo;
+                  &ldquo;Where human creativity meets artificial precision , we craft experiences that define the future.&rdquo;
                 </p>
                 <cite className="contact-quote-cite mt-3 block text-[10px] font-bold uppercase tracking-[0.25em] text-[#AE8C20]">
                   — Contenaissance Studio

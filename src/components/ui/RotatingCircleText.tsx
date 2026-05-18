@@ -1,9 +1,13 @@
 "use client";
 
+import Image from "next/image";
 import { useId } from "react";
 
-const PHRASE =
-  "Grow Brand Ritz Gen AI Storytelling Studio Grow Brand Ritz Gen AI Storytelling Studio • ";
+const PHRASE = "Brand Films • AI Storytelling • AI Visuals •";
+
+/** Circle path radius in SVG user units (viewBox 0–100). */
+const PATH_RADIUS = 29;
+const PATH_LENGTH = 2 * Math.PI * PATH_RADIUS;
 
 type RotatingCircleTextProps = {
   className?: string;
@@ -18,28 +22,58 @@ export function RotatingCircleText({
   const pathId = `circle-path-${rawId}`;
 
   return (
-    <div className={className} aria-hidden>
+    <div
+      className={[
+        "reveal-circle-badge relative isolate aspect-square shrink-0 overflow-hidden",
+        className,
+      ]
+        .filter(Boolean)
+        .join(" ")}
+      aria-hidden
+    >
       <svg
         viewBox="0 0 100 100"
-        className={
-          reducedMotion ? "h-full w-full" : "h-full w-full animate-spin-slow"
-        }
+        className={[
+          "absolute inset-0 size-full",
+          reducedMotion ? "" : "animate-spin-slow",
+        ]
+          .filter(Boolean)
+          .join(" ")}
         fill="none"
-        style={{ transformOrigin: "50% 50%" }}
+        aria-hidden
       >
         <defs>
           <path
             id={pathId}
-            fill="transparent"
-            d="M 50,50 m -37,0 a 37,37 0 1,1 74,0 a 37,37 0 1,1 -74,0"
+            fill="none"
+            d={`M 50,50 m -${PATH_RADIUS},0 a ${PATH_RADIUS},${PATH_RADIUS} 0 1,1 ${PATH_RADIUS * 2},0 a ${PATH_RADIUS},${PATH_RADIUS} 0 1,1 -${PATH_RADIUS * 2},0`}
           />
         </defs>
-        <text className="fill-[#333333] font-sans text-[10px] font-bold md:text-[8px]">
+        <text
+          fill="#333333"
+          fontFamily="var(--font-satoshi), system-ui, sans-serif"
+          fontSize="5.1"
+          fontWeight="500"
+          letterSpacing="0.32"
+          textLength={PATH_LENGTH}
+          lengthAdjust="spacing"
+        >
           <textPath href={`#${pathId}`} startOffset="0%">
             {PHRASE}
           </textPath>
         </text>
       </svg>
+
+      <div className="pointer-events-none absolute inset-0 z-[1] grid place-items-center">
+        <Image
+          src="/assets/social-marketing.gif"
+          alt=""
+          width={44}
+          height={44}
+          unoptimized
+          className="expert-badge-gif-golden size-[42%] min-h-0 min-w-0 object-contain"
+        />
+      </div>
     </div>
   );
 }

@@ -349,7 +349,7 @@ export function CinematicHero() {
           {/* Rotating circular typography — replaces static circle asset */}
           <RotatingCircleText
             reducedMotion={prefersReducedMotion}
-            className="pointer-events-none relative z-10 mx-auto h-[7.25rem] w-[7.25rem] shrink-0 sm:h-[9rem] sm:w-[9rem] md:absolute md:left-4 md:top-10 md:z-auto md:mx-0 md:h-32 md:w-32 lg:left-8 lg:top-10"
+            className="pointer-events-none relative z-10 mx-auto !h-24 !w-24 sm:!h-28 sm:!w-28 md:absolute md:left-4 md:top-10 md:z-auto md:mx-0 md:!h-36 md:!w-36 lg:left-8 lg:top-10 lg:!h-40 lg:!w-40"
           />
           {prefersReducedMotion ? (
             <p className="reveal-tagline w-full max-w-md px-1 text-base font-medium leading-snug tracking-tight text-zinc-600 max-md:[text-wrap:balance] sm:text-xl md:text-3xl">

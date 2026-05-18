@@ -21,7 +21,16 @@
   --background-dark: #0a0a0a;
   --foreground-dark: #fafafa;
   --accent: oklch(0.97 0 0);
-  --accent-glow: rgba(174, 140, 32, 0.4);
+
+  /* Metallic gold — sampled from public/assets/favicon.png (logo / infinity mark) */
+  --gold-favicon-shadow: #5c4008;
+  --gold-favicon-deep: #8a6618;
+  --gold-favicon-base: #c5a028;
+  --gold-favicon-mid: #d4af37;
+  --gold-favicon-bright: #eed06d;
+  --gold-favicon-highlight: #f4d875;
+
+  --accent-glow: rgba(197, 160, 40, 0.42);
 
   --font-satoshi: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
   --font-cabinet: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
@@ -37,7 +46,7 @@
   --radius-lg: 36px;
   --radius-xl: 48px;
 
-  --shadow-glow: 0 0 60px rgba(174, 140, 32, 0.15);
+  --shadow-glow: 0 0 60px rgba(197, 160, 40, 0.14);
   --shadow-soft: 0 4px 30px rgba(0, 0, 0, 0.05);
   --shadow-medium: 0 8px 40px rgba(0, 0, 0, 0.08);
   --shadow-strong: 0 20px 60px rgba(0, 0, 0, 0.12);
@@ -355,7 +364,7 @@ a, button {
   background:
     radial-gradient(circle at 18% 45%, rgba(255, 246, 190, 0.95), transparent 21%),
     radial-gradient(circle at 72% 25%, rgba(255, 218, 96, 0.8), transparent 24%),
-    linear-gradient(110deg, #8A7019 0%, #AE8C20 34%, #D4B340 52%, #AE8C20 72%, #70590f 100%);
+    linear-gradient(110deg, var(--gold-favicon-deep) 0%, var(--gold-favicon-base) 34%, var(--gold-favicon-bright) 52%, var(--gold-favicon-base) 72%, var(--gold-favicon-shadow) 100%);
   opacity: 0;
   transform: translateX(-105%) skewX(-18deg);
   transition:
@@ -610,8 +619,141 @@ a, button {
     animation: none;
     opacity: 0.55;
   }
+
+  .expertise-card-icon,
+  .expertise-card-icon * {
+    animation: none !important;
+  }
+
+  .expertise-feed-bar-slow {
+    opacity: 0.92;
+    transform-origin: bottom center !important;
+  }
 }
 
+@keyframes expertise-film-reel {
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+@keyframes expertise-film-reel-rev {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes expertise-film-perf {
+  to {
+    transform: translateX(-6px);
+  }
+}
+
+@keyframes expertise-feed-bar-nudge {
+  0%,
+  100% {
+    transform: scaleY(0.28);
+    opacity: 0.55;
+  }
+  40% {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+  70% {
+    transform: scaleY(0.45);
+    opacity: 0.75;
+  }
+}
+
+@keyframes expertise-chart-travel {
+  0% {
+    opacity: 0.15;
+    transform: translate(-1px, 4px) scale(0.85);
+  }
+  35% {
+    opacity: 1;
+    transform: translate(0, -1px) scale(1.05);
+  }
+  100% {
+    opacity: 0.2;
+    transform: translate(1px, -5px) scale(0.9);
+  }
+}
+
+@keyframes expertise-identity-shift {
+  0%,
+  100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  25% {
+    transform: translate(0.8px, -0.8px) rotate(4deg);
+  }
+  50% {
+    transform: translate(-0.6px, 0.6px) rotate(-3deg);
+  }
+  75% {
+    transform: translate(-0.4px, -0.4px) rotate(2deg);
+  }
+}
+
+.expertise-card-icon svg {
+  display: block;
+  overflow: visible;
+}
+
+/* Expertise GIF badges: remap teal accents toward favicon gold (--gold-favicon-base / mid) */
+.expert-badge-gif-golden {
+  filter: saturate(1.36) hue-rotate(-146deg) brightness(1.08) contrast(1.04);
+}
+
+.origin-center {
+  transform-origin: 50% 50%;
+}
+
+.expert-animate-film-ccw {
+  animation: expertise-film-reel 10s linear infinite;
+}
+
+.expert-animate-film-cw {
+  animation: expertise-film-reel-rev 14s linear infinite;
+}
+
+.expert-animate-perf-strip {
+  animation: expertise-film-perf 1.55s linear infinite;
+}
+
+.expertise-feed-bar-slow {
+  transform-origin: center bottom;
+  animation: expertise-feed-bar-nudge 1.05s ease-in-out infinite;
+}
+
+.expert-animate-chart-hit {
+  animation: expertise-chart-travel 1.6s ease-in-out infinite;
+}
+
+.expert-animate-identity-micro {
+  animation: expertise-identity-shift 3s ease-in-out infinite;
+}
+
+.expertise-card-icon-feed .expertise-feed-bar-slow:nth-child(1) {
+  animation-delay: 0ms;
+}
+
+.expertise-card-icon-feed .expertise-feed-bar-slow:nth-child(2) {
+  animation-delay: -330ms;
+}
+
+.expertise-card-icon-feed .expertise-feed-bar-slow:nth-child(3) {
+  animation-delay: -180ms;
+}
+
+.expertise-card-icon-feed .expertise-feed-bar-slow:nth-child(4) {
+  animation-delay: -490ms;
+}
+
+.expertise-card-icon-feed .expertise-feed-bar-slow:nth-child(5) {
+  animation-delay: -90ms;
+}
 /* Gradient border */
 .gradient-border {
   position: relative;
