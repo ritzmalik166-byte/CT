@@ -13,6 +13,11 @@ import { cn } from "@/lib/utils";
 
 type Stage = "booting" | "fade" | "off";
 
+function formatLoadSeconds(ms: number): string {
+  if (ms < 1000) return `${Math.round(ms)}ms`;
+  return `${(ms / 1000).toFixed(1)}s`;
+}
+
 function waitForWindowLoad(): Promise<void> {
   if (document.readyState === "complete") return Promise.resolve();
   return new Promise((resolve) => {
@@ -46,7 +51,9 @@ export function SiteBootLoader({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   const [stage, setStage] = useState<Stage>("booting");
+  const [loadMs, setLoadMs] = useState(0);
   const reducedMotionRef = useRef(false);
+  const bootStartedRef = useRef(performance.now());
 
   useEffect(() => {
     reducedMotionRef.current = window.matchMedia(
@@ -55,8 +62,21 @@ export function SiteBootLoader({
   }, []);
 
   useEffect(() => {
+    if (stage !== "booting") return;
+
+    const tick = () => {
+      setLoadMs(Math.round(performance.now() - bootStartedRef.current));
+    };
+
+    tick();
+    const id = window.setInterval(tick, 50);
+    return () => window.clearInterval(id);
+  }, [stage]);
+
+  useEffect(() => {
     let cancelled = false;
     const started = performance.now();
+    bootStartedRef.current = started;
     const minVisibleMs = 550;
 
     async function boot() {
@@ -80,6 +100,9 @@ export function SiteBootLoader({
       }
 
       if (cancelled) return;
+
+      const totalMs = Math.round(performance.now() - started);
+      setLoadMs(totalMs);
 
       if (reducedMotionRef.current) {
         setStage("off");
@@ -154,6 +177,10 @@ export function SiteBootLoader({
               <span />
               <span />
             </div>
+            <p className="mt-2 font-mono text-[11px] tabular-nums tracking-wider text-zinc-500">
+              {stage === "fade" ? "Loaded in " : "Loading… "}
+              {formatLoadSeconds(loadMs)}
+            </p>
           </div>
         </div>
       ) : null}
