@@ -90,79 +90,108 @@ export function AIFeaturesGrid() {
         ease: "power3.out",
       });
 
-      const reels = reelRefs.current.filter(Boolean) as HTMLDivElement[];
-      if (reels.length === 0) return;
+      const mm = gsap.matchMedia();
 
-      // Set initial positions: first reel centered/visible, others off-screen
-      reels.forEach((reel, i) => {
-        if (i === 0) {
-          gsap.set(reel, { x: 0, y: 0, opacity: 1, scale: 1, rotateY: 0 });
-        } else {
-          const offset = enterOffsets[REELS[i].enterFrom];
-          gsap.set(reel, {
-            x: offset.x,
-            y: offset.y,
-            opacity: 0,
-            scale: 0.7,
-            rotateY: REELS[i].enterFrom === "right" || REELS[i].enterFrom === "left" ? 35 : 0,
-          });
-        }
-      });
+      const buildTimeline = (mobile: boolean) => {
+        const reels = reelRefs.current.filter(Boolean) as HTMLDivElement[];
+        if (reels.length === 0) return null;
 
-      const transitionsCount = reels.length - 1;
-      const segmentLength = 1; // viewport heights per transition
+        const use3d = !mobile;
+        const segmentLength = mobile ? 0.68 : 1;
+        const scrub = mobile ? 0.12 : 1;
 
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: stageRef.current,
-          start: "top top",
-          end: `+=${transitionsCount * segmentLength * 100}%`,
-          pin: true,
-          pinSpacing: true,
-          scrub: 1,
-          anticipatePin: 1,
-        },
-      });
+        reels.forEach((reel, i) => {
+          if (i === 0) {
+            gsap.set(reel, { x: 0, y: 0, opacity: 1, scale: 1, rotateY: 0 });
+          } else {
+            const offset = enterOffsets[REELS[i].enterFrom];
+            gsap.set(reel, {
+              x: offset.x,
+              y: offset.y,
+              opacity: 0,
+              scale: mobile ? 0.85 : 0.7,
+              rotateY:
+                use3d &&
+                (REELS[i].enterFrom === "right" || REELS[i].enterFrom === "left")
+                  ? 35
+                  : 0,
+            });
+          }
+        });
 
-      reels.forEach((reel, i) => {
-        if (i === 0) return;
+        const transitionsCount = reels.length - 1;
 
-        const prev = reels[i - 1];
-        const exitOffset = exitOffsets[REELS[i - 1].enterFrom];
-
-        // Previous reel exits in the opposite direction it entered from
-        tl.to(
-          prev,
-          {
-            x: exitOffset.x,
-            y: exitOffset.y,
-            opacity: 0,
-            scale: 0.7,
-            rotateY:
-              REELS[i - 1].enterFrom === "right" || REELS[i - 1].enterFrom === "left"
-                ? -35
-                : 0,
-            duration: 0.8,
-            ease: "power2.in",
+        const tl = gsap.timeline({
+          defaults: { duration: 0.85, ease: "power2.out" },
+          scrollTrigger: {
+            trigger: stageRef.current,
+            start: "top top",
+            end: `+=${transitionsCount * segmentLength * 100}%`,
+            pin: true,
+            pinSpacing: true,
+            scrub,
+            anticipatePin: mobile ? 0.5 : 1,
+            fastScrollEnd: mobile,
+            invalidateOnRefresh: true,
+            ...(mobile ? { refreshPriority: -1 } : {}),
           },
-          i - 1
-        );
+        });
 
-        // Current reel enters and lands centered
-        tl.to(
-          reel,
-          {
-            x: 0,
-            y: 0,
-            opacity: 1,
-            scale: 1,
-            rotateY: 0,
-            duration: 0.8,
-            ease: "power3.out",
-          },
-          i - 1 + 0.1
-        );
+        reels.forEach((reel, i) => {
+          if (i === 0) return;
+
+          const prev = reels[i - 1];
+          const exitOffset = exitOffsets[REELS[i - 1].enterFrom];
+          const prevFrom = REELS[i - 1].enterFrom;
+          const exitRotY =
+            use3d && (prevFrom === "right" || prevFrom === "left") ? -35 : 0;
+
+          tl.to(
+            prev,
+            {
+              x: exitOffset.x,
+              y: exitOffset.y,
+              opacity: 0,
+              scale: mobile ? 0.85 : 0.7,
+              rotateY: exitRotY,
+              ease: "power2.in",
+            },
+            i - 1
+          );
+
+          tl.to(
+            reel,
+            {
+              x: 0,
+              y: 0,
+              opacity: 1,
+              scale: 1,
+              rotateY: 0,
+            },
+            i - 1 + 0.08
+          );
+        });
+
+        return tl;
+      };
+
+      mm.add("(min-width: 768px)", () => {
+        const tl = buildTimeline(false);
+        return () => {
+          tl?.scrollTrigger?.kill();
+          tl?.kill();
+        };
       });
+
+      mm.add("(max-width: 767px)", () => {
+        const tl = buildTimeline(true);
+        return () => {
+          tl?.scrollTrigger?.kill();
+          tl?.kill();
+        };
+      });
+
+      return () => mm.revert();
     },
     { scope: sectionRef }
   );
@@ -177,10 +206,10 @@ export function AIFeaturesGrid() {
         ref={stageRef}
         className="relative flex h-screen w-full flex-col items-center justify-start overflow-hidden bg-zinc-950 pt-16 md:pt-20"
       >
-        {/* Background gradient mesh */}
+        {/* Background gradient mesh — lighter blur on small screens to reduce scroll jank */}
         <div className="pointer-events-none absolute inset-0 opacity-30">
-          <div className="absolute -left-1/4 top-0 h-[600px] w-[600px] rounded-full bg-[#AE8C20]/10 blur-[120px]" />
-          <div className="absolute -right-1/4 bottom-0 h-[600px] w-[600px] rounded-full bg-[#AE8C20]/10 blur-[120px]" />
+          <div className="absolute -left-1/4 top-0 h-[400px] w-[400px] rounded-full bg-[#AE8C20]/10 blur-[72px] md:h-[600px] md:w-[600px] md:blur-[120px]" />
+          <div className="absolute -right-1/4 bottom-0 h-[400px] w-[400px] rounded-full bg-[#AE8C20]/10 blur-[72px] md:h-[600px] md:w-[600px] md:blur-[120px]" />
         </div>
 
         {/* Header */}
@@ -194,10 +223,9 @@ export function AIFeaturesGrid() {
           </p> */}
         </div>
 
-        {/* Reels stage */}
+        {/* Reels stage — no 3D perspective below md (avoids noisy GPU compositing with touch scroll) */}
         <div
-          className="relative mt-4 flex w-full flex-1 items-center justify-center"
-          style={{ perspective: "1500px" }}
+          className="relative mt-4 flex w-full flex-1 items-center justify-center md:[perspective:1500px]"
         >
           {REELS.map((reel, i) => (
             <div
@@ -205,8 +233,8 @@ export function AIFeaturesGrid() {
               ref={(el) => {
                 reelRefs.current[i] = el;
               }}
-              className="reel-stage absolute"
-              style={{ transformStyle: "preserve-3d", willChange: "transform, opacity" }}
+              className="reel-stage absolute max-md:transform-gpu md:[transform-style:preserve-3d]"
+              style={{ willChange: "transform, opacity" }}
             >
               <button
                 type="button"
@@ -218,13 +246,13 @@ export function AIFeaturesGrid() {
                 <div className="reel-ring absolute -inset-4 rounded-full border border-[#AE8C20]/20 transition-colors duration-500 group-hover:border-[#AE8C20]/45 md:-inset-6" />
 
                 {/* Video circle */}
-                <div className="relative h-[260px] w-[260px] overflow-hidden rounded-full border-[3px] border-[#AE8C20]/35 bg-zinc-900 shadow-[0_28px_80px_-28px_rgba(0,0,0,0.95),0_0_42px_-18px_rgba(174,140,32,0.75)] transition-all duration-500 group-hover:scale-[1.03] group-hover:border-[#AE8C20]/80 group-hover:shadow-[0_30px_90px_-28px_rgba(0,0,0,1),0_0_70px_-12px_rgba(174,140,32,0.65)] md:h-[360px] md:w-[360px] lg:h-[420px] lg:w-[420px]">
-                  <video
-                    className="h-full w-full object-cover"
+                <div className="relative h-[220px] w-[220px] overflow-hidden rounded-full border-[3px] border-[#AE8C20]/35 bg-zinc-900 shadow-[0_14px_40px_-18px_rgba(0,0,0,0.85),0_0_28px_-14px_rgba(174,140,32,0.55)] transition-transform duration-500 ease-out group-hover:scale-[1.02] group-hover:border-[#AE8C20]/80 sm:h-[260px] sm:w-[260px] md:h-[360px] md:w-[360px] md:shadow-[0_28px_80px_-28px_rgba(0,0,0,0.95),0_0_42px_-18px_rgba(174,140,32,0.75)] md:group-hover:scale-[1.03] md:group-hover:shadow-[0_30px_90px_-28px_rgba(0,0,0,1),0_0_70px_-12px_rgba(174,140,32,0.65)] lg:h-[420px] lg:w-[420px]">                  <video
+                    className="pointer-events-none h-full w-full object-cover"
                     autoPlay
                     loop
                     muted
                     playsInline
+                    preload="metadata"
                   >
                     <source src={reel.video} type="video/mp4" />
                   </video>
