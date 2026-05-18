@@ -55,45 +55,86 @@ export function SmoothScrollProvider({
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    const prefersReducedMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
+    const reducedMotionMq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const narrowMq = window.matchMedia("(max-width: 1024px)");
+    const coarsePointerMq = window.matchMedia("(pointer: coarse)");
 
-    if (prefersReducedMotion) {
-      ScrollTrigger.refresh(true);
-      return;
-    }
+    const prefersNativeScroll = () =>
+      reducedMotionMq.matches || narrowMq.matches || coarsePointerMq.matches;
 
-    // Initialize Lenis
-    const lenis = new Lenis();
-    lenisRef.current = lenis;
-
-    const onLenisScroll = () => {
-      ScrollTrigger.update();
-    };
-    lenis.on("scroll", onLenisScroll);
-
-    const onScrollTriggerRefresh = () => {
-      lenis.resize();
-    };
-    ScrollTrigger.addEventListener("refresh", onScrollTriggerRefresh);
-    ScrollTrigger.refresh(true);
-
-    // Use requestAnimationFrame to continuously update the scroll
+    let lenisInstance: Lenis | null = null;
     let rafId = 0;
-    function raf(time: number) {
-      lenis.raf(time);
-      rafId = requestAnimationFrame(raf);
-    }
-    rafId = requestAnimationFrame(raf);
+    let onLenisScroll: (() => void) | undefined;
+    let onScrollTriggerRefresh: (() => void) | undefined;
 
-    return () => {
+    function tearDownLenis() {
       cancelAnimationFrame(rafId);
-      ScrollTrigger.removeEventListener("refresh", onScrollTriggerRefresh);
-      lenis.off("scroll", onLenisScroll);
+      rafId = 0;
+
+      const lenis = lenisInstance;
+      if (!lenis) return;
+
+      if (onScrollTriggerRefresh) {
+        ScrollTrigger.removeEventListener("refresh", onScrollTriggerRefresh);
+        onScrollTriggerRefresh = undefined;
+      }
+      if (onLenisScroll) {
+        lenis.off("scroll", onLenisScroll);
+        onLenisScroll = undefined;
+      }
+
       lenis.destroy();
+      lenisInstance = null;
       lenisRef.current = null;
       ScrollTrigger.refresh(true);
+    }
+
+    function startLenis() {
+      if (prefersNativeScroll()) {
+        ScrollTrigger.refresh(true);
+        return;
+      }
+
+      const lenis = new Lenis({
+        syncTouch: true,
+      });
+      lenisInstance = lenis;
+      lenisRef.current = lenis;
+
+      onLenisScroll = () => {
+        ScrollTrigger.update();
+      };
+      lenis.on("scroll", onLenisScroll);
+
+      onScrollTriggerRefresh = () => {
+        lenis.resize();
+      };
+      ScrollTrigger.addEventListener("refresh", onScrollTriggerRefresh);
+      ScrollTrigger.refresh(true);
+
+      function raf(time: number) {
+        lenis.raf(time);
+        rafId = requestAnimationFrame(raf);
+      }
+      rafId = requestAnimationFrame(raf);
+    }
+
+    function apply() {
+      tearDownLenis();
+      startLenis();
+    }
+
+    apply();
+
+    reducedMotionMq.addEventListener("change", apply);
+    narrowMq.addEventListener("change", apply);
+    coarsePointerMq.addEventListener("change", apply);
+
+    return () => {
+      reducedMotionMq.removeEventListener("change", apply);
+      narrowMq.removeEventListener("change", apply);
+      coarsePointerMq.removeEventListener("change", apply);
+      tearDownLenis();
     };
   }, []);
 
