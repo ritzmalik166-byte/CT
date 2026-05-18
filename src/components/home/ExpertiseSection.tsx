@@ -38,52 +38,110 @@ export function ExpertiseSection() {
 
   useGSAP(
     () => {
-      const header = sectionRef.current?.querySelector(".expertise-header");
-      if (header) {
-        gsap.fromTo(
-          header,
-          { y: 60, opacity: 0 },
+      const section = sectionRef.current;
+      const pin = pinRef.current;
+      const track = trackRef.current;
+      if (!section || !pin || !track) return;
+
+      const mm = gsap.matchMedia();
+
+      /** Desktop / tablet ≥768px: pinned horizontal scrub (unchanged behavior, lighter header). */
+      mm.add("(min-width: 768px)", () => {
+        const header = section.querySelector(".expertise-header");
+        if (header) {
+          gsap.fromTo(
+            header,
+            { y: 44, opacity: 0 },
+            {
+              y: 0,
+              opacity: 1,
+              duration: 0.85,
+              ease: "power2.out",
+              scrollTrigger: {
+                trigger: section,
+                start: "top 78%",
+                toggleActions: "play none none reverse",
+              },
+            },
+          );
+        }
+
+        const maxScroll = () => Math.max(0, track.scrollWidth - pin.offsetWidth);
+
+        const tween = gsap.to(track, {
+          x: () => -maxScroll(),
+          ease: "none",
+          scrollTrigger: {
+            trigger: pin,
+            start: "top top",
+            end: () => `+=${Math.max(maxScroll(), 1)}`,
+            scrub: 0.85,
+            pin: true,
+            pinSpacing: true,
+            anticipatePin: 1,
+            invalidateOnRefresh: true,
+          },
+        });
+
+        return () => {
+          tween.scrollTrigger?.kill();
+          tween.kill();
+        };
+      });
+
+      /** Mobile &lt;768px: native vertical stack — one-shot fades (no scrub / no pin). */
+      mm.add("(max-width: 767px)", () => {
+        const header = section.querySelector(".expertise-header");
+        const cards = section.querySelectorAll(".use-case-card");
+
+        const headerTween = header
+          ? gsap.fromTo(
+              header,
+              { y: 20, opacity: 0 },
+              {
+                y: 0,
+                opacity: 1,
+                duration: 0.55,
+                ease: "power2.out",
+                scrollTrigger: {
+                  trigger: header,
+                  start: "top 88%",
+                  toggleActions: "play none none reverse",
+                },
+              },
+            )
+          : null;
+
+        const cardsTween = gsap.fromTo(
+          cards,
+          { y: 28, opacity: 0 },
           {
             y: 0,
             opacity: 1,
-            ease: "none",
+            duration: 0.5,
+            stagger: 0.1,
+            ease: "power2.out",
             scrollTrigger: {
-              trigger: sectionRef.current,
-              start: "top 85%",
-              end: "top 55%",
-              scrub: 0.8,
+              trigger: pin,
+              start: "top 82%",
+              toggleActions: "play none none reverse",
             },
-          }
+          },
         );
-      }
 
-      const pin = pinRef.current;
-      const track = trackRef.current;
-      if (!pin || !track) return;
-
-      const maxScroll = () => Math.max(0, track.scrollWidth - pin.offsetWidth);
-
-      const tween = gsap.to(track, {
-        x: () => -maxScroll(),
-        ease: "none",
-        scrollTrigger: {
-          trigger: pin,
-          start: "top top",
-          end: () => `+=${Math.max(maxScroll(), 1)}`,
-          scrub: 1,
-          pin: true,
-          pinSpacing: true,
-          anticipatePin: 1,
-          invalidateOnRefresh: true,
-        },
+        return () => {
+          if (headerTween) {
+            headerTween.scrollTrigger?.kill();
+            headerTween.kill();
+          }
+          cardsTween.scrollTrigger?.kill();
+          cardsTween.kill();
+        };
       });
 
-      return () => {
-        tween.scrollTrigger?.kill();
-        tween.kill();
-      };
+      return () => mm.revert();
     },
-    { scope: sectionRef }
+    { scope: sectionRef },
   );
 
   return (
@@ -92,15 +150,15 @@ export function ExpertiseSection() {
       className="relative overflow-hidden bg-white pb-8 md:pb-16"
     >
       <div className="pointer-events-none absolute inset-0">
-        <div className="absolute right-0 top-0 h-[600px] w-[600px] -translate-y-1/2 translate-x-1/2 rounded-full bg-[#AE8C20]/[0.06] blur-[120px]" />
-        <div className="absolute bottom-0 left-0 h-[600px] w-[600px] translate-y-1/2 -translate-x-1/2 rounded-full bg-[#AE8C20]/[0.06] blur-[120px]" />
+        <div className="absolute right-0 top-0 h-[320px] w-[320px] -translate-y-1/2 translate-x-1/2 rounded-full bg-[#AE8C20]/[0.06] blur-[72px] md:h-[600px] md:w-[600px] md:blur-[120px]" />
+        <div className="absolute bottom-0 left-0 h-[320px] w-[320px] translate-y-1/2 -translate-x-1/2 rounded-full bg-[#AE8C20]/[0.06] blur-[72px] md:h-[600px] md:w-[600px] md:blur-[120px]" />
       </div>
 
-      {/* Golden floating particles */}
-      <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
+      {/* Canvas particles are heavy on mobile GPUs — desktop / tablet only */}
+      <div className="pointer-events-none absolute inset-0 z-0 hidden overflow-hidden md:block">
         <FloatingParticles
           className="absolute inset-0 h-full w-full"
-          particleCount={180}
+          particleCount={160}
           colors={["#AE8C20"]}
           mouseRadius={200}
           attractStrength={1.3}
@@ -115,27 +173,28 @@ export function ExpertiseSection() {
             Expertise
           </span>
           <h2 className="mt-5 bg-gradient-to-r from-zinc-900 via-zinc-900 to-[#AE8C20] bg-clip-text text-2xl font-bold leading-[1.05] tracking-tight text-transparent sm:mt-6 sm:text-5xl md:text-6xl lg:text-7xl">
-          AI Creative Services
+            AI Creative Services
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-sm text-zinc-600 sm:mt-5 sm:text-base md:text-lg">
-          AI-powered creative solutions for campaigns, content, branding, & digital experiences.
+            AI-powered creative solutions for campaigns, content, branding, &
+            digital experiences.
           </p>
         </div>
       </div>
 
-      {/* Pinned horizontal strip: vertical scroll scrubs the row right → left */}
+      {/* md+: pinned horizontal strip. &lt;md: vertical stack in document flow */}
       <div
         ref={pinRef}
-        className="expertise-pin relative z-10 flex h-[min(100dvh,720px)] min-h-[380px] w-full items-center overflow-hidden md:min-h-[480px] md:h-screen"
+        className="expertise-pin relative z-10 mt-10 flex w-full flex-col gap-8 px-4 pb-12 sm:mt-12 sm:gap-10 sm:px-6 md:mt-0 md:h-[min(100dvh,720px)] md:min-h-[480px] md:items-center md:gap-0 md:overflow-hidden md:px-0 md:pb-0"
       >
         <div
           ref={trackRef}
-          className="expertise-track flex w-max items-stretch gap-4 px-4 will-change-transform sm:gap-6 sm:px-6 md:gap-8 md:px-8 lg:px-10"
+          className="expertise-track flex w-full flex-col gap-6 md:w-max md:flex-row md:items-stretch md:gap-8 md:px-8 lg:gap-8 lg:px-10"
         >
           {USE_CASES.map((useCase) => (
             <article
               key={useCase.title}
-              className="use-case-card group relative flex w-[min(88vw,400px)] shrink-0 flex-col overflow-hidden rounded-2xl border border-zinc-200 bg-white p-6 shadow-[0_20px_50px_-15px_rgba(24,24,27,0.12)] sm:w-[380px] sm:p-7 md:w-[420px] md:p-8 lg:w-[460px]"
+              className="use-case-card group relative mx-auto flex w-full max-w-xl shrink-0 flex-col overflow-hidden rounded-2xl border border-zinc-200 bg-white p-6 shadow-[0_20px_50px_-15px_rgba(24,24,27,0.12)] sm:p-7 md:mx-0 md:w-[420px] md:max-w-none md:p-8 lg:w-[460px]"
             >
               <span
                 aria-hidden
@@ -151,7 +210,7 @@ export function ExpertiseSection() {
                 className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full bg-[#AE8C20]/0 blur-3xl transition-all duration-700 group-hover:bg-[#AE8C20]/15"
               />
 
-              <div className="relative flex min-h-[320px] flex-col sm:min-h-[340px]">
+              <div className="relative flex min-h-[260px] flex-col sm:min-h-[300px] md:min-h-[320px]">
                 <span className="inline-flex w-fit rounded-md bg-[#AE8C20]/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-[#AE8C20]">
                   Use Case
                 </span>
@@ -173,7 +232,11 @@ export function ExpertiseSection() {
                     stroke="currentColor"
                     strokeWidth={2}
                   >
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M17 8l4 4m0 0l-4 4m4-4H3"
+                    />
                   </svg>
                 </a>
               </div>

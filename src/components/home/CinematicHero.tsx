@@ -237,16 +237,8 @@ export function CinematicHero() {
   );
 
   return (
-    <div ref={rootRef} className="relative overflow-hidden">
-      {/* Mouse-follow gradient blob */}
-      <motion.div
-        className="pointer-events-none fixed inset-0 z-0 opacity-30"
-        style={{
-          background: `radial-gradient(600px circle at ${mousePosition.x}px ${mousePosition.y}px, rgba(174, 140, 32, 0.15), transparent 40%)`,
-        }}
-      />
-
-      {/* Persistent logo - fixed to viewport, always visible */}
+    <>
+      {/* Fixed chrome lives outside overflow-hidden so it cannot be clipped */}
       <Link href="/" onClick={() => setMenuOpen(false)} className="fixed left-4 top-4 z-[var(--z-chrome)] sm:left-5 sm:top-5 md:left-9 md:top-6">
         <Image
           src="/assets/favicon.png"
@@ -258,7 +250,6 @@ export function CinematicHero() {
         />
       </Link>
 
-      {/* Persistent hamburger menu - fixed to viewport, always visible */}
       <button
         type="button"
         aria-label={menuOpen ? "Close menu" : "Open menu"}
@@ -279,8 +270,16 @@ export function CinematicHero() {
         )}
       </button>
 
-      {/* Full-screen hamburger menu overlay */}
       <HamburgerMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} currentPage="studio" />
+
+      <div ref={rootRef} className="relative overflow-hidden">
+        {/* Mouse-follow gradient blob */}
+        <motion.div
+          className="pointer-events-none fixed inset-0 z-0 opacity-30"
+          style={{
+            background: `radial-gradient(600px circle at ${mousePosition.x}px ${mousePosition.y}px, rgba(174, 140, 32, 0.15), transparent 40%)`,
+          }}
+        />
 
       <section
         ref={heroSectionRef}
@@ -447,6 +446,7 @@ export function CinematicHero() {
           </Link>
         </div>
       </section>
-    </div>
+      </div>
+    </>
   );
 }
