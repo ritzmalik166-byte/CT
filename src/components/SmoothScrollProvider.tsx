@@ -20,8 +20,12 @@ const LenisContext = createContext<LenisContextValue>({
 });
 
 /** Pause Lenis when full-screen overlays lock body scroll (menu, modal). */
+export function useLenis() {
+  return useContext(LenisContext);
+}
+
 export function useLenisScrollLock(locked: boolean) {
-  const { getLenis } = useContext(LenisContext);
+  const { getLenis } = useLenis();
 
   useEffect(() => {
     if (!locked) return;

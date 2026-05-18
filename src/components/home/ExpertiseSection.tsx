@@ -34,50 +34,47 @@ const USE_CASES = [
 export function ExpertiseSection() {
   const sectionRef = useRef<HTMLElement>(null);
   const pinRef = useRef<HTMLDivElement>(null);
-  const trackRef = useRef<HTMLDivElement>(null);
 
   useGSAP(
     () => {
       const section = sectionRef.current;
       const pin = pinRef.current;
-      const track = trackRef.current;
-      if (!section || !pin || !track) return;
+      if (!section || !pin) return;
 
       const mm = gsap.matchMedia();
 
-      /** Desktop / tablet ≥768px: pinned horizontal scrub (unchanged behavior, lighter header). */
-      mm.add("(min-width: 768px)", () => {
-        gsap.set(section.querySelectorAll(".use-case-card"), { opacity: 1 });
+      /** Desktop lg+ (≥1024px): pin heading + scrubbed horizontal row */
+      mm.add("(min-width: 1024px)", () => {
+        const cards = gsap.utils.toArray<HTMLElement>(
+          section.querySelectorAll(".use-case-card"),
+        );
+        if (cards.length === 0) return;
 
-        const header = section.querySelector(".expertise-header");
-        if (header) {
-          gsap.fromTo(
-            header,
-            { y: 44, opacity: 0 },
-            {
-              y: 0,
-              opacity: 1,
-              duration: 0.85,
-              ease: "power2.out",
-              scrollTrigger: {
-                trigger: section,
-                start: "top 78%",
-                toggleActions: "play none none reverse",
-              },
-            },
-          );
-        }
+        cards.forEach((card, i) => {
+          card.style.zIndex = String(10 + i);
+        });
 
-        const maxScroll = () => Math.max(0, track.scrollWidth - pin.offsetWidth);
+        const lead = cards[0];
+        const rest = cards.slice(1);
 
-        const tween = gsap.to(track, {
-          x: () => -maxScroll(),
-          ease: "none",
+        gsap.set(lead, { scaleX: 0.9, transformOrigin: "50% 50%" });
+        gsap.set(rest, { yPercent: 108, opacity: 0.25, force3D: true });
+
+        const segment = 0.95;
+        const introPad = 0.12;
+        const scrollMultiplier = 0.4;
+
+        const tl = gsap.timeline({
+          defaults: { ease: "none" },
           scrollTrigger: {
             trigger: pin,
             start: "top top",
-            end: () => `+=${Math.max(maxScroll(), 1)}`,
-            scrub: 0.85,
+            end: () =>
+              `+=${Math.max(
+                window.innerHeight * scrollMultiplier * (cards.length + introPad * 1.35),
+                1,
+              )}`,
+            scrub: 0.55,
             pin: true,
             pinSpacing: true,
             anticipatePin: 1,
@@ -85,13 +82,87 @@ export function ExpertiseSection() {
           },
         });
 
+        tl.to(
+          lead,
+          { scaleX: 1, duration: segment * 0.55, ease: "none" },
+          introPad,
+        );
+
+        rest.forEach((card, i) => {
+          const start = introPad + segment * 0.45 + i * segment;
+          tl.to(
+            card,
+            { yPercent: 0, opacity: 1, duration: segment * 0.92, ease: "none" },
+            start,
+          );
+        });
+
         return () => {
-          tween.scrollTrigger?.kill();
-          tween.kill();
+          tl.scrollTrigger?.kill();
+          tl.kill();
+          cards.forEach((c) => {
+            c.style.removeProperty("z-index");
+          });
+          gsap.set(cards, { clearProps: "transform,opacity" });
         };
       });
 
-      /** Mobile &lt;768px: cards use a simple fade-in (opacity) once when scrolled into view. */
+      /** Tablet only 768–1023px: 2×2 layout via CSS — no scrub / pin */
+      mm.add("(min-width: 768px) and (max-width: 1023px)", () => {
+        const header = section.querySelector(".expertise-header");
+        const cards = section.querySelectorAll(".use-case-card");
+
+        const headerTween = header
+          ? gsap.fromTo(
+              header,
+              { y: 20, opacity: 0 },
+              {
+                y: 0,
+                opacity: 1,
+                duration: 0.55,
+                ease: "power2.out",
+                scrollTrigger: {
+                  trigger: header,
+                  start: "top 88%",
+                  toggleActions: "play none none reverse",
+                },
+              },
+            )
+          : null;
+
+        const cardCleanups: Array<() => void> = [];
+        cards.forEach((card) => {
+          const tween = gsap.fromTo(
+            card,
+            { opacity: 0, y: 18 },
+            {
+              opacity: 1,
+              y: 0,
+              duration: 0.52,
+              ease: "power2.out",
+              scrollTrigger: {
+                trigger: card,
+                start: "top 93%",
+                toggleActions: "play none none none",
+              },
+            },
+          );
+          cardCleanups.push(() => {
+            tween.scrollTrigger?.kill();
+            tween.kill();
+          });
+        });
+
+        return () => {
+          if (headerTween) {
+            headerTween.scrollTrigger?.kill();
+            headerTween.kill();
+          }
+          cardCleanups.forEach((fn) => fn());
+        };
+      });
+
+      /** Mobile &lt;768px: header + simple card fades (no pin stack). */
       mm.add("(max-width: 767px)", () => {
         const header = section.querySelector(".expertise-header");
         const cards = section.querySelectorAll(".use-case-card");
@@ -115,7 +186,6 @@ export function ExpertiseSection() {
           : null;
 
         const cardCleanups: Array<() => void> = [];
-
         cards.forEach((card) => {
           const tween = gsap.fromTo(
             card,
@@ -142,7 +212,7 @@ export function ExpertiseSection() {
             headerTween.scrollTrigger?.kill();
             headerTween.kill();
           }
-          cardCleanups.forEach((cleanup) => cleanup());
+          cardCleanups.forEach((fn) => fn());
         };
       });
 
@@ -154,9 +224,9 @@ export function ExpertiseSection() {
   return (
     <section
       ref={sectionRef}
-      className="relative overflow-hidden bg-white pb-8 md:pb-16"
+      className="relative bg-white pb-6 md:pb-10 lg:pb-12 xl:pb-14 min-[1920px]:pb-16 min-[2560px]:pb-[4.25rem]"
     >
-      <div className="pointer-events-none absolute inset-0">
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute right-0 top-0 h-[320px] w-[320px] -translate-y-1/2 translate-x-1/2 rounded-full bg-[#AE8C20]/[0.06] blur-[72px] md:h-[600px] md:w-[600px] md:blur-[120px]" />
         <div className="absolute bottom-0 left-0 h-[320px] w-[320px] translate-y-1/2 -translate-x-1/2 rounded-full bg-[#AE8C20]/[0.06] blur-[72px] md:h-[600px] md:w-[600px] md:blur-[120px]" />
       </div>
@@ -173,35 +243,31 @@ export function ExpertiseSection() {
         />
       </div>
 
-      <div className="relative z-10 mx-auto max-w-[1400px] px-4 pt-16 sm:px-6 md:pt-20">
-        <div className="expertise-header mx-auto max-w-3xl text-center">
-          <span className="inline-flex items-center gap-2 rounded-full border border-[#AE8C20]/30 bg-[#AE8C20]/5 px-4 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-[#AE8C20] sm:text-xs">
-            <span className="h-1.5 w-1.5 rounded-full bg-[#AE8C20]" />
-            Expertise
-          </span>
-          <h2 className="mt-5 bg-gradient-to-r from-zinc-900 via-zinc-900 to-[#AE8C20] bg-clip-text text-2xl font-bold leading-[1.05] tracking-tight text-transparent sm:mt-6 sm:text-5xl md:text-6xl lg:text-7xl">
-            AI Creative Services
-          </h2>
-          <p className="mx-auto mt-4 max-w-2xl text-sm text-zinc-600 sm:mt-5 sm:text-base md:text-lg">
-            AI-powered creative solutions for campaigns, content, branding, &
-            digital experiences.
-          </p>
-        </div>
-      </div>
-
-      {/* md+: pinned horizontal strip. &lt;md: vertical stack in document flow */}
-      <div
-        ref={pinRef}
-        className="expertise-pin relative z-10 mt-10 flex w-full flex-col gap-8 px-4 pb-12 sm:mt-12 sm:gap-10 sm:px-6 md:mt-0 md:h-[min(100dvh,720px)] md:min-h-[480px] md:items-center md:gap-0 md:overflow-hidden md:px-0 md:pb-0"
-      >
+      <div className="relative z-10 mx-auto w-full max-w-[min(100%,92rem)] px-4 pt-14 pb-6 sm:px-6 md:px-8 md:pt-12 md:pb-8 lg:max-w-[100rem] lg:px-10 lg:pb-0 xl:max-w-[110rem] xl:px-12 2xl:max-w-[120rem] 2xl:px-16 min-[1920px]:max-w-[130rem] min-[1920px]:px-20 min-[2560px]:max-w-[148rem] min-[2560px]:px-28">
         <div
-          ref={trackRef}
-          className="expertise-track flex w-full flex-col gap-6 md:w-max md:flex-row md:items-stretch md:gap-8 md:px-8 lg:gap-8 lg:px-10"
+          ref={pinRef}
+          className="expertise-pin flex w-full flex-col gap-7 sm:gap-8 md:gap-8 lg:gap-12 xl:gap-14 min-[1920px]:gap-16 min-[2560px]:gap-[4.25rem]"
         >
+          <div className="expertise-header mx-auto w-full max-w-3xl text-center xl:max-w-4xl min-[1920px]:max-w-5xl min-[2560px]:max-w-6xl">
+            <span className="inline-flex items-center gap-2 rounded-full border border-[#AE8C20]/30 bg-[#AE8C20]/5 px-4 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-[#AE8C20] sm:text-xs 2xl:px-5 2xl:py-2 2xl:text-sm min-[2560px]:text-base">
+              <span className="h-1.5 w-1.5 rounded-full bg-[#AE8C20]" />
+              Expertise
+            </span>
+            <h2 className="mt-4 bg-gradient-to-r from-zinc-900 via-zinc-900 to-[#AE8C20] bg-clip-text text-2xl font-bold leading-[1.05] tracking-tight text-transparent sm:mt-5 sm:text-5xl md:text-6xl lg:mt-5 lg:text-7xl xl:text-8xl xl:leading-[1.02] 2xl:text-[5.75rem] 2xl:leading-none min-[1920px]:text-[6.5rem] min-[2560px]:mt-6 min-[2560px]:text-[clamp(7rem,5.25vw,8.5rem)]">
+              AI Creative Services
+            </h2>
+            <p className="mx-auto mt-3 max-w-2xl text-sm text-zinc-600 sm:mt-4 sm:text-base md:text-lg xl:max-w-3xl xl:text-xl xl:leading-relaxed 2xl:mt-5 2xl:text-2xl 2xl:leading-snug min-[2560px]:mt-6 min-[2560px]:max-w-4xl min-[2560px]:text-[1.625rem]">
+              AI-powered creative solutions for campaigns, content, branding, &
+              digital experiences.
+            </p>
+          </div>
+
+          <div className="relative w-full overflow-visible pb-8 sm:pb-10 md:pb-8 lg:pb-0 min-[2560px]:pb-0">
+            <div className="expertise-track flex w-full flex-col gap-6 md:mx-auto md:grid md:max-w-4xl md:grid-cols-2 md:gap-x-6 md:gap-y-7 md:py-2 lg:flex lg:h-auto lg:max-h-none lg:w-full lg:max-w-[1680px] lg:flex-row lg:items-stretch lg:gap-5 lg:py-0 xl:gap-7 2xl:max-w-[90rem] 2xl:gap-8 min-[1920px]:max-w-[100rem] min-[1920px]:gap-9 min-[2560px]:max-w-[118rem] min-[2560px]:gap-10 min-[2560px]:py-2">
           {USE_CASES.map((useCase) => (
             <article
               key={useCase.title}
-              className="use-case-card group relative mx-auto flex w-full max-w-xl shrink-0 flex-col overflow-hidden rounded-2xl border border-zinc-200 bg-white p-6 shadow-[0_20px_50px_-15px_rgba(24,24,27,0.12)] sm:p-7 md:mx-0 md:w-[420px] md:max-w-none md:p-8 lg:w-[460px]"
+              className="use-case-card group relative mx-auto flex w-full max-w-xl shrink-0 flex-col overflow-hidden rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm sm:p-5 md:mx-auto md:max-lg:mx-auto md:max-lg:max-h-none md:max-lg:w-full md:max-lg:shadow-none md:max-lg:flex-none md:rounded-2xl md:p-6 lg:flex-1 lg:basis-0 lg:shrink lg:self-stretch lg:rounded-3xl lg:shadow-[0_20px_50px_-15px_rgba(24,24,27,0.12)] lg:p-6 2xl:p-7 2xl:shadow-[0_24px_55px_-18px_rgba(24,24,27,0.14)] min-[1920px]:p-8 min-[2560px]:rounded-[1.75rem] min-[2560px]:p-10"
             >
               <span
                 aria-hidden
@@ -217,19 +283,19 @@ export function ExpertiseSection() {
                 className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full bg-[#AE8C20]/0 blur-3xl transition-all duration-700 group-hover:bg-[#AE8C20]/15"
               />
 
-              <div className="relative flex min-h-[260px] flex-col sm:min-h-[300px] md:min-h-[320px]">
-                <span className="inline-flex w-fit rounded-md bg-[#AE8C20]/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-[#AE8C20]">
+              <div className="relative flex min-h-[220px] flex-col sm:min-h-[240px] md:min-h-0">
+                <span className="inline-flex w-fit max-w-full rounded-md bg-[#AE8C20]/10 px-2 py-0.5 text-[9px] font-bold uppercase leading-tight tracking-[0.15em] text-[#AE8C20] md:px-2 md:text-[9px] md:tracking-[0.18em] lg:text-[10px] lg:tracking-[0.2em]">
                   Use Case
                 </span>
-                <h3 className="mt-4 text-xl font-bold leading-tight text-zinc-900 md:text-2xl">
+                <h3 className="mt-2 text-xl font-bold leading-tight tracking-tight text-zinc-900 sm:mt-3 md:max-lg:text-lg lg:text-xl xl:text-[1.35rem] 2xl:text-2xl min-[1920px]:text-[1.65rem] min-[2560px]:text-[clamp(1.5rem,1.1vw,2rem)]">
                   {useCase.title}
                 </h3>
-                <p className="mt-3 flex-1 text-sm leading-relaxed text-zinc-600 md:text-base">
+                <p className="mt-1.5 text-sm leading-snug text-zinc-600 md:mt-2 md:max-lg:text-[0.9375rem] md:max-lg:leading-snug lg:text-[15px] lg:leading-snug xl:text-base 2xl:text-[1.0625rem] min-[1920px]:text-lg min-[2560px]:text-[clamp(1.05rem,0.95vw,1.25rem)] min-[2560px]:leading-relaxed">
                   {useCase.description}
                 </p>
                 <a
                   href="/contact"
-                  className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-[#AE8C20] transition-all duration-300 group-hover:gap-3"
+                  className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-[#AE8C20] transition-all duration-300 group-hover:gap-3 md:mt-5 xl:text-base 2xl:text-lg min-[2560px]:mt-7 min-[2560px]:text-xl min-[2560px]:gap-3"
                 >
                   Explore Now
                   <svg
@@ -249,6 +315,8 @@ export function ExpertiseSection() {
               </div>
             </article>
           ))}
+            </div>
+          </div>
         </div>
       </div>
     </section>

@@ -8,6 +8,7 @@ import Link from "next/link";
 import { useRef, useEffect, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { FloatingParticles } from "@/components/ui/FloatingParticles";
+import { RotatingCircleText } from "@/components/ui/RotatingCircleText";
 import { HamburgerMenu } from "./HamburgerMenu";
 import { HERO_VIDEO_URL } from "@/lib/critical-assets";
 
@@ -343,23 +344,20 @@ export function CinematicHero() {
           />
         </div>
 
-        {/* Revealed content after scroll - below video */}
-        <div className="reveal-content absolute inset-x-0 bottom-0 top-[calc(6.5rem+30svh)] z-20 mx-auto flex w-full max-w-[1200px] flex-col items-center justify-center px-4 py-8 text-center opacity-0 sm:top-[calc(7.5rem+34vh)] sm:px-6 sm:py-10 md:top-[calc(8.5rem+39vh)] md:py-14">
-          {/* Spinning circle — centered on mobile; anchored left from md */}
-          <Image
-            src="/assets/circle_evolve.png"
-            alt=""
-            width={180}
-            height={180}
-            className="pointer-events-none absolute left-1/2 top-2 h-16 w-16 -translate-x-1/2 animate-spin-slow sm:top-8 sm:h-24 sm:w-24 md:left-4 md:top-10 md:h-28 md:w-28 md:translate-x-0 lg:left-8"
+        {/* Revealed content after scroll - below video (mobile: stacked in-flow + gap; md+: circle absolute left) */}
+        <div className="reveal-content absolute inset-x-0 bottom-0 top-[calc(6.5rem+30svh)] z-20 mx-auto flex w-full max-w-[1200px] flex-col items-center justify-center gap-6 px-4 py-8 text-center opacity-0 sm:top-[calc(7.5rem+34vh)] sm:px-6 sm:py-10 md:top-[calc(8.5rem+39vh)] md:gap-0 md:px-12 md:py-14 lg:px-16">
+          {/* Rotating circular typography — replaces static circle asset */}
+          <RotatingCircleText
+            reducedMotion={prefersReducedMotion}
+            className="pointer-events-none relative z-10 mx-auto h-[7.25rem] w-[7.25rem] shrink-0 sm:h-[9rem] sm:w-[9rem] md:absolute md:left-4 md:top-10 md:z-auto md:mx-0 md:h-32 md:w-32 lg:left-8 lg:top-10"
           />
           {prefersReducedMotion ? (
-            <p className="reveal-tagline text-base font-medium tracking-tight text-zinc-600 sm:text-xl md:text-3xl">
+            <p className="reveal-tagline w-full max-w-md px-1 text-base font-medium leading-snug tracking-tight text-zinc-600 max-md:[text-wrap:balance] sm:text-xl md:text-3xl">
               &ldquo;{TAGLINE_TEXT}&rdquo;
             </p>
           ) : (
             <p
-              className="reveal-tagline text-center text-base font-medium tracking-tight text-zinc-600 sm:text-xl md:text-3xl [perspective:1100px]"
+              className="reveal-tagline w-full max-w-md px-1 text-center text-base font-medium leading-snug tracking-tight text-zinc-600 max-md:[text-wrap:balance] sm:text-xl md:max-w-none md:text-3xl md:px-0 [perspective:1100px]"
             >
               <span className="inline-block select-none" aria-hidden>
                 &ldquo;
@@ -381,14 +379,14 @@ export function CinematicHero() {
               </span>
             </p>
           )}
-          <div className="reveal-headline relative mt-4 flex items-center justify-center sm:mt-6 md:mt-8">
+          <div className="reveal-headline relative flex w-full justify-center px-1 max-md:mt-0 md:mt-8">
             {prefersReducedMotion ? (
-              <h2 className="relative z-10 max-w-5xl text-[clamp(2.5rem,9vw,7.25rem)] font-bold leading-[0.88] tracking-[-0.06em] text-zinc-950">
+              <h2 className="relative z-10 max-w-5xl text-center text-[clamp(2rem,8.5vw,7.25rem)] font-bold leading-[0.92] tracking-[-0.06em] text-zinc-950 max-md:max-w-[min(100%,18rem)] md:leading-[0.88] md:max-w-5xl">
                 But are you?
               </h2>
             ) : (
               <motion.h2
-                className="relative z-10 max-w-5xl cursor-default text-[clamp(2.5rem,9vw,7.25rem)] font-bold leading-[0.88] tracking-[-0.06em]"
+                className="relative z-10 max-w-5xl cursor-default text-center text-[clamp(2rem,8.5vw,7.25rem)] font-bold leading-[0.92] tracking-[-0.06em] max-md:max-w-[min(100%,18rem)] md:leading-[0.88] md:max-w-5xl"
                 initial="rest"
                 whileHover="hover"
                 variants={{
@@ -432,8 +430,8 @@ export function CinematicHero() {
           </div>
           <Link
             ref={ctaButtonRef}
-            href="#portfolio"
-            className="reveal-cta group relative mt-8 inline-flex items-center gap-3 overflow-hidden rounded-full bg-zinc-950 px-6 py-3 text-[0.62rem] font-bold uppercase tracking-[0.22em] text-white transition-all duration-300 hover:scale-105 hover:shadow-[0_0_30px_rgba(174,140,32,0.4)] sm:mt-12 sm:px-7 sm:text-[0.68rem] md:mt-16"
+            href="/portfolio"
+            className="reveal-cta group relative inline-flex items-center gap-3 overflow-hidden rounded-full bg-zinc-950 px-6 py-3 text-[0.62rem] font-bold uppercase tracking-[0.22em] text-white transition-all duration-300 hover:scale-105 hover:shadow-[0_0_30px_rgba(174,140,32,0.4)] max-md:mt-0 sm:px-7 sm:text-[0.68rem] md:mt-16 md:px-12 md:py-4 md:text-[0.74rem] md:tracking-[0.2em] lg:px-14"
           >
             <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-[#AE8C20] to-transparent opacity-0 transition-all duration-500 group-hover:translate-x-full group-hover:opacity-100" />
             <span className="absolute inset-0 bg-gradient-to-r from-[#AE8C20] via-[#D4AF37] to-[#AE8C20] opacity-0 transition-opacity duration-300 group-hover:opacity-100" />

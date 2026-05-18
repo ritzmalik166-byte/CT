@@ -282,7 +282,7 @@ export default function PortfolioPage() {
         )}
       </button>
 
-      <section className="portfolio-hero relative overflow-hidden bg-zinc-950 px-4 pb-20 pt-28 sm:px-6 sm:pb-24 sm:pt-32 md:px-10 md:pb-32 md:pt-40">
+      <section className="portfolio-hero relative overflow-hidden bg-zinc-950 px-4 pb-20 pt-28 sm:px-6 sm:pb-24 sm:pt-32 md:px-12 md:pb-36 md:pt-44 xl:px-16">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(174,140,32,0.20),transparent_30%),linear-gradient(135deg,#5A3917_0%,#09090b_38%,#09090b_100%)]" />
         <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_bottom,transparent,rgba(9,9,11,0.55)_75%,#09090b)]" />
 
@@ -326,7 +326,7 @@ export default function PortfolioPage() {
         </div>
       </section>
 
-      <section className="relative overflow-hidden bg-black px-4 py-20 text-white sm:px-6 sm:py-24 md:px-10 md:py-32">
+      <section className="relative overflow-hidden bg-black px-4 py-20 text-white sm:px-6 sm:py-24 md:px-12 md:py-36 xl:px-16">
         <div className="pointer-events-none absolute left-1/2 top-0 h-[520px] w-[520px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#AE8C20]/10 blur-[160px]" />
 
         <div className="relative mx-auto max-w-[1400px]">
@@ -408,7 +408,7 @@ export default function PortfolioPage() {
 
       <ReelModal reel={activeReel} onClose={() => setActiveReel(null)} />
 
-      <section className="relative overflow-hidden bg-zinc-950 px-4 py-20 text-white sm:px-6 sm:py-24 md:px-10 md:py-32">
+      <section className="relative overflow-hidden bg-zinc-950 px-4 py-20 text-white sm:px-6 sm:py-24 md:px-12 md:py-36 xl:px-16">
         <div className="mx-auto max-w-[1400px]">
           <div className="mx-auto mb-10 max-w-5xl text-center sm:mb-14">
             <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.35em] text-[#AE8C20] sm:mb-4 sm:text-xs">
