@@ -47,6 +47,8 @@ export function ExpertiseSection() {
 
       /** Desktop / tablet ≥768px: pinned horizontal scrub (unchanged behavior, lighter header). */
       mm.add("(min-width: 768px)", () => {
+        gsap.set(section.querySelectorAll(".use-case-card"), { opacity: 1 });
+
         const header = section.querySelector(".expertise-header");
         if (header) {
           gsap.fromTo(
@@ -89,7 +91,7 @@ export function ExpertiseSection() {
         };
       });
 
-      /** Mobile &lt;768px: native vertical stack — one-shot fades (no scrub / no pin). */
+      /** Mobile &lt;768px: cards use a simple fade-in (opacity) once when scrolled into view. */
       mm.add("(max-width: 767px)", () => {
         const header = section.querySelector(".expertise-header");
         const cards = section.querySelectorAll(".use-case-card");
@@ -112,30 +114,35 @@ export function ExpertiseSection() {
             )
           : null;
 
-        const cardsTween = gsap.fromTo(
-          cards,
-          { y: 28, opacity: 0 },
-          {
-            y: 0,
-            opacity: 1,
-            duration: 0.5,
-            stagger: 0.1,
-            ease: "power2.out",
-            scrollTrigger: {
-              trigger: pin,
-              start: "top 82%",
-              toggleActions: "play none none reverse",
+        const cardCleanups: Array<() => void> = [];
+
+        cards.forEach((card) => {
+          const tween = gsap.fromTo(
+            card,
+            { opacity: 0 },
+            {
+              opacity: 1,
+              duration: 0.55,
+              ease: "power2.out",
+              scrollTrigger: {
+                trigger: card,
+                start: "top 88%",
+                toggleActions: "play none none none",
+              },
             },
-          },
-        );
+          );
+          cardCleanups.push(() => {
+            tween.scrollTrigger?.kill();
+            tween.kill();
+          });
+        });
 
         return () => {
           if (headerTween) {
             headerTween.scrollTrigger?.kill();
             headerTween.kill();
           }
-          cardsTween.scrollTrigger?.kill();
-          cardsTween.kill();
+          cardCleanups.forEach((cleanup) => cleanup());
         };
       });
 
