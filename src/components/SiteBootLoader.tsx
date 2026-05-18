@@ -18,22 +18,34 @@ function formatLoadSeconds(ms: number): string {
   return `${(ms / 1000).toFixed(1)}s`;
 }
 
-function waitForWindowLoad(): Promise<void> {
-  if (document.readyState === "complete") return Promise.resolve();
+function waitForDOMContentLoaded(): Promise<void> {
+  if (document.readyState !== "loading") return Promise.resolve();
   return new Promise((resolve) => {
-    window.addEventListener("load", () => resolve(), { once: true });
+    document.addEventListener("DOMContentLoaded", () => resolve(), { once: true });
   });
 }
 
-/** Warm the browser cache / decode pipeline so hero video is ready with the page. */
-function preloadVideo(url: string, timeoutMs = 25000): Promise<void> {
+function delay(ms: number): Promise<void> {
+  return new Promise((resolve) => {
+    window.setTimeout(resolve, ms);
+  });
+}
+
+/**
+ * Lightweight hero warmup — `canplay` + short timeout fires much earlier than
+ * `window` load + `canplaythrough`. Full buffering continues via the hero <video preload="auto">.
+ */
+function preloadVideoBootSignal(url: string, timeoutMs: number): Promise<void> {
   return new Promise((resolve) => {
     const v = document.createElement("video");
     v.preload = "auto";
     v.muted = true;
     v.playsInline = true;
 
+    let finished = false;
     const finish = () => {
+      if (finished) return;
+      finished = true;
       window.clearTimeout(t);
       v.removeAttribute("src");
       v.load();
@@ -41,7 +53,8 @@ function preloadVideo(url: string, timeoutMs = 25000): Promise<void> {
     };
 
     const t = window.setTimeout(finish, timeoutMs);
-    v.addEventListener("canplaythrough", finish, { once: true });
+    v.addEventListener("canplay", finish, { once: true });
+    v.addEventListener("loadeddata", finish, { once: true });
     v.addEventListener("error", finish, { once: true });
     v.src = url;
   });
@@ -77,20 +90,25 @@ export function SiteBootLoader({
     let cancelled = false;
     const started = performance.now();
     bootStartedRef.current = started;
-    const minVisibleMs = 550;
+    const minVisibleMs = 220;
 
     async function boot() {
       const path = window.location.pathname;
       const mediaUrls = getBootMediaUrlsForPathname(path);
 
+      /** Hard ceiling so overlay never stalls on hero MP4 / slow networks */
+      const hardCapMs = mediaUrls.length > 0 ? 3200 : 900;
+
+      const readiness = Promise.all([
+        document.fonts.ready,
+        waitForDOMContentLoaded(),
+        ...mediaUrls.map((url) => preloadVideoBootSignal(url, 2800)),
+      ]);
+
       try {
-        await Promise.all([
-          document.fonts.ready,
-          waitForWindowLoad(),
-          ...mediaUrls.map((url) => preloadVideo(url)),
-        ]);
+        await Promise.race([readiness, delay(hardCapMs)]);
       } catch {
-        // If preload fails, still allow the site to show after window load.
+        /* reveal anyway */
       }
 
       const elapsed = performance.now() - started;

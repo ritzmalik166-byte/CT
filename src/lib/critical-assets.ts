@@ -3,8 +3,8 @@ export const HERO_VIDEO_URL =
   "https://lfnxmldvqzqsgjigzibk.supabase.co/storage/v1/object/public/Contenaisaance/Mzha%20Nhi%20Aaya-02.1.mp4";
 
 /**
- * Media the boot loader should wait for before revealing the page.
- * Keep this small so first paint stays fast on non-home routes.
+ * Media warmed during boot — keep small; overlay uses short timeouts so the
+ * site never stalls on oversized assets.
  */
 export function getBootMediaUrlsForPathname(pathname: string): string[] {
   if (pathname === "/" || pathname === "") {
