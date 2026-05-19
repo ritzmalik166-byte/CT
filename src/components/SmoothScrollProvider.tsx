@@ -10,6 +10,7 @@ import {
 } from "react";
 import Lenis from "lenis";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { ScrollToTop } from "@/components/ScrollToTop";
 
 type LenisContextValue = {
   getLenis: () => Lenis | null;
@@ -142,6 +143,7 @@ export function SmoothScrollProvider({
     <LenisContext.Provider value={contextValue}>
       <div className="site-scroll-stack relative z-[var(--z-page-content)] flex w-full min-h-[100dvh] flex-1 touch-pan-y flex-col">
         {children}
+        <ScrollToTop />
       </div>
     </LenisContext.Provider>
   );

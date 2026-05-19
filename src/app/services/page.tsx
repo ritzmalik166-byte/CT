@@ -434,23 +434,9 @@ export default function ServicesPage() {
         }
       });
 
-      // Scroll to top button
-      gsap.to(".scroll-top-btn", {
-        opacity: 1,
-        pointerEvents: "auto",
-        scrollTrigger: {
-          trigger: pageRef.current,
-          start: "top -500",
-          toggleActions: "play none none reverse",
-        },
-      });
     },
     { scope: pageRef }
   );
-
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
 
   return (
     <div ref={pageRef} className="relative">
@@ -648,16 +634,6 @@ export default function ServicesPage() {
       {/* Footer */}
       <CTAFooter />
 
-      {/* Scroll to Top Button */}
-      <button
-        onClick={scrollToTop}
-        className="scroll-top-btn fixed bottom-4 right-4 z-50 flex h-11 w-11 items-center justify-center rounded-full border border-[#AE8C20]/50 bg-zinc-900/90 text-white opacity-0 backdrop-blur-md transition-all hover:border-[#AE8C20] hover:bg-[#AE8C20] hover:text-zinc-950 sm:bottom-8 sm:right-8 sm:h-12 sm:w-12"
-        style={{ pointerEvents: "none" }}
-      >
-        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18" />
-        </svg>
-      </button>
     </div>
   );
 }
