@@ -8,7 +8,7 @@ import { useRef, useState, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
 
 const GEMINI_LOGO_URL =
-  "https://lfnxmldvqzqsgjigzibk.supabase.co/storage/v1/object/public/Contenaisaance/gemini.png";
+  "https://contenaissance.blob.core.windows.net/ct-assets/gemini.png";
 
 const COMPANIES = [
   { 

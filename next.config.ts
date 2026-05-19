@@ -7,6 +7,11 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: "https",
+        hostname: "contenaissance.blob.core.windows.net",
+        pathname: "/ct-assets/**",
+      },
+      {
+        protocol: "https",
         hostname: "lfnxmldvqzqsgjigzibk.supabase.co",
         pathname: "/storage/v1/object/public/**",
       },

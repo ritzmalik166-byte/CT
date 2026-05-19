@@ -1,9 +1,13 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { useLenisScrollLock } from "@/components/SmoothScrollProvider";
+import {
+  ensureReelStoragePreconnect,
+  preloadReelVideo,
+} from "@/lib/reel-video-preload";
 
 interface Reel {
   id: number;
@@ -21,11 +25,16 @@ const INSTAGRAM_URL = "https://www.instagram.com/contenaissance/";
 
 export function ReelModal({ reel, onClose }: ReelModalProps) {
   useLenisScrollLock(!!reel);
-  const [isMuted, setIsMuted] = useState(false);
+  const [isMuted, setIsMuted] = useState(true);
   const [progress, setProgress] = useState(0);
+  const [isVideoReady, setIsVideoReady] = useState(false);
   const [shareStatus, setShareStatus] = useState<"idle" | "copied" | "failed">("idle");
   const videoRef = useRef<HTMLVideoElement>(null);
   const shareTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    ensureReelStoragePreconnect();
+  }, []);
 
   useEffect(() => {
     if (!reel) return;
@@ -43,18 +52,63 @@ export function ReelModal({ reel, onClose }: ReelModalProps) {
   }, [reel, onClose]);
 
   useEffect(() => {
+    if (!reel) {
+      setIsVideoReady(false);
+      return;
+    }
+
+    setProgress(0);
+    setIsMuted(true);
+    setIsVideoReady(false);
+    preloadReelVideo(reel.video);
+  }, [reel]);
+
+  const tryPlay = useCallback(() => {
     const video = videoRef.current;
     if (!video) return;
 
-    const handleTimeUpdate = () => {
+    video.muted = true;
+    void video.play().catch(() => {
+      video.muted = true;
+      void video.play();
+    });
+  }, []);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video || !reel) return;
+
+    const onLoadedData = () => {
+      setIsVideoReady(true);
+      tryPlay();
+    };
+
+    const onCanPlay = () => {
+      setIsVideoReady(true);
+      tryPlay();
+    };
+
+    const onTimeUpdate = () => {
       if (video.duration) {
         setProgress((video.currentTime / video.duration) * 100);
       }
     };
 
-    video.addEventListener("timeupdate", handleTimeUpdate);
-    return () => video.removeEventListener("timeupdate", handleTimeUpdate);
-  }, [reel]);
+    video.addEventListener("loadeddata", onLoadedData);
+    video.addEventListener("canplay", onCanPlay);
+    video.addEventListener("timeupdate", onTimeUpdate);
+
+    if (video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) {
+      setIsVideoReady(true);
+      tryPlay();
+    }
+
+    return () => {
+      video.removeEventListener("loadeddata", onLoadedData);
+      video.removeEventListener("canplay", onCanPlay);
+      video.removeEventListener("timeupdate", onTimeUpdate);
+    };
+  }, [reel, tryPlay]);
 
   const handleShare = async () => {
     if (!reel) return;
@@ -99,7 +153,6 @@ export function ReelModal({ reel, onClose }: ReelModalProps) {
           exit={{ opacity: 0 }}
           transition={{ duration: 0.3 }}
         >
-          {/* Frosted backdrop */}
           <motion.div
             className="absolute inset-0 bg-black/85 backdrop-blur-xl sm:bg-black/80 sm:backdrop-blur-2xl"
             initial={{ opacity: 0 }}
@@ -107,7 +160,6 @@ export function ReelModal({ reel, onClose }: ReelModalProps) {
             exit={{ opacity: 0 }}
             onClick={onClose}
           >
-            {/* Animated gold glow accents - smaller on mobile */}
             <motion.div
               className="absolute left-1/4 top-1/4 h-[200px] w-[200px] rounded-full bg-[#AE8C20]/15 blur-[80px] sm:h-[300px] sm:w-[300px] sm:blur-[100px] md:top-1/3 md:h-[400px] md:w-[400px] md:bg-[#AE8C20]/20 md:blur-[120px]"
               animate={{
@@ -126,7 +178,6 @@ export function ReelModal({ reel, onClose }: ReelModalProps) {
             />
           </motion.div>
 
-          {/* Modal content - scrollable on mobile */}
           <motion.div
             className="relative z-10 flex max-h-[95vh] w-full max-w-[1100px] flex-col items-center gap-4 overflow-y-auto px-4 py-10 sm:gap-6 sm:px-6 md:max-h-none md:flex-row md:items-stretch md:gap-10 md:overflow-visible md:py-0 lg:gap-12 lg:px-8"
             initial={{ scale: 0.6, opacity: 0, rotateY: 25, y: 60 }}
@@ -136,33 +187,59 @@ export function ReelModal({ reel, onClose }: ReelModalProps) {
             style={{ transformPerspective: 1500 }}
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Video player */}
-            <div className="relative w-full max-w-[280px] shrink-0 sm:max-w-[320px] md:max-w-none md:w-auto">
-              {/* Video container - vertical 9:16 aspect */}
+            <motion.div className="relative w-full max-w-[280px] shrink-0 sm:max-w-[320px] md:max-w-none md:w-auto">
               <div className="relative aspect-[9/16] h-auto w-full overflow-hidden rounded-2xl border border-[#AE8C20]/45 bg-black shadow-[0_20px_60px_-15px_rgba(0,0,0,0.9),0_0_40px_-8px_rgba(174,140,32,0.3)] sm:rounded-[1.5rem] md:h-[60vh] md:min-h-[400px] md:max-h-[680px] md:w-auto lg:h-[68vh] lg:min-h-[480px] lg:max-h-[760px] lg:rounded-[2rem] lg:shadow-[0_32px_90px_-22px_rgba(0,0,0,0.9),0_0_56px_-8px_rgba(174,140,32,0.35)]">
+                {!isVideoReady && (
+                  <motion.div
+                    className="absolute inset-0 z-[2] flex flex-col items-center justify-center gap-3 bg-zinc-950"
+                    initial={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                  >
+                    <motion.div
+                      className="h-10 w-10 rounded-full border-2 border-[#AE8C20]/30 border-t-[#D4AF37]"
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 0.85, repeat: Infinity, ease: "linear" }}
+                    />
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#D4AF37]/80">
+                      Loading reel…
+                    </p>
+                  </motion.div>
+                )}
+
                 <video
+                  key={reel.id}
                   ref={videoRef}
-                  className="h-full w-full object-cover"
+                  className={`h-full w-full object-cover transition-opacity duration-300 ${
+                    isVideoReady ? "opacity-100" : "opacity-0"
+                  }`}
                   src={reel.video}
                   autoPlay
                   loop
                   muted={isMuted}
                   playsInline
+                  preload="auto"
                 />
 
-                {/* Gradient overlays */}
-                <div className="pointer-events-none absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-black/60 to-transparent sm:h-24 md:h-32" />
-                <div className="pointer-events-none absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-black/80 via-black/30 to-transparent sm:h-32 md:h-40" />
+                <motion.div
+                  className="pointer-events-none absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-black/60 to-transparent sm:h-24 md:h-32"
+                  initial={false}
+                  animate={{ opacity: isVideoReady ? 1 : 0 }}
+                />
+                <motion.div
+                  className="pointer-events-none absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-black/80 via-black/30 to-transparent sm:h-32 md:h-40"
+                  initial={false}
+                  animate={{ opacity: isVideoReady ? 1 : 0 }}
+                />
 
-                {/* Progress bar (top) */}
                 <div className="absolute inset-x-3 top-3 h-0.5 overflow-hidden rounded-full bg-white/20 sm:inset-x-4 sm:top-4">
-                  <div
+                  <motion.div
                     className="h-full rounded-full bg-gradient-to-r from-[#AE8C20] to-[#D4AF37] transition-all duration-100"
                     style={{ width: `${progress}%` }}
+                    initial={false}
+                    animate={{ opacity: isVideoReady ? 1 : 0 }}
                   />
                 </div>
 
-                {/* Mute toggle */}
                 <button
                   onClick={() => setIsMuted((m) => !m)}
                   className="absolute right-3 top-6 flex h-8 w-8 items-center justify-center rounded-full border border-white/20 bg-black/40 text-white backdrop-blur-md transition-all duration-300 hover:border-[#AE8C20]/60 hover:bg-[#AE8C20]/20 sm:right-4 sm:top-8 sm:h-10 sm:w-10"
@@ -179,7 +256,6 @@ export function ReelModal({ reel, onClose }: ReelModalProps) {
                   )}
                 </button>
 
-                {/* Bottom label inside player */}
                 <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5 md:p-6">
                   <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-[#D4AF37] sm:text-[10px] sm:tracking-[0.25em]">
                     Now Playing
@@ -189,9 +265,8 @@ export function ReelModal({ reel, onClose }: ReelModalProps) {
                   </h3>
                 </div>
               </div>
-            </div>
+            </motion.div>
 
-            {/* Side info panel */}
             <motion.div
               className="flex max-w-md flex-col justify-center px-2 text-center sm:px-0 md:text-left"
               initial={{ x: 30, opacity: 0 }}
@@ -215,8 +290,7 @@ export function ReelModal({ reel, onClose }: ReelModalProps) {
                 Crafted with cinematic precision. Every frame engineered to captivate, every cut designed to convert. This is storytelling reimagined for the AI era.
               </p>
 
-              {/* CTA buttons */}
-              <div className="mt-4 flex flex-col items-center gap-2.5 sm:mt-6 sm:flex-row sm:gap-3 md:mt-8 md:items-start">
+              <motion.div className="mt-4 flex flex-col items-center gap-2.5 sm:mt-6 sm:flex-row sm:gap-3 md:mt-8 md:items-start">
                 <a
                   href={INSTAGRAM_URL}
                   target="_blank"
@@ -244,10 +318,9 @@ export function ReelModal({ reel, onClose }: ReelModalProps) {
                     </svg>
                   )}
                 </button>
-              </div>
+              </motion.div>
             </motion.div>
 
-            {/* Close button - fixed position on mobile */}
             <motion.button
               onClick={onClose}
               className="fixed right-3 top-3 z-20 flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-black/70 text-white backdrop-blur-md transition-all duration-300 hover:rotate-90 hover:border-[#AE8C20] hover:bg-[#AE8C20]/20 sm:right-4 sm:top-4 sm:h-11 sm:w-11 md:absolute md:-right-4 md:-top-4 md:h-12 md:w-12 md:bg-black/60"
@@ -262,7 +335,6 @@ export function ReelModal({ reel, onClose }: ReelModalProps) {
             </motion.button>
           </motion.div>
 
-          {/* Hint at bottom - hidden on mobile */}
           <motion.div
             className="absolute bottom-4 left-1/2 z-10 hidden -translate-x-1/2 text-[11px] uppercase tracking-[0.25em] text-white/40 sm:bottom-6 md:block"
             initial={{ opacity: 0, y: 20 }}

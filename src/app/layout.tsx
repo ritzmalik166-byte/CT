@@ -45,6 +45,10 @@ export default function RootLayout({
       lang="en"
       className={cn("h-full", "antialiased", "overflow-x-hidden", geistSans.variable, geistMono.variable, "font-sans", inter.variable)}
     >
+      <head>
+        <link rel="dns-prefetch" href="https://contenaissance.blob.core.windows.net" />
+        <link rel="preconnect" href="https://contenaissance.blob.core.windows.net" crossOrigin="anonymous" />
+      </head>
       <body className="min-h-full flex flex-col bg-white overflow-x-hidden" suppressHydrationWarning>
         <NoiseOverlay />
         <CustomCursor />

@@ -1,6 +1,6 @@
-/** Primary hero background (Supabase storage). */
+/** Primary hero background (Azure Blob storage). */
 export const HERO_VIDEO_URL =
-  "https://lfnxmldvqzqsgjigzibk.supabase.co/storage/v1/object/public/Contenaisaance/Mzha%20Nhi%20Aaya-02.1.mp4";
+  "https://contenaissance.blob.core.windows.net/ct-assets/Mzha%20Nhi%20Aaya-02.1.mp4";
 
 /**
  * Media warmed during boot — keep small; overlay uses short timeouts so the

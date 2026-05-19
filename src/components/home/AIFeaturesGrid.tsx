@@ -3,8 +3,9 @@
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { ReelModal } from "@/components/ui/ReelModal";
+import { openReelWithPreload, preloadReelVideo } from "@/lib/reel-video-preload";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
@@ -23,35 +24,35 @@ const REELS: Reel[] = [
     id: 1,
     title: "Brand Films",
     subtitle: "Cinematic storytelling",
-    video: "https://lfnxmldvqzqsgjigzibk.supabase.co/storage/v1/object/public/Contenaisaance/01.mp4",
+    video: "https://contenaissance.blob.core.windows.net/ct-assets/01.mp4",
     enterFrom: "right",
   },
   {
     id: 2,
     title: "Commercials",
     subtitle: "Ad campaigns that convert",
-    video: "https://lfnxmldvqzqsgjigzibk.supabase.co/storage/v1/object/public/Contenaisaance/02.MP4",
+    video: "https://contenaissance.blob.core.windows.net/ct-assets/02.MP4",
     enterFrom: "right",
   },
   {
     id: 3,
     title: "Social Content",
     subtitle: "Viral-worthy reels",
-    video: "https://lfnxmldvqzqsgjigzibk.supabase.co/storage/v1/object/public/Contenaisaance/03.mp4",
+    video: "https://contenaissance.blob.core.windows.net/ct-assets/03.mp4",
     enterFrom: "right",
   },
   {
     id: 4,
     title: "Music Videos",
     subtitle: "Visual rhythms",
-    video: "https://lfnxmldvqzqsgjigzibk.supabase.co/storage/v1/object/public/Contenaisaance/05.MP4",
+    video: "https://contenaissance.blob.core.windows.net/ct-assets/05.MP4",
     enterFrom: "bottom",
   },
   {
     id: 5,
     title: "Documentary",
     subtitle: "Stories that matter",
-    video: "https://lfnxmldvqzqsgjigzibk.supabase.co/storage/v1/object/public/Contenaisaance/09.mp4",
+    video: "https://contenaissance.blob.core.windows.net/ct-assets/09.mp4",
     enterFrom: "left",
   },
 ];
@@ -75,6 +76,9 @@ export function AIFeaturesGrid() {
   const stageRef = useRef<HTMLDivElement>(null);
   const reelRefs = useRef<(HTMLDivElement | null)[]>([]);
   const [openReel, setOpenReel] = useState<Reel | null>(null);
+  const handleOpenReel = useCallback((reel: Reel) => {
+    openReelWithPreload(reel, setOpenReel);
+  }, []);
 
   useGSAP(
     () => {
@@ -238,7 +242,9 @@ export function AIFeaturesGrid() {
             >
               <button
                 type="button"
-                onClick={() => setOpenReel(reel)}
+                onPointerEnter={() => preloadReelVideo(reel.video)}
+                onPointerDown={() => preloadReelVideo(reel.video)}
+                onClick={() => handleOpenReel(reel)}
                 className="reel-circle group relative cursor-pointer focus:outline-none"
                 aria-label={`Open ${reel.title}`}
               >

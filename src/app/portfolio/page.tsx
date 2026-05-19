@@ -6,7 +6,8 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { SplitText } from "gsap/SplitText";
 import Image from "next/image";
 import Link from "next/link";
-import { useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
+import { openReelWithPreload, preloadReelVideo } from "@/lib/reel-video-preload";
 import { CTAFooter } from "@/components/home/CTAFooter";
 import { HamburgerMenu } from "@/components/home/HamburgerMenu";
 import { ReelModal } from "@/components/ui/ReelModal";
@@ -25,31 +26,31 @@ const AI_REELS: Reel[] = [
     id: 1,
     title: "Brand Films",
     subtitle: "Cinematic storytelling",
-    video: "https://lfnxmldvqzqsgjigzibk.supabase.co/storage/v1/object/public/Contenaisaance/01.mp4",
+    video: "https://contenaissance.blob.core.windows.net/ct-assets/01.mp4",
   },
   {
     id: 2,
     title: "Commercials",
     subtitle: "Ad campaigns that convert",
-    video: "https://lfnxmldvqzqsgjigzibk.supabase.co/storage/v1/object/public/Contenaisaance/02.MP4",
+    video: "https://contenaissance.blob.core.windows.net/ct-assets/02.MP4",
   },
   {
     id: 3,
     title: "Social Content",
     subtitle: "Viral-worthy reels",
-    video: "https://lfnxmldvqzqsgjigzibk.supabase.co/storage/v1/object/public/Contenaisaance/03.mp4",
+    video: "https://contenaissance.blob.core.windows.net/ct-assets/03.mp4",
   },
   {
     id: 4,
     title: "Music Videos",
     subtitle: "Visual rhythms",
-    video: "https://lfnxmldvqzqsgjigzibk.supabase.co/storage/v1/object/public/Contenaisaance/05.MP4",
+    video: "https://contenaissance.blob.core.windows.net/ct-assets/05.MP4",
   },
   {
     id: 5,
     title: "Documentary",
     subtitle: "Stories that matter",
-    video: "https://lfnxmldvqzqsgjigzibk.supabase.co/storage/v1/object/public/Contenaisaance/09.mp4",
+    video: "https://contenaissance.blob.core.windows.net/ct-assets/09.mp4",
   },
 ];
 
@@ -96,6 +97,9 @@ export default function PortfolioPage() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [activeReel, setActiveReel] = useState<Reel | null>(null);
   const reelVideoRefs = useRef<Array<HTMLVideoElement | null>>([]);
+  const handleOpenReel = useCallback((reel: Reel) => {
+    openReelWithPreload(reel, setActiveReel);
+  }, []);
 
   const handleReelHover = (index: number, hover: boolean) => {
     const video = reelVideoRefs.current[index];
@@ -347,8 +351,11 @@ export default function PortfolioPage() {
               <button
                 key={reel.id}
                 type="button"
-                onClick={() => setActiveReel(reel)}
-                onMouseEnter={() => handleReelHover(index, true)}
+                onClick={() => handleOpenReel(reel)}
+                onMouseEnter={() => {
+                  preloadReelVideo(reel.video);
+                  handleReelHover(index, true);
+                }}
                 onMouseLeave={() => handleReelHover(index, false)}
                 onFocus={() => handleReelHover(index, true)}
                 onBlur={() => handleReelHover(index, false)}

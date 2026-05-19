@@ -13,9 +13,9 @@ import { HamburgerMenu } from "@/components/home/HamburgerMenu";
 gsap.registerPlugin(useGSAP, ScrollTrigger, SplitText);
 
 const VIDEOS = [
-  "https://lfnxmldvqzqsgjigzibk.supabase.co/storage/v1/object/public/Contenaisaance/home.mp4",
-  "https://lfnxmldvqzqsgjigzibk.supabase.co/storage/v1/object/public/Contenaisaance/Mzha%20Nhi%20Aaya-02.1.mp4",
-  "https://lfnxmldvqzqsgjigzibk.supabase.co/storage/v1/object/public/Contenaisaance/website_popup%20to%20view.mp4",
+  "https://contenaissance.blob.core.windows.net/ct-assets/home.mp4",
+  "https://contenaissance.blob.core.windows.net/ct-assets/Mzha Nhi Aaya-02.1.mp4",
+  "https://contenaissance.blob.core.windows.net/ct-assets/website_popup to view.mp4",
 ];
 
 const VIDEO_SHOWCASES = [

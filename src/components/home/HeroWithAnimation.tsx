@@ -12,7 +12,7 @@ import { useRef } from "react";
 gsap.registerPlugin(useGSAP, ScrollTrigger, SplitText);
 
 const HERO_VIDEO_URL =
-  "https://lfnxmldvqzqsgjigzibk.supabase.co/storage/v1/object/public/Contenaisaance/Mzha%20Nhi%20Aaya-02.1.mp4";
+  "https://contenaissance.blob.core.windows.net/ct-assets/Mzha%20Nhi%20Aaya-02.1.mp4";
 
 export function HeroWithAnimation() {
   const rootRef = useRef<HTMLDivElement>(null);

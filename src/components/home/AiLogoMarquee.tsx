@@ -10,7 +10,7 @@ import { createPortal } from "react-dom";
 gsap.registerPlugin(useGSAP);
 
 const GEMINI_LOGO_URL =
-  "https://lfnxmldvqzqsgjigzibk.supabase.co/storage/v1/object/public/Contenaisaance/gemini.png";
+  "https://contenaissance.blob.core.windows.net/ct-assets/gemini.png";
 
 const aiLogos = [
   {
