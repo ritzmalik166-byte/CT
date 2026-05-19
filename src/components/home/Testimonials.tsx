@@ -4,8 +4,7 @@ import { useGSAP } from "@gsap/react";
 import { ReelModal } from "@/components/ui/ReelModal";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useRef, useState, useCallback } from "react";
-import { openReelWithPreload, preloadReelVideo } from "@/lib/reel-video-preload";
+import { useRef, useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 
@@ -73,8 +72,6 @@ function ReelCard({
   return (
     <button
       type="button"
-      onPointerEnter={() => preloadReelVideo(reel.video)}
-      onPointerDown={() => preloadReelVideo(reel.video)}
       onClick={() => onOpen(reel)}
       className="group relative h-full w-full cursor-pointer overflow-hidden rounded-[1.75rem] border-2 border-[#AE8C20]/40 bg-zinc-900 text-left shadow-[0_40px_90px_-25px_rgba(0,0,0,0.95),0_0_70px_-12px_rgba(174,140,32,0.4)] outline-none transition-colors duration-300 hover:border-[#AE8C20]/80 focus-visible:ring-2 focus-visible:ring-[#AE8C20]"
       aria-label={`Open ${reel.title}`}
@@ -84,8 +81,6 @@ function ReelCard({
         autoPlay
         muted
         loop
-        playsInline
-        preload="metadata"
         className="h-full w-full object-cover"
       />
 
@@ -116,9 +111,6 @@ function ReelSwipeCard({
     <div
       role="button"
       tabIndex={0}
-      onPointerEnter={() => preloadReelVideo(reel.video)}
-      onPointerDown={() => preloadReelVideo(reel.video)}
-      onTouchStart={() => preloadReelVideo(reel.video)}
       onClick={() => onOpen(reel)}
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
@@ -134,8 +126,6 @@ function ReelSwipeCard({
         autoPlay
         muted
         loop
-        playsInline
-        preload="metadata"
         className="pointer-events-none h-full w-full select-none object-cover [-webkit-touch-callout:none]"
       />
 
@@ -158,9 +148,6 @@ export function Testimonials() {
   const sectionRef = useRef<HTMLElement>(null);
   const showcaseDesktopRef = useRef<HTMLDivElement>(null);
   const [openReel, setOpenReel] = useState<ShowcaseReel | null>(null);
-  const handleOpenReel = useCallback((reel: ShowcaseReel) => {
-    openReelWithPreload(reel, setOpenReel);
-  }, []);
 
   useGSAP(
     () => {
@@ -324,7 +311,7 @@ export function Testimonials() {
                   willChange: "transform, opacity",
                 }}
               >
-                <ReelCard reel={reel} onOpen={handleOpenReel} />
+                <ReelCard reel={reel} onOpen={setOpenReel} />
               </div>
             ))}
           </div>
@@ -357,7 +344,7 @@ export function Testimonials() {
                 <article className="h-full">
                   <div className="relative aspect-[9/14] w-full overflow-hidden rounded-2xl border border-[#AE8C20]/35 bg-zinc-900 shadow-xl shadow-black/40">
                     <div className="absolute inset-0">
-                      <ReelSwipeCard reel={reel} onOpen={handleOpenReel} />
+                      <ReelSwipeCard reel={reel} onOpen={setOpenReel} />
                     </div>
                   </div>
                   <div className="mt-3 px-0.5 text-center">

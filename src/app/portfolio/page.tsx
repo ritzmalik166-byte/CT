@@ -6,8 +6,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { SplitText } from "gsap/SplitText";
 import Image from "next/image";
 import Link from "next/link";
-import { useCallback, useRef, useState } from "react";
-import { openReelWithPreload, preloadReelVideo } from "@/lib/reel-video-preload";
+import { useRef, useState } from "react";
 import { CTAFooter } from "@/components/home/CTAFooter";
 import { HamburgerMenu } from "@/components/home/HamburgerMenu";
 import { ReelModal } from "@/components/ui/ReelModal";
@@ -97,9 +96,6 @@ export default function PortfolioPage() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [activeReel, setActiveReel] = useState<Reel | null>(null);
   const reelVideoRefs = useRef<Array<HTMLVideoElement | null>>([]);
-  const handleOpenReel = useCallback((reel: Reel) => {
-    openReelWithPreload(reel, setActiveReel);
-  }, []);
 
   const handleReelHover = (index: number, hover: boolean) => {
     const video = reelVideoRefs.current[index];
@@ -351,11 +347,8 @@ export default function PortfolioPage() {
               <button
                 key={reel.id}
                 type="button"
-                onClick={() => handleOpenReel(reel)}
-                onMouseEnter={() => {
-                  preloadReelVideo(reel.video);
-                  handleReelHover(index, true);
-                }}
+                onClick={() => setActiveReel(reel)}
+                onMouseEnter={() => handleReelHover(index, true)}
                 onMouseLeave={() => handleReelHover(index, false)}
                 onFocus={() => handleReelHover(index, true)}
                 onBlur={() => handleReelHover(index, false)}
@@ -366,13 +359,11 @@ export default function PortfolioPage() {
                     reelVideoRefs.current[index] = el;
                   }}
                   className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  src={reel.video}
+                  autoPlay
                   muted
                   loop
-                  playsInline
-                  preload="metadata"
-                >
-                  <source src={reel.video} type="video/mp4" />
-                </video>
+                />
 
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/35 to-black/10 transition-opacity duration-500 group-hover:from-black/85" />
 

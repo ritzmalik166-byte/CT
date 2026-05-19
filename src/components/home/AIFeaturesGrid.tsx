@@ -3,9 +3,8 @@
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useCallback, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { ReelModal } from "@/components/ui/ReelModal";
-import { openReelWithPreload, preloadReelVideo } from "@/lib/reel-video-preload";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
@@ -76,9 +75,6 @@ export function AIFeaturesGrid() {
   const stageRef = useRef<HTMLDivElement>(null);
   const reelRefs = useRef<(HTMLDivElement | null)[]>([]);
   const [openReel, setOpenReel] = useState<Reel | null>(null);
-  const handleOpenReel = useCallback((reel: Reel) => {
-    openReelWithPreload(reel, setOpenReel);
-  }, []);
 
   useGSAP(
     () => {
@@ -242,9 +238,7 @@ export function AIFeaturesGrid() {
             >
               <button
                 type="button"
-                onPointerEnter={() => preloadReelVideo(reel.video)}
-                onPointerDown={() => preloadReelVideo(reel.video)}
-                onClick={() => handleOpenReel(reel)}
+                onClick={() => setOpenReel(reel)}
                 className="reel-circle group relative cursor-pointer focus:outline-none"
                 aria-label={`Open ${reel.title}`}
               >
@@ -257,8 +251,6 @@ export function AIFeaturesGrid() {
                     autoPlay
                     loop
                     muted
-                    playsInline
-                    preload="metadata"
                   >
                     <source src={reel.video} type="video/mp4" />
                   </video>

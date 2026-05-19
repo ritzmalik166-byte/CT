@@ -4,11 +4,6 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState, useRef, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { useLenisScrollLock } from "@/components/SmoothScrollProvider";
-import {
-  ensureReelStoragePreconnect,
-  preloadReelVideo,
-} from "@/lib/reel-video-preload";
-
 interface Reel {
   id: number;
   title: string;
@@ -23,6 +18,36 @@ interface ReelModalProps {
 
 const INSTAGRAM_URL = "https://www.instagram.com/contenaissance/";
 
+function normalizeVideoUrl(url: string) {
+  try {
+    return new URL(url, window.location.href).href.split("?")[0];
+  } catch {
+    return url.split("?")[0];
+  }
+}
+
+function videoMatchesUrl(video: HTMLVideoElement, url: string) {
+  const target = normalizeVideoUrl(url);
+  const candidates = [
+    video.src,
+    video.currentSrc,
+    ...Array.from(video.querySelectorAll("source")).map((s) => s.src),
+  ];
+  return candidates.some((src) => src && normalizeVideoUrl(src) === target);
+}
+
+/** Preview card/grid video already playing the same file (skip modal loader). */
+function findBufferedPreviewVideo(url: string, exclude?: HTMLVideoElement | null) {
+  if (typeof document === "undefined") return null;
+
+  for (const el of document.querySelectorAll("video")) {
+    if (el === exclude) continue;
+    if (!videoMatchesUrl(el, url)) continue;
+    if (el.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) return el;
+  }
+  return null;
+}
+
 export function ReelModal({ reel, onClose }: ReelModalProps) {
   useLenisScrollLock(!!reel);
   const [isMuted, setIsMuted] = useState(true);
@@ -31,10 +56,6 @@ export function ReelModal({ reel, onClose }: ReelModalProps) {
   const [shareStatus, setShareStatus] = useState<"idle" | "copied" | "failed">("idle");
   const videoRef = useRef<HTMLVideoElement>(null);
   const shareTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  useEffect(() => {
-    ensureReelStoragePreconnect();
-  }, []);
 
   useEffect(() => {
     if (!reel) return;
@@ -51,18 +72,6 @@ export function ReelModal({ reel, onClose }: ReelModalProps) {
     };
   }, [reel, onClose]);
 
-  useEffect(() => {
-    if (!reel) {
-      setIsVideoReady(false);
-      return;
-    }
-
-    setProgress(0);
-    setIsMuted(true);
-    setIsVideoReady(false);
-    preloadReelVideo(reel.video);
-  }, [reel]);
-
   const tryPlay = useCallback(() => {
     const video = videoRef.current;
     if (!video) return;
@@ -74,41 +83,87 @@ export function ReelModal({ reel, onClose }: ReelModalProps) {
     });
   }, []);
 
+  const markReadyAndPlay = useCallback(() => {
+    setIsVideoReady(true);
+    tryPlay();
+  }, [tryPlay]);
+
   useEffect(() => {
-    const video = videoRef.current;
-    if (!video || !reel) return;
-
-    const onLoadedData = () => {
-      setIsVideoReady(true);
-      tryPlay();
-    };
-
-    const onCanPlay = () => {
-      setIsVideoReady(true);
-      tryPlay();
-    };
-
-    const onTimeUpdate = () => {
-      if (video.duration) {
-        setProgress((video.currentTime / video.duration) * 100);
-      }
-    };
-
-    video.addEventListener("loadeddata", onLoadedData);
-    video.addEventListener("canplay", onCanPlay);
-    video.addEventListener("timeupdate", onTimeUpdate);
-
-    if (video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) {
-      setIsVideoReady(true);
-      tryPlay();
+    if (!reel) {
+      setIsVideoReady(false);
+      return;
     }
 
-    return () => {
-      video.removeEventListener("loadeddata", onLoadedData);
-      video.removeEventListener("canplay", onCanPlay);
-      video.removeEventListener("timeupdate", onTimeUpdate);
+    setProgress(0);
+    setIsMuted(true);
+
+    // Same URL is often already playing in a card preview — don’t flash “Loading reel…”
+    const preview = findBufferedPreviewVideo(reel.video);
+    setIsVideoReady(preview != null);
+  }, [reel]);
+
+  useEffect(() => {
+    if (!reel) return;
+
+    let cancelled = false;
+    let detach: (() => void) | undefined;
+
+    const attach = () => {
+      const video = videoRef.current;
+      if (!video || cancelled) return false;
+
+      const preview = findBufferedPreviewVideo(reel.video, video);
+      if (preview) {
+        try {
+          video.currentTime = preview.currentTime;
+        } catch {
+          /* ignore seek errors */
+        }
+      }
+
+      if (
+        video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA ||
+        preview != null
+      ) {
+        markReadyAndPlay();
+      }
+
+      const onReady = () => {
+        if (!cancelled) markReadyAndPlay();
+      };
+
+      const onTimeUpdate = () => {
+        if (video.duration) {
+          setProgress((video.currentTime / video.duration) * 100);
+        }
+      };
+
+      video.addEventListener("loadeddata", onReady);
+      video.addEventListener("canplay", onReady);
+      video.addEventListener("timeupdate", onTimeUpdate);
+
+      detach = () => {
+        video.removeEventListener("loadeddata", onReady);
+        video.removeEventListener("canplay", onReady);
+        video.removeEventListener("timeupdate", onTimeUpdate);
+      };
+      return true;
     };
-  }, [reel, tryPlay]);
+
+    const frame = requestAnimationFrame(() => {
+      if (!attach() && !cancelled) {
+        requestAnimationFrame(() => {
+          if (!cancelled) attach();
+        });
+      }
+    });
+
+    return () => {
+      cancelled = true;
+      cancelAnimationFrame(frame);
+      detach?.();
+    };
+  }, [reel, markReadyAndPlay]);
 
   const handleShare = async () => {
     if (!reel) return;
@@ -207,7 +262,7 @@ export function ReelModal({ reel, onClose }: ReelModalProps) {
                 )}
 
                 <video
-                  key={reel.id}
+                  key={reel.video}
                   ref={videoRef}
                   className={`h-full w-full object-cover transition-opacity duration-300 ${
                     isVideoReady ? "opacity-100" : "opacity-0"
@@ -216,8 +271,6 @@ export function ReelModal({ reel, onClose }: ReelModalProps) {
                   autoPlay
                   loop
                   muted={isMuted}
-                  playsInline
-                  preload="auto"
                 />
 
                 <motion.div
