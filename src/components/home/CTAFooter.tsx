@@ -8,8 +8,16 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Waves from "@/components/Waves";
 import { AIIconsMarquee } from "@/components/ui/AIIconsMarquee";
+import {
+  FOOTER_NEWSLETTER_SCRIPT_URL,
+  submitToGoogleAppsScript,
+} from "@/lib/googleSheets";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
+
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+type SubmitStatus = "idle" | "loading" | "success" | "error";
 
 const BRAND_TEXT = "CONTENAISSANCE";
 
@@ -24,6 +32,8 @@ export function CTAFooter() {
   const sectionRef = useRef<HTMLElement>(null);
   const brandTextRef = useRef<HTMLHeadingElement>(null);
   const [email, setEmail] = useState("");
+  const [status, setStatus] = useState<SubmitStatus>("idle");
+  const [errorMsg, setErrorMsg] = useState("");
 
   useGSAP(
     () => {
@@ -61,11 +71,41 @@ export function CTAFooter() {
     { scope: sectionRef }
   );
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (email) {
-      console.log("Email submitted:", email);
+
+    const trimmed = email.trim();
+    if (!trimmed) {
+      setStatus("error");
+      setErrorMsg("Please enter your email.");
+      return;
+    }
+    if (!EMAIL_REGEX.test(trimmed)) {
+      setStatus("error");
+      setErrorMsg("Enter a valid email address.");
+      return;
+    }
+
+    setStatus("loading");
+    setErrorMsg("");
+
+    try {
+      const payload = {
+        email: trimmed,
+        source:
+          typeof window !== "undefined"
+            ? window.location.href
+            : "footer",
+        timestamp: new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" }),
+      };
+
+      await submitToGoogleAppsScript(FOOTER_NEWSLETTER_SCRIPT_URL, payload);
+
+      setStatus("success");
       setEmail("");
+    } catch {
+      setStatus("error");
+      setErrorMsg("Could not send right now. Please try again.");
     }
   };
 
@@ -147,18 +187,45 @@ export function CTAFooter() {
                 <form onSubmit={handleSubmit} className="mt-3 flex flex-col gap-2.5 sm:mt-4 sm:flex-row sm:gap-3">
                   <input
                     type="email"
+                    name="email"
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      if (status !== "idle") setStatus("idle");
+                      if (errorMsg) setErrorMsg("");
+                    }}
                     placeholder="Enter Your Email..."
-                    className="h-12 w-full flex-1 rounded-full border-2 border-white bg-white px-5 py-3 text-center text-sm text-zinc-900 placeholder:text-zinc-400 outline-none transition-all duration-300 focus:border-[#AE8C20] focus:ring-2 focus:ring-[#AE8C20]/30 sm:h-[48px] sm:px-6 sm:text-left md:h-[52px] md:px-7"
+                    disabled={status === "loading"}
+                    required
+                    autoComplete="email"
+                    aria-invalid={status === "error"}
+                    aria-describedby={errorMsg || status === "success" ? "footer-email-status" : undefined}
+                    className="h-12 w-full flex-1 rounded-full border-2 border-white bg-white px-5 py-3 text-center text-sm text-zinc-900 placeholder:text-zinc-400 outline-none transition-all duration-300 focus:border-[#AE8C20] focus:ring-2 focus:ring-[#AE8C20]/30 disabled:cursor-not-allowed disabled:opacity-60 sm:h-[48px] sm:px-6 sm:text-left md:h-[52px] md:px-7"
                   />
                   <button
                     type="submit"
-                    className="h-12 shrink-0 rounded-full bg-[#AE8C20] px-6 text-sm font-semibold text-white shadow-[0_8px_20px_rgba(174,140,32,0.35)] transition-all duration-300 hover:bg-[#C9A730] hover:shadow-[0_12px_28px_rgba(174,140,32,0.45)] sm:h-[48px] sm:px-7 md:h-[52px] md:px-8"
+                    disabled={status === "loading"}
+                    className="h-12 shrink-0 rounded-full bg-[#AE8C20] px-6 text-sm font-semibold text-white shadow-[0_8px_20px_rgba(174,140,32,0.35)] transition-all duration-300 hover:bg-[#C9A730] hover:shadow-[0_12px_28px_rgba(174,140,32,0.45)] disabled:cursor-not-allowed disabled:opacity-70 sm:h-[48px] sm:px-7 md:h-[52px] md:px-8"
                   >
-                    Send Us
+                    {status === "loading" ? "Sending…" : "Send Us"}
                   </button>
                 </form>
+                <p
+                  id="footer-email-status"
+                  role="status"
+                  aria-live="polite"
+                  className={`mt-2 min-h-[1.25rem] text-xs sm:text-sm ${
+                    status === "success"
+                      ? "text-[#D4AF37]"
+                      : status === "error"
+                        ? "text-red-400"
+                        : "text-transparent"
+                  }`}
+                >
+                  {status === "success"
+                    ? "Thanks! Your email was sent successfully."
+                    : errorMsg}
+                </p>
               </div>
             </div>
 
