@@ -284,8 +284,6 @@ export function TransitionSection() {
           mouseRadius={isDesktopLayout ? 120 : 180}
           attractStrength={1.2}
           speed={0.35}
-          pauseWhenOffscreen
-          visibilityRoot={sectionRef}
         />
       </div>
 
