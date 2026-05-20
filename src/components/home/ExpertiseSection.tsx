@@ -5,7 +5,6 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Image from "next/image";
 import { useRef } from "react";
-import { FloatingParticles } from "@/components/ui/FloatingParticles";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
@@ -327,18 +326,6 @@ export function ExpertiseSection() {
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute right-0 top-0 h-[320px] w-[320px] -translate-y-1/2 translate-x-1/2 rounded-full bg-[color:color-mix(in_srgb,var(--gold-favicon-base)_6%,transparent)] blur-[72px] md:h-[600px] md:w-[600px] md:blur-[120px]" />
         <div className="absolute bottom-0 left-0 h-[320px] w-[320px] translate-y-1/2 -translate-x-1/2 rounded-full bg-[color:color-mix(in_srgb,var(--gold-favicon-base)_6%,transparent)] blur-[72px] md:h-[600px] md:w-[600px] md:blur-[120px]" />
-      </div>
-
-      {/* Canvas particles are heavy on mobile GPUs — desktop / tablet only */}
-      <div className="pointer-events-none absolute inset-0 z-0 hidden overflow-hidden md:block">
-        <FloatingParticles
-          className="absolute inset-0 h-full w-full"
-          particleCount={160}
-          colors={["#c5a028"]}
-          mouseRadius={200}
-          attractStrength={1.3}
-          speed={0.4}
-        />
       </div>
 
       <div className="relative z-10 mx-auto w-full max-w-[min(100%,92rem)] px-4 pt-14 pb-6 sm:px-6 md:px-8 md:pt-12 md:pb-8 lg:max-w-[100rem] lg:px-10 lg:pb-0 xl:max-w-[110rem] xl:px-12 2xl:max-w-[120rem] 2xl:px-16 min-[1920px]:max-w-[130rem] min-[1920px]:px-20 min-[2560px]:max-w-[148rem] min-[2560px]:px-28">
