@@ -173,6 +173,29 @@ export function HamburgerMenu({ isOpen, onClose, currentPage = "studio" }: Hambu
             <div className="absolute left-1/2 top-1/2 h-[700px] w-[700px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#AE8C20]/6 blur-[200px]" />
           </motion.div>
 
+          {/* Close button — above curtains; site chrome sits under menu overlay */}
+          <motion.button
+            type="button"
+            onClick={onClose}
+            aria-label="Close menu"
+            initial={{ opacity: 0, rotate: -90, scale: 0.85 }}
+            animate={{ opacity: 1, rotate: 0, scale: 1 }}
+            exit={{ opacity: 0, rotate: 90, scale: 0.85 }}
+            transition={{ delay: 0.35, duration: 0.35, ease: curtainEase }}
+            className="absolute right-4 top-4 z-20 flex h-10 w-10 items-center justify-center rounded-full border border-zinc-600/80 bg-zinc-900/90 text-white shadow-[0_12px_30px_rgba(0,0,0,0.35)] backdrop-blur-md transition-all duration-300 hover:border-[#AE8C20]/60 hover:bg-[#AE8C20]/20 hover:shadow-[0_16px_40px_rgba(174,140,32,0.35)] sm:right-5 sm:top-5 sm:h-12 sm:w-12 md:right-9 md:top-6 md:h-14 md:w-14"
+          >
+            <svg
+              className="h-5 w-5 sm:h-5 sm:w-5 md:h-6 md:w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2.2}
+              aria-hidden
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 6l12 12M18 6 6 18" />
+            </svg>
+          </motion.button>
+
           {/* MENU CONTENT - centered */}
           <motion.div
             key="menu-content"

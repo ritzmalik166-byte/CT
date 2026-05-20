@@ -20,6 +20,11 @@ interface Reel {
   video: string;
 }
 
+type ActiveReelState = {
+  reel: Reel;
+  preview: HTMLVideoElement | null;
+} | null;
+
 const AI_REELS: Reel[] = [
   {
     id: 1,
@@ -94,7 +99,7 @@ const GALLERY_IMAGES = [
 export default function PortfolioPage() {
   const pageRef = useRef<HTMLDivElement>(null);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [activeReel, setActiveReel] = useState<Reel | null>(null);
+  const [activeReel, setActiveReel] = useState<ActiveReelState>(null);
   const reelVideoRefs = useRef<Array<HTMLVideoElement | null>>([]);
 
   const handleReelHover = (index: number, hover: boolean) => {
@@ -347,7 +352,11 @@ export default function PortfolioPage() {
               <button
                 key={reel.id}
                 type="button"
-                onClick={() => setActiveReel(reel)}
+                onClick={() => {
+                  const preview = reelVideoRefs.current[index] ?? null;
+                  void preview?.play().catch(() => undefined);
+                  setActiveReel({ reel, preview });
+                }}
                 onMouseEnter={() => handleReelHover(index, true)}
                 onMouseLeave={() => handleReelHover(index, false)}
                 onFocus={() => handleReelHover(index, true)}
@@ -363,6 +372,7 @@ export default function PortfolioPage() {
                   autoPlay
                   muted
                   loop
+                  playsInline
                 />
 
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/35 to-black/10 transition-opacity duration-500 group-hover:from-black/85" />
@@ -404,7 +414,11 @@ export default function PortfolioPage() {
         </div>
       </section>
 
-      <ReelModal reel={activeReel} onClose={() => setActiveReel(null)} />
+      <ReelModal
+        reel={activeReel?.reel ?? null}
+        previewVideo={activeReel?.preview}
+        onClose={() => setActiveReel(null)}
+      />
 
       <section className="relative overflow-hidden bg-zinc-950 px-4 py-20 text-white sm:px-6 sm:py-24 md:px-12 md:py-36 xl:px-16">
         <div className="mx-auto max-w-[1400px]">

@@ -1,10 +1,11 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useLenisScrollLock } from "@/components/SmoothScrollProvider";
-interface Reel {
+
+export interface Reel {
   id: number;
   title: string;
   subtitle: string;
@@ -13,6 +14,8 @@ interface Reel {
 
 interface ReelModalProps {
   reel: Reel | null;
+  /** Card/grid video already showing this reel — avoids duplicate load + loader flash */
+  previewVideo?: HTMLVideoElement | null;
   onClose: () => void;
 }
 
@@ -20,7 +23,12 @@ const INSTAGRAM_URL = "https://www.instagram.com/contenaissance/";
 
 function normalizeVideoUrl(url: string) {
   try {
-    return new URL(url, window.location.href).href.split("?")[0];
+    const parsed = new URL(url, window.location.href);
+    parsed.pathname = parsed.pathname.replace(
+      /\.(mp4|mov|webm|MP4|MOV|WEBM)$/i,
+      (ext) => ext.toLowerCase()
+    );
+    return parsed.href.split("?")[0];
   } catch {
     return url.split("?")[0];
   }
@@ -36,7 +44,6 @@ function videoMatchesUrl(video: HTMLVideoElement, url: string) {
   return candidates.some((src) => src && normalizeVideoUrl(src) === target);
 }
 
-/** Preview card/grid video already playing the same file (skip modal loader). */
 function findBufferedPreviewVideo(url: string, exclude?: HTMLVideoElement | null) {
   if (typeof document === "undefined") return null;
 
@@ -48,14 +55,53 @@ function findBufferedPreviewVideo(url: string, exclude?: HTMLVideoElement | null
   return null;
 }
 
-export function ReelModal({ reel, onClose }: ReelModalProps) {
+function resolvePreview(
+  url: string,
+  explicit?: HTMLVideoElement | null,
+  exclude?: HTMLVideoElement | null
+) {
+  if (explicit && videoMatchesUrl(explicit, url)) return explicit;
+  return findBufferedPreviewVideo(url, exclude);
+}
+
+type VideoRestore = {
+  parent: HTMLElement;
+  nextSibling: ChildNode | null;
+  className: string;
+};
+
+const MODAL_VIDEO_CLASS = "h-full w-full object-cover";
+
+export function ReelModal({ reel, previewVideo, onClose }: ReelModalProps) {
   useLenisScrollLock(!!reel);
   const [isMuted, setIsMuted] = useState(true);
   const [progress, setProgress] = useState(0);
   const [isVideoReady, setIsVideoReady] = useState(false);
+  const [loadError, setLoadError] = useState(false);
   const [shareStatus, setShareStatus] = useState<"idle" | "copied" | "failed">("idle");
+  const [usesMovedPreview, setUsesMovedPreview] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const videoHostRef = useRef<HTMLDivElement>(null);
+  const movedPreviewRef = useRef<HTMLVideoElement | null>(null);
+  const restoreRef = useRef<VideoRestore | null>(null);
   const shareTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const restoreMovedPreview = useCallback(() => {
+    const video = movedPreviewRef.current;
+    const saved = restoreRef.current;
+    if (!video || !saved) return;
+
+    video.className = saved.className;
+    if (saved.nextSibling) {
+      saved.parent.insertBefore(video, saved.nextSibling);
+    } else {
+      saved.parent.appendChild(video);
+    }
+
+    movedPreviewRef.current = null;
+    restoreRef.current = null;
+    setUsesMovedPreview(false);
+  }, []);
 
   useEffect(() => {
     if (!reel) return;
@@ -84,51 +130,77 @@ export function ReelModal({ reel, onClose }: ReelModalProps) {
   }, []);
 
   const markReadyAndPlay = useCallback(() => {
+    setLoadError(false);
     setIsVideoReady(true);
     tryPlay();
   }, [tryPlay]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!reel) {
+      restoreMovedPreview();
       setIsVideoReady(false);
+      setLoadError(false);
+      setProgress(0);
       return;
     }
 
     setProgress(0);
     setIsMuted(true);
+    setLoadError(false);
 
-    // Same URL is often already playing in a card preview — don’t flash “Loading reel…”
-    const preview = findBufferedPreviewVideo(reel.video);
-    setIsVideoReady(preview != null);
-  }, [reel]);
+    const preview = resolvePreview(reel.video, previewVideo);
+    const host = videoHostRef.current;
 
-  useEffect(() => {
+    if (preview && host && preview.parentElement !== host) {
+      restoreMovedPreview();
+
+      restoreRef.current = {
+        parent: preview.parentElement!,
+        nextSibling: preview.nextSibling,
+        className: preview.className,
+      };
+
+      preview.className = MODAL_VIDEO_CLASS;
+      host.appendChild(preview);
+      movedPreviewRef.current = preview;
+      setUsesMovedPreview(true);
+      setIsVideoReady(
+        preview.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA || !preview.paused
+      );
+      preview.muted = true;
+      void preview.play().catch(() => undefined);
+      return;
+    }
+
+    if (preview && host && preview.parentElement === host) {
+      setUsesMovedPreview(true);
+      setIsVideoReady(true);
+      return;
+    }
+
+    setUsesMovedPreview(false);
+    setIsVideoReady(false);
+
+    return () => {
+      restoreMovedPreview();
+    };
+  }, [reel, previewVideo, restoreMovedPreview]);
+
+  useLayoutEffect(() => {
     if (!reel) return;
 
     let cancelled = false;
     let detach: (() => void) | undefined;
 
-    const attach = () => {
-      const video = videoRef.current;
-      if (!video || cancelled) return false;
-
-      const preview = findBufferedPreviewVideo(reel.video, video);
-      if (preview) {
-        try {
-          video.currentTime = preview.currentTime;
-        } catch {
-          /* ignore seek errors */
+    const bindVideo = (video: HTMLVideoElement) => {
+      const syncReady = () => {
+        if (cancelled) return;
+        if (video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA || !video.paused) {
+          markReadyAndPlay();
         }
-      }
+      };
 
-      if (
-        video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA ||
-        preview != null
-      ) {
-        markReadyAndPlay();
-      }
-
-      const onReady = () => {
+      const onPlaying = () => {
         if (!cancelled) markReadyAndPlay();
       };
 
@@ -138,32 +210,86 @@ export function ReelModal({ reel, onClose }: ReelModalProps) {
         }
       };
 
-      video.addEventListener("loadeddata", onReady);
-      video.addEventListener("canplay", onReady);
-      video.addEventListener("timeupdate", onTimeUpdate);
-
-      detach = () => {
-        video.removeEventListener("loadeddata", onReady);
-        video.removeEventListener("canplay", onReady);
-        video.removeEventListener("timeupdate", onTimeUpdate);
+      const onError = () => {
+        if (!cancelled) {
+          setLoadError(true);
+          setIsVideoReady(false);
+        }
       };
+
+      video.addEventListener("loadedmetadata", syncReady);
+      video.addEventListener("loadeddata", syncReady);
+      video.addEventListener("canplay", syncReady);
+      video.addEventListener("playing", onPlaying);
+      video.addEventListener("timeupdate", onTimeUpdate);
+      video.addEventListener("error", onError);
+
+      return () => {
+        video.removeEventListener("loadedmetadata", syncReady);
+        video.removeEventListener("loadeddata", syncReady);
+        video.removeEventListener("canplay", syncReady);
+        video.removeEventListener("playing", onPlaying);
+        video.removeEventListener("timeupdate", onTimeUpdate);
+        video.removeEventListener("error", onError);
+      };
+    };
+
+    const attach = () => {
+      if (cancelled) return false;
+
+      const moved = movedPreviewRef.current;
+      if (moved) {
+        detach = bindVideo(moved);
+        if (moved.duration) {
+          setProgress((moved.currentTime / moved.duration) * 100);
+        }
+        return true;
+      }
+
+      const video = videoRef.current;
+      if (!video) return false;
+
+      const preview = resolvePreview(reel.video, previewVideo, video);
+      if (preview) {
+        try {
+          video.currentTime = preview.currentTime;
+        } catch {
+          /* ignore */
+        }
+      }
+
+      detach = bindVideo(video);
+      if (
+        video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA ||
+        !video.paused
+      ) {
+        markReadyAndPlay();
+      }
+      tryPlay();
       return true;
     };
 
-    const frame = requestAnimationFrame(() => {
-      if (!attach() && !cancelled) {
-        requestAnimationFrame(() => {
-          if (!cancelled) attach();
-        });
-      }
-    });
+    if (!attach()) {
+      requestAnimationFrame(() => {
+        if (!cancelled) attach();
+      });
+    }
+
+    const fallback = window.setTimeout(() => {
+      if (!cancelled && !movedPreviewRef.current) markReadyAndPlay();
+    }, 8000);
 
     return () => {
       cancelled = true;
-      cancelAnimationFrame(frame);
+      window.clearTimeout(fallback);
       detach?.();
     };
-  }, [reel, markReadyAndPlay]);
+  }, [reel, previewVideo, markReadyAndPlay, tryPlay]);
+
+  useEffect(() => {
+    const video = movedPreviewRef.current ?? videoRef.current;
+    if (video) video.muted = isMuted;
+  }, [isMuted]);
 
   const handleShare = async () => {
     if (!reel) return;
@@ -242,14 +368,10 @@ export function ReelModal({ reel, onClose }: ReelModalProps) {
             style={{ transformPerspective: 1500 }}
             onClick={(e) => e.stopPropagation()}
           >
-            <motion.div className="relative w-full max-w-[280px] shrink-0 sm:max-w-[320px] md:max-w-none md:w-auto">
-              <div className="relative aspect-[9/16] h-auto w-full overflow-hidden rounded-2xl border border-[#AE8C20]/45 bg-black shadow-[0_20px_60px_-15px_rgba(0,0,0,0.9),0_0_40px_-8px_rgba(174,140,32,0.3)] sm:rounded-[1.5rem] md:h-[60vh] md:min-h-[400px] md:max-h-[680px] md:w-auto lg:h-[68vh] lg:min-h-[480px] lg:max-h-[760px] lg:rounded-[2rem] lg:shadow-[0_32px_90px_-22px_rgba(0,0,0,0.9),0_0_56px_-8px_rgba(174,140,32,0.35)]">
-                {!isVideoReady && (
-                  <motion.div
-                    className="absolute inset-0 z-[2] flex flex-col items-center justify-center gap-3 bg-zinc-950"
-                    initial={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                  >
+            <div className="relative w-full max-w-[280px] shrink-0 sm:max-w-[320px] md:max-w-none md:w-auto">
+              <motion.div className="relative aspect-[9/16] h-auto w-full overflow-hidden rounded-2xl border border-[#AE8C20]/45 bg-black shadow-[0_20px_60px_-15px_rgba(0,0,0,0.9),0_0_40px_-8px_rgba(174,140,32,0.3)] sm:rounded-[1.5rem] md:h-[60vh] md:min-h-[400px] md:max-h-[680px] md:w-auto lg:h-[68vh] lg:min-h-[480px] lg:max-h-[760px] lg:rounded-[2rem] lg:shadow-[0_32px_90px_-22px_rgba(0,0,0,0.9),0_0_56px_-8px_rgba(174,140,32,0.35)]">
+                {!isVideoReady && !loadError && (
+                  <div className="absolute inset-0 z-[2] flex flex-col items-center justify-center gap-3 bg-zinc-950">
                     <motion.div
                       className="h-10 w-10 rounded-full border-2 border-[#AE8C20]/30 border-t-[#D4AF37]"
                       animate={{ rotate: 360 }}
@@ -258,38 +380,57 @@ export function ReelModal({ reel, onClose }: ReelModalProps) {
                     <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#D4AF37]/80">
                       Loading reel…
                     </p>
+                  </div>
+                )}
+
+                {loadError && (
+                  <motion.div className="absolute inset-0 z-[2] flex flex-col items-center justify-center gap-2 bg-zinc-950 px-4 text-center">
+                    <p className="text-sm font-medium text-white">Couldn&apos;t load this reel</p>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setLoadError(false);
+                        videoRef.current?.load();
+                        tryPlay();
+                      }}
+                      className="mt-2 rounded-full border border-[#AE8C20]/50 px-4 py-1.5 text-xs font-semibold text-[#D4AF37]"
+                    >
+                      Retry
+                    </button>
                   </motion.div>
                 )}
 
-                <video
-                  key={reel.video}
-                  ref={videoRef}
-                  className={`h-full w-full object-cover transition-opacity duration-300 ${
+                <div ref={videoHostRef} className="absolute inset-0">
+                  {!usesMovedPreview &&
+                    (!previewVideo || !videoMatchesUrl(previewVideo, reel.video)) && (
+                      <video
+                        key={reel.video}
+                        ref={videoRef}
+                        className={MODAL_VIDEO_CLASS}
+                        src={reel.video}
+                        autoPlay
+                        loop
+                        muted={isMuted}
+                        playsInline
+                      />
+                    )}
+                </div>
+
+                <div
+                  className={`pointer-events-none absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-black/60 to-transparent transition-opacity duration-300 sm:h-24 md:h-32 ${
                     isVideoReady ? "opacity-100" : "opacity-0"
                   }`}
-                  src={reel.video}
-                  autoPlay
-                  loop
-                  muted={isMuted}
                 />
-
-                <motion.div
-                  className="pointer-events-none absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-black/60 to-transparent sm:h-24 md:h-32"
-                  initial={false}
-                  animate={{ opacity: isVideoReady ? 1 : 0 }}
-                />
-                <motion.div
-                  className="pointer-events-none absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-black/80 via-black/30 to-transparent sm:h-32 md:h-40"
-                  initial={false}
-                  animate={{ opacity: isVideoReady ? 1 : 0 }}
+                <div
+                  className={`pointer-events-none absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-black/80 via-black/30 to-transparent transition-opacity duration-300 sm:h-32 md:h-40 ${
+                    isVideoReady ? "opacity-100" : "opacity-0"
+                  }`}
                 />
 
                 <div className="absolute inset-x-3 top-3 h-0.5 overflow-hidden rounded-full bg-white/20 sm:inset-x-4 sm:top-4">
-                  <motion.div
+                  <div
                     className="h-full rounded-full bg-gradient-to-r from-[#AE8C20] to-[#D4AF37] transition-all duration-100"
                     style={{ width: `${progress}%` }}
-                    initial={false}
-                    animate={{ opacity: isVideoReady ? 1 : 0 }}
                   />
                 </div>
 
@@ -317,8 +458,8 @@ export function ReelModal({ reel, onClose }: ReelModalProps) {
                     {reel.title}
                   </h3>
                 </div>
-              </div>
-            </motion.div>
+              </motion.div>
+            </div>
 
             <motion.div
               className="flex max-w-md flex-col justify-center px-2 text-center sm:px-0 md:text-left"
@@ -343,7 +484,7 @@ export function ReelModal({ reel, onClose }: ReelModalProps) {
                 Crafted with cinematic precision. Every frame engineered to captivate, every cut designed to convert. This is storytelling reimagined for the AI era.
               </p>
 
-              <motion.div className="mt-4 flex flex-col items-center gap-2.5 sm:mt-6 sm:flex-row sm:gap-3 md:mt-8 md:items-start">
+              <div className="mt-4 flex flex-col items-center gap-2.5 sm:mt-6 sm:flex-row sm:gap-3 md:mt-8 md:items-start">
                 <a
                   href={INSTAGRAM_URL}
                   target="_blank"
@@ -371,7 +512,7 @@ export function ReelModal({ reel, onClose }: ReelModalProps) {
                     </svg>
                   )}
                 </button>
-              </motion.div>
+              </div>
             </motion.div>
 
             <motion.button
