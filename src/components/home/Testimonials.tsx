@@ -81,6 +81,8 @@ function ReelCard({
         autoPlay
         muted
         loop
+        playsInline
+        preload="metadata"
         className="h-full w-full object-cover"
       />
 
@@ -190,15 +192,42 @@ export function Testimonials() {
           });
         });
 
+        const syncDeckVideos = () => {
+          cards.forEach((card) => {
+            const video = card.querySelector("video");
+            if (!video) return;
+            const opacity = Number(gsap.getProperty(card, "opacity")) || 0;
+            if (opacity > 0.2) {
+              if (video.paused) void video.play().catch(() => undefined);
+            } else {
+              video.pause();
+            }
+          });
+        };
+
+        const pinScrollDistance = () =>
+          Math.round(Math.max(window.innerHeight * 2.15, 1600));
+
         const tl = gsap.timeline({
           scrollTrigger: {
             trigger: el,
             start: "top top",
-            end: "+=4000",
+            end: () => `+=${pinScrollDistance()}`,
             pin: true,
             pinSpacing: true,
-            scrub: 0.6,
+            scrub: true,
             anticipatePin: 1,
+            fastScrollEnd: true,
+            invalidateOnRefresh: true,
+            onUpdate: syncDeckVideos,
+            onEnter: syncDeckVideos,
+            onEnterBack: syncDeckVideos,
+            onLeave: () => {
+              cards.forEach((card) => card.querySelector("video")?.pause());
+            },
+            onLeaveBack: () => {
+              cards.forEach((card) => card.querySelector("video")?.pause());
+            },
           },
         });
 
@@ -249,7 +278,10 @@ export function Testimonials() {
           );
         });
 
+        syncDeckVideos();
+
         return () => {
+          cards.forEach((card) => card.querySelector("video")?.pause());
           tl.scrollTrigger?.kill();
           tl.kill();
         };
@@ -264,9 +296,9 @@ export function Testimonials() {
     <section ref={sectionRef} className="dark-pin-section relative overflow-x-hidden bg-zinc-950">
       {/* Ambient glow */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute left-1/2 top-0 h-[800px] w-[800px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#AE8C20]/5 blur-[120px]" />
-        <div className="absolute bottom-1/3 left-0 h-[500px] w-[500px] -translate-x-1/2 rounded-full bg-[#AE8C20]/5 blur-[120px]" />
-        <div className="absolute bottom-1/3 right-0 h-[500px] w-[500px] translate-x-1/2 rounded-full bg-[#AE8C20]/5 blur-[120px]" />
+        <div className="absolute left-1/2 top-0 h-[800px] w-[800px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#AE8C20]/5 blur-[80px] lg:blur-[100px]" />
+        <div className="absolute bottom-1/3 left-0 h-[500px] w-[500px] -translate-x-1/2 rounded-full bg-[#AE8C20]/5 blur-[80px] lg:blur-[100px]" />
+        <div className="absolute bottom-1/3 right-0 h-[500px] w-[500px] translate-x-1/2 rounded-full bg-[#AE8C20]/5 blur-[80px] lg:blur-[100px]" />
       </div>
 
       {/* Header */}
@@ -306,10 +338,7 @@ export function Testimonials() {
               <div
                 key={`d-${reel.id}`}
                 className="deck-card absolute left-1/2 top-[45%] h-[520px] w-[280px]"
-                style={{
-                  transformStyle: "preserve-3d",
-                  willChange: "transform, opacity",
-                }}
+                style={{ transformStyle: "preserve-3d" }}
               >
                 <ReelCard reel={reel} onOpen={setOpenReel} />
               </div>

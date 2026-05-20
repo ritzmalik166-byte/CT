@@ -203,6 +203,15 @@ function FeaturedCard({ item }: { item: Extract<Testimonial, { variant: "feature
 ─────────────────────────────────────────────────────────────── */
 export function TransitionSection() {
   const sectionRef = useRef<HTMLElement>(null);
+  const [isDesktopLayout, setIsDesktopLayout] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 1024px)");
+    const apply = () => setIsDesktopLayout(mq.matches);
+    apply();
+    mq.addEventListener("change", apply);
+    return () => mq.removeEventListener("change", apply);
+  }, []);
 
   const quoteOnly = useMemo(
     () =>
@@ -270,11 +279,13 @@ export function TransitionSection() {
       <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
         <FloatingParticles
           className="absolute inset-0 h-full w-full"
-          particleCount={150}
+          particleCount={isDesktopLayout ? 64 : 150}
           colors={["#AE8C20"]}
-          mouseRadius={180}
+          mouseRadius={isDesktopLayout ? 120 : 180}
           attractStrength={1.2}
           speed={0.35}
+          pauseWhenOffscreen
+          visibilityRoot={sectionRef}
         />
       </div>
 

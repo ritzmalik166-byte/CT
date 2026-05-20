@@ -8,6 +8,7 @@ import {
   useMemo,
   useRef,
 } from "react";
+import gsap from "gsap";
 import Lenis from "lenis";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ScrollToTop } from "@/components/ScrollToTop";
@@ -64,29 +65,35 @@ export function SmoothScrollProvider({
       reducedMotionMq.matches || narrowMq.matches || coarsePointerMq.matches;
 
     let lenisInstance: Lenis | null = null;
-    let rafId = 0;
     let onLenisScroll: (() => void) | undefined;
     let onScrollTriggerRefresh: (() => void) | undefined;
+    let lenisTicker: ((time: number) => void) | undefined;
 
     function tearDownLenis() {
-      cancelAnimationFrame(rafId);
-      rafId = 0;
-
       const lenis = lenisInstance;
-      if (!lenis) return;
 
-      if (onScrollTriggerRefresh) {
-        ScrollTrigger.removeEventListener("refresh", onScrollTriggerRefresh);
-        onScrollTriggerRefresh = undefined;
-      }
-      if (onLenisScroll) {
-        lenis.off("scroll", onLenisScroll);
-        onLenisScroll = undefined;
+      if (lenisTicker) {
+        gsap.ticker.remove(lenisTicker);
+        lenisTicker = undefined;
       }
 
-      lenis.destroy();
-      lenisInstance = null;
-      lenisRef.current = null;
+      ScrollTrigger.scrollerProxy(document.documentElement, {});
+
+      if (lenis) {
+        if (onScrollTriggerRefresh) {
+          ScrollTrigger.removeEventListener("refresh", onScrollTriggerRefresh);
+          onScrollTriggerRefresh = undefined;
+        }
+        if (onLenisScroll) {
+          lenis.off("scroll", onLenisScroll);
+          onLenisScroll = undefined;
+        }
+
+        lenis.destroy();
+        lenisInstance = null;
+        lenisRef.current = null;
+      }
+
       ScrollTrigger.refresh(true);
     }
 
@@ -98,6 +105,10 @@ export function SmoothScrollProvider({
 
       const lenis = new Lenis({
         syncTouch: true,
+        // Snappier on desktop so scrubbed pin sections don't feel like they're fighting the wheel
+        lerp: 0.075,
+        wheelMultiplier: 1,
+        touchMultiplier: 1.2,
       });
       lenisInstance = lenis;
       lenisRef.current = lenis;
@@ -107,17 +118,36 @@ export function SmoothScrollProvider({
       };
       lenis.on("scroll", onLenisScroll);
 
+      ScrollTrigger.scrollerProxy(document.documentElement, {
+        scrollTop(value?: number) {
+          if (typeof value === "number") {
+            lenis.scrollTo(value, { immediate: true });
+          }
+          return lenis.scroll;
+        },
+        getBoundingClientRect() {
+          return {
+            top: 0,
+            left: 0,
+            width: window.innerWidth,
+            height: window.innerHeight,
+          };
+        },
+        pinType:
+          document.body.style.transform !== "" ? "transform" : "fixed",
+      });
+
       onScrollTriggerRefresh = () => {
         lenis.resize();
       };
       ScrollTrigger.addEventListener("refresh", onScrollTriggerRefresh);
       ScrollTrigger.refresh(true);
 
-      function raf(time: number) {
-        lenis.raf(time);
-        rafId = requestAnimationFrame(raf);
-      }
-      rafId = requestAnimationFrame(raf);
+      lenisTicker = (time) => {
+        lenis.raf(time * 1000);
+      };
+      gsap.ticker.add(lenisTicker);
+      gsap.ticker.lagSmoothing(0);
     }
 
     function apply() {

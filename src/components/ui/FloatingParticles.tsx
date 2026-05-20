@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type RefObject } from "react";
 
 interface Particle {
   x: number;
@@ -21,6 +21,9 @@ interface FloatingParticlesProps {
   mouseRadius?: number;
   attractStrength?: number;
   speed?: number;
+  /** Stop RAF when the root leaves the viewport (saves CPU during long desktop scroll). */
+  pauseWhenOffscreen?: boolean;
+  visibilityRoot?: RefObject<Element | null>;
 }
 
 export function FloatingParticles({
@@ -30,9 +33,12 @@ export function FloatingParticles({
   mouseRadius = 200,
   attractStrength = 1.2,
   speed = 0.4,
+  pauseWhenOffscreen = false,
+  visibilityRoot,
 }: FloatingParticlesProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationFrameRef = useRef<number | null>(null);
+  const isVisibleRef = useRef(true);
   const particlesRef = useRef<Particle[]>([]);
   const mouseRef = useRef<{ x: number; y: number; active: boolean }>({
     x: -9999,
@@ -88,6 +94,11 @@ export function FloatingParticles({
     };
 
     const animate = () => {
+      if (pauseWhenOffscreen && !isVisibleRef.current) {
+        animationFrameRef.current = requestAnimationFrame(animate);
+        return;
+      }
+
       ctx.clearRect(0, 0, width, height);
 
       const mouse = mouseRef.current;
@@ -161,15 +172,28 @@ export function FloatingParticles({
       initParticles();
     };
 
+    let visibilityObserver: IntersectionObserver | undefined;
+
     resizeCanvas();
     initParticles();
     animationFrameRef.current = requestAnimationFrame(animate);
+
+    if (pauseWhenOffscreen && visibilityRoot?.current) {
+      visibilityObserver = new IntersectionObserver(
+        ([entry]) => {
+          isVisibleRef.current = entry.isIntersecting;
+        },
+        { root: null, rootMargin: "120px 0px", threshold: 0 }
+      );
+      visibilityObserver.observe(visibilityRoot.current);
+    }
 
     window.addEventListener("resize", handleResize);
     window.addEventListener("mousemove", handleMouseMove);
     window.addEventListener("mouseleave", handleMouseLeave);
 
     return () => {
+      visibilityObserver?.disconnect();
       if (animationFrameRef.current !== null) {
         cancelAnimationFrame(animationFrameRef.current);
       }
@@ -177,7 +201,7 @@ export function FloatingParticles({
       window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("mouseleave", handleMouseLeave);
     };
-  }, [particleCount, colors, mouseRadius, attractStrength, speed]);
+  }, [particleCount, colors, mouseRadius, attractStrength, speed, pauseWhenOffscreen, visibilityRoot]);
 
   return (
     <canvas
