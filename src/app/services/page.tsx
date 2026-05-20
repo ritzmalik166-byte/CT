@@ -551,12 +551,12 @@ export default function ServicesPage() {
 
                 {/* Content Grid */}
                 <div className="grid gap-[20px] md:grid-cols-[minmax(280px,30%)_1fr] md:items-start md:gap-10 lg:grid-cols-[minmax(320px,32%)_1fr] lg:gap-16">
-                  {/* Golden feature lines — stacked tight, aligned to top */}
-                  <div className="flex flex-col gap-[20px] text-center sm:gap-1.5 md:gap-2 md:text-left lg:gap-2.5">
+                  {/* Golden feature lines — aligned to top */}
+                  <div className="flex flex-col gap-6 text-center sm:gap-7 md:gap-8 md:text-left lg:gap-7">
                     {service.features.map((feature, i) => (
                       <p
                         key={i}
-                        className="service-feature m-0 text-[18px] font-bold uppercase leading-none tracking-[0.04em] text-[#AE8C20] sm:text-[11px] sm:tracking-[0.05em] md:text-[18px] md:tracking-[0.06em] lg:text-[18px]"
+                        className="service-feature m-0 py-0.5 text-[18px] font-bold uppercase leading-snug tracking-[0.04em] text-[#AE8C20] sm:text-[11px] sm:leading-normal sm:tracking-[0.05em] md:text-[18px] md:leading-relaxed md:tracking-[0.06em] lg:text-[18px]"
                       >
                         {feature}
                       </p>

@@ -53,7 +53,10 @@ export default function RootLayout({
         <NoiseOverlay />
         <CustomCursor />
         <SiteBootLoader>
-          <SmoothScrollProvider>{children}</SmoothScrollProvider>
+          <SmoothScrollProvider>
+          
+            {children}
+          </SmoothScrollProvider>
         </SiteBootLoader>
       </body>
     </html>
