@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { Geist, Geist_Mono, Inter } from "next/font/google";
 import "./globals.css";
 import { NoiseOverlay } from "@/components/NoiseOverlay";
@@ -50,6 +51,18 @@ export default function RootLayout({
         <link rel="preconnect" href="https://contenaissance.blob.core.windows.net" crossOrigin="anonymous" />
       </head>
       <body className="min-h-full flex flex-col bg-white overflow-x-hidden" suppressHydrationWarning>
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-9KKTHS4QY2"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-9KKTHS4QY2');
+          `}
+        </Script>
         <NoiseOverlay />
         <CustomCursor />
         <SiteBootLoader>
