@@ -40,9 +40,9 @@ export function FooterAIEngagement() {
           </div>
         </motion.div>
 
-        {/* Compact game — right end, above footer container */}
+        {/* Compact game — right end, widened slightly toward center */}
         <motion.div
-          className={`pointer-events-auto absolute right-0 z-20 w-[min(92vw,320px)] sm:right-2 sm:w-[340px] md:right-6 md:w-[360px] lg:right-10 ${GAME_BOTTOM}`}
+          className={`pointer-events-auto absolute right-0 z-20 w-[min(98vw,760px)] sm:right-2 sm:w-[740px] md:right-6 md:w-[744px] lg:right-10 lg:w-[760px] ${GAME_BOTTOM}`}
           initial={{ opacity: 0, y: 28 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.35 }}

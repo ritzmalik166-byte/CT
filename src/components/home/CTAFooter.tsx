@@ -125,9 +125,9 @@ export function CTAFooter() {
         {/* Bottom gradient to blend into footer */}
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-zinc-950 to-transparent" />
 
-        {/* AI Icons marquee — pinned to top of dotted area */}
+        {/* AI Icons marquee — pinned to top of dotted area, nudged down from header */}
         <div className="absolute inset-x-0 top-0 z-10">
-          <AIIconsMarquee className="pt-5 pb-2 sm:pt-7 sm:pb-3 md:pt-8" />
+          <AIIconsMarquee className="pt-9 pb-2 sm:pt-11 sm:pb-3 md:pt-14" />
         </div>
 
         {/* AI game promo — boy + challenge button (above footer container) */}

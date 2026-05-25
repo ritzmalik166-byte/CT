@@ -43,7 +43,7 @@ function StartScreen({ onStart }: { onStart: () => void }) {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.4 }}
     >
-      <div className="start-card w-full max-w-[248px] rounded-xl bg-[#d9d9d9] px-5 py-5 shadow-[0_12px_40px_rgba(0,0,0,0.5)]">
+      <div className="start-card w-full max-w-[min(320px,88%)] rounded-xl bg-[#d9d9d9] px-6 py-5 ">
         <h3 className="text-center text-lg font-black tracking-wide text-zinc-900">HELLO !</h3>
 
         <ul className="mt-4 space-y-2">
@@ -319,7 +319,7 @@ export function AIBubbleShooterPanel() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
               >
-                <div className="start-card w-full max-w-[248px] rounded-xl bg-[#d9d9d9] px-5 py-5 text-center shadow-[0_12px_40px_rgba(0,0,0,0.5)]">
+                <div className="start-card w-full max-w-[min(320px,88%)] rounded-xl bg-[#d9d9d9] px-6 py-5 text-center shadow-[0_12px_40px_rgba(0,0,0,0.5)]">
                   <div className="mx-auto mb-2 flex h-9 w-9 items-center justify-center rounded-full bg-zinc-900 text-white">
                     {won ? <Trophy className="h-4 w-4" /> : <Crosshair className="h-4 w-4" />}
                   </div>
@@ -395,17 +395,12 @@ export function AIBubbleShooterPanel() {
 
       <style jsx>{`
         .bubble-game-shell {
-          background: linear-gradient(160deg, #0e0e12 0%, #08080a 100%);
-          box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55);
+
+      
         }
         .bubble-game-border {
           padding: 1px;
-          background: linear-gradient(
-            135deg,
-            rgba(34, 211, 238, 0.4),
-            rgba(168, 85, 247, 0.3),
-            rgba(34, 211, 238, 0.35)
-          );
+          background: transparent;
           -webkit-mask:
             linear-gradient(#fff 0 0) content-box,
             linear-gradient(#fff 0 0);

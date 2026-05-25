@@ -1,7 +1,7 @@
 import { BUBBLE_TYPE_COUNT } from "./ai-bubble-logos";
 
 /** Fixed compact playfield — small container, 8 columns. */
-export const PLAYFIELD_W = 340;
+export const PLAYFIELD_W = 640;
 export const PLAYFIELD_H = 380;
 export const GRID_COLS = 8;
 export const INITIAL_ROWS = 5;
