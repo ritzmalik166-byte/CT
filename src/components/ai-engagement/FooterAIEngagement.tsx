@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { AIEngagementWidget } from "./AIEngagementWidget";
+import { AIEngagementWidget } from "./AIEngagementWidget"; 
 import { AIBubbleShooterPanel } from "./bubble-shooter/AIBubbleShooterPanel";
 
 /** Feet sit on the dotted baseline; legs tuck under the footer via layer z-index. */
