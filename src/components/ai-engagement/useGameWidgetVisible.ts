@@ -3,81 +3,64 @@
 import { useEffect, useState } from "react";
 import { useLenis } from "@/components/SmoothScrollProvider";
 
-const REVEAL_SECTION_ID = "but-are-you-section";
-const FALLBACK_SCROLL_PX = 320;
+const HERO_SECTION_ID = "cinematic-hero";
 
-function isRevealSectionVisible(el: HTMLElement) {
-  const rect = el.getBoundingClientRect();
-  const opacity = Number.parseFloat(window.getComputedStyle(el).opacity);
-  const inView =
-    rect.top < window.innerHeight * 0.72 && rect.bottom > window.innerHeight * 0.28;
-  return inView && opacity > 0.2;
+function isHeroInView(hero: HTMLElement) {
+  const rect = hero.getBoundingClientRect();
+  return rect.bottom > 0 && rect.top < window.innerHeight;
 }
 
 export function useGameWidgetVisible() {
   const { getLenis } = useLenis();
-  const [visible, setVisible] = useState(false);
+  const [visible, setVisible] = useState(true);
 
   useEffect(() => {
-    let revealEl: HTMLElement | null = null;
+    let heroEl: HTMLElement | null = null;
     let observer: IntersectionObserver | null = null;
     let pollId: number | null = null;
+    let attached = false;
 
-    const updateFromScroll = () => {
-      const lenis = getLenis();
-      const y = lenis ? lenis.scroll : window.scrollY;
-      setVisible(y > FALLBACK_SCROLL_PX);
+    const update = () => {
+      heroEl = document.getElementById(HERO_SECTION_ID);
+      if (!heroEl) {
+        setVisible(true);
+        return;
+      }
+      setVisible(!isHeroInView(heroEl));
     };
 
-    const updateFromReveal = () => {
-      if (!revealEl) return;
-      setVisible(isRevealSectionVisible(revealEl));
-    };
+    const attachHeroObserver = () => {
+      if (attached) return true;
+      heroEl = document.getElementById(HERO_SECTION_ID);
+      if (!heroEl) return false;
 
-    const attachRevealObserver = () => {
-      revealEl = document.getElementById(REVEAL_SECTION_ID);
-      if (!revealEl) return false;
-
-      observer = new IntersectionObserver(updateFromReveal, {
-        threshold: [0, 0.15, 0.35, 0.55],
-        rootMargin: "-8% 0px -12% 0px",
+      attached = true;
+      observer = new IntersectionObserver(update, {
+        threshold: [0, 0.05, 0.15, 0.35, 0.6, 1],
       });
-      observer.observe(revealEl);
-      window.addEventListener("scroll", updateFromReveal, { passive: true });
-
-      const lenis = getLenis();
-      if (lenis) lenis.on("scroll", updateFromReveal);
-
-      updateFromReveal();
+      observer.observe(heroEl);
+      update();
       return true;
     };
 
-    if (!attachRevealObserver()) {
-      updateFromScroll();
-      window.addEventListener("scroll", updateFromScroll, { passive: true });
-
-      const lenis = getLenis();
-      if (lenis) lenis.on("scroll", updateFromScroll);
-
+    if (!attachHeroObserver()) {
+      setVisible(true);
       pollId = window.setInterval(() => {
-        if (attachRevealObserver()) {
-          window.removeEventListener("scroll", updateFromScroll);
-          if (lenis) lenis.off("scroll", updateFromScroll);
-          if (pollId !== null) window.clearInterval(pollId);
+        if (attachHeroObserver() && pollId !== null) {
+          window.clearInterval(pollId);
         }
       }, 400);
     }
 
+    window.addEventListener("scroll", update, { passive: true });
+    const lenis = getLenis();
+    if (lenis) lenis.on("scroll", update);
+
     return () => {
       if (pollId !== null) window.clearInterval(pollId);
       observer?.disconnect();
-      window.removeEventListener("scroll", updateFromReveal);
-      window.removeEventListener("scroll", updateFromScroll);
-      const lenis = getLenis();
-      if (lenis) {
-        lenis.off("scroll", updateFromReveal);
-        lenis.off("scroll", updateFromScroll);
-      }
+      window.removeEventListener("scroll", update);
+      if (lenis) lenis.off("scroll", update);
     };
   }, [getLenis]);
 

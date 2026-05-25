@@ -281,6 +281,7 @@ export function CinematicHero() {
         />
 
       <section
+        id="cinematic-hero"
         ref={heroSectionRef}
         className="relative isolate h-[115svh] overflow-hidden bg-white"
       >
