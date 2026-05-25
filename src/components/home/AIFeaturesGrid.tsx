@@ -38,21 +38,21 @@ const REELS: Reel[] = [
     title: "Social Content",
     subtitle: "Viral-worthy reels",
     video: "https://contenaissance.blob.core.windows.net/ct-assets/03.mp4",
-    enterFrom: "right",
+    enterFrom: "bottom",
   },
   {
     id: 4,
     title: "Music Videos",
     subtitle: "Visual rhythms",
     video: "https://contenaissance.blob.core.windows.net/ct-assets/05.MP4",
-    enterFrom: "bottom",
+    enterFrom: "left",
   },
   {
     id: 5,
     title: "Documentary",
     subtitle: "Stories that matter",
     video: "https://contenaissance.blob.core.windows.net/ct-assets/09.mp4",
-    enterFrom: "left",
+    enterFrom: "top",
   },
 ];
 
@@ -141,10 +141,14 @@ export function AIFeaturesGrid() {
           if (i === 0) return;
 
           const prev = reels[i - 1];
-          const exitOffset = exitOffsets[REELS[i - 1].enterFrom];
-          const prevFrom = REELS[i - 1].enterFrom;
+          const incomingFrom = REELS[i].enterFrom;
+          const exitOffset = exitOffsets[incomingFrom];
           const exitRotY =
-            use3d && (prevFrom === "right" || prevFrom === "left") ? -35 : 0;
+            use3d && (incomingFrom === "right" || incomingFrom === "left")
+              ? incomingFrom === "right"
+                ? -35
+                : 35
+              : 0;
 
           tl.to(
             prev,
