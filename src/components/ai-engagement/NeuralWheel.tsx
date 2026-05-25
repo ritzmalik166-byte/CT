@@ -1,11 +1,11 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { GAME_WHEEL_COLORS } from "./game-theme";
 import { WHEEL_SEGMENTS } from "./types";
 import { cn } from "@/lib/utils";
 
 const SEGMENT_DEG = 360 / WHEEL_SEGMENTS.length;
-const COLORS = ["#AE8C20", "#C9A730", "#8B6914", "#D4AF37", "#6B5410"];
 
 interface NeuralWheelProps {
   rotation: number;
@@ -16,10 +16,10 @@ interface NeuralWheelProps {
 export function NeuralWheel({ rotation, spinning, highlightIndex }: NeuralWheelProps) {
   return (
     <div className="relative mx-auto aspect-square w-full max-w-[240px] sm:max-w-[260px]">
-      <div className="absolute inset-0 rounded-full bg-[#AE8C20]/20 blur-xl" />
+      <div className="absolute inset-0 rounded-full bg-violet-500/20 blur-xl" />
 
       <motion.div
-        className="relative h-full w-full rounded-full border-2 border-[#AE8C20]/50 shadow-[0_0_40px_rgba(174,140,32,0.25)]"
+        className="relative h-full w-full rounded-full border-2 border-cyan-400/40 shadow-[0_0_40px_rgba(34,211,238,0.25)]"
         animate={{ rotate: rotation }}
         transition={
           spinning
@@ -47,9 +47,9 @@ export function NeuralWheel({ rotation, spinning, highlightIndex }: NeuralWheelP
               <g key={seg.type}>
                 <path
                   d={`M 100 100 L ${x1} ${y1} A 92 92 0 ${largeArc} 1 ${x2} ${y2} Z`}
-                  fill={COLORS[i % COLORS.length]}
-                  fillOpacity={highlightIndex === i ? 1 : 0.85}
-                  stroke="#1a1a1a"
+                  fill={GAME_WHEEL_COLORS[i % GAME_WHEEL_COLORS.length]}
+                  fillOpacity={highlightIndex === i ? 1 : 0.88}
+                  stroke="#0a0a0a"
                   strokeWidth="1.5"
                 />
                 <text
@@ -67,17 +67,16 @@ export function NeuralWheel({ rotation, spinning, highlightIndex }: NeuralWheelP
               </g>
             );
           })}
-          <circle cx="100" cy="100" r="22" fill="#0a0a0a" stroke="#AE8C20" strokeWidth="2" />
-          <circle cx="100" cy="100" r="8" fill="#AE8C20" />
+          <circle cx="100" cy="100" r="22" fill="#0a0a0a" stroke="#22D3EE" strokeWidth="2" />
+          <circle cx="100" cy="100" r="8" fill="#A855F7" />
         </svg>
       </motion.div>
 
-      {/* Pointer */}
       <div
         className={cn(
           "absolute left-1/2 top-0 z-10 -translate-x-1/2 -translate-y-1",
-          "h-0 w-0 border-x-[10px] border-b-[18px] border-x-transparent border-b-[#D4AF37]",
-          "drop-shadow-[0_2px_6px_rgba(0,0,0,0.5)]"
+          "h-0 w-0 border-x-[10px] border-b-[18px] border-x-transparent border-b-fuchsia-400",
+          "drop-shadow-[0_2px_8px_rgba(232,121,249,0.5)]"
         )}
         aria-hidden
       />

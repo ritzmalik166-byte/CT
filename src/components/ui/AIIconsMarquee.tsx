@@ -1,5 +1,7 @@
 "use client";
 
+import { cn } from "@/lib/utils";
+
 // AI-themed SVG icons — all white strokes, no external files
 const AI_ICONS = [
   // Brain / neural
@@ -151,13 +153,13 @@ const AI_ICONS = [
 // Duplicate for seamless loop
 const ICONS_LOOP = [...AI_ICONS, ...AI_ICONS, ...AI_ICONS];
 
-export function AIIconsMarquee() {
+export function AIIconsMarquee({ className = "" }: { className?: string }) {
   // Each icon gets a unique wave delay so the float phases are staggered across the row
   const WAVE_PERIOD = 2.6; // seconds for one full bob cycle
   const WAVE_SPREAD = AI_ICONS.length; // spread delays across one set
 
   return (
-    <div className="relative w-full overflow-hidden py-4 sm:py-8 md:py-10">
+    <div className={cn("relative w-full overflow-hidden py-4 sm:py-8 md:py-10", className)}>
       <style>{`
         @keyframes marquee-icons {
           0%   { transform: translateX(0); }

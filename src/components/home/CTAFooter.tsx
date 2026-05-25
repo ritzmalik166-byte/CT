@@ -7,6 +7,7 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Waves from "@/components/Waves";
+import { FooterAIEngagement } from "@/components/ai-engagement/FooterAIEngagement";
 import { AIIconsMarquee } from "@/components/ui/AIIconsMarquee";
 import {
   FOOTER_NEWSLETTER_SCRIPT_URL,
@@ -111,8 +112,8 @@ export function CTAFooter() {
 
   return (
     <section ref={sectionRef} className="relative bg-zinc-950">
-      {/* Dotted SVG background area above the footer */}
-      <div className="relative w-full h-[320px] sm:h-[480px] md:h-[550px]">
+      {/* Dotted SVG background area above the footer — below footer in stack order */}
+      <div className="relative z-0 w-full h-[480px] sm:h-[620px] md:h-[720px] lg:h-[780px]">
         {/* Dotted SVG */}
         <Image
           src="/assets/dotted.svg"
@@ -124,18 +125,21 @@ export function CTAFooter() {
         {/* Bottom gradient to blend into footer */}
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-zinc-950 to-transparent" />
 
-        {/* AI Icons marquee — floats on the dotted surface */}
-        <div className="absolute inset-x-0 top-[18%] sm:top-[24%] md:top-[28%]">
-          <AIIconsMarquee />
+        {/* AI Icons marquee — pinned to top of dotted area */}
+        <div className="absolute inset-x-0 top-0 z-10">
+          <AIIconsMarquee className="pt-5 pb-2 sm:pt-7 sm:pb-3 md:pt-8" />
         </div>
+
+        {/* AI game promo — boy + challenge button (above footer container) */}
+        <FooterAIEngagement />
       </div>
 
-      {/* Footer container with rounded top corners */}
-      <div className="relative -mt-24 sm:-mt-40 md:-mt-48 mx-auto max-w-[1440px] px-3 sm:px-6 lg:px-8">
+      {/* Footer container — stacks above boy so legs hide behind rounded top */}
+      <div className="relative z-10 -mt-28 sm:-mt-44 md:-mt-52 lg:-mt-56 mx-auto max-w-[1440px] px-3 sm:px-6 lg:px-8">
         <footer
-          className="footer-container relative overflow-hidden rounded-t-[32px] sm:rounded-t-[60px] md:rounded-t-[80px] lg:rounded-t-[120px]"
+          className="footer-container relative isolate overflow-hidden rounded-t-[32px] sm:rounded-t-[60px] md:rounded-t-[80px] lg:rounded-t-[120px]"
           style={{
-            background: "rgba(17, 17, 19, 0.90)",
+            background: "rgb(17, 17, 19)",
             minHeight: "320px",
           }}
         >

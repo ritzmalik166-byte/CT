@@ -4,14 +4,13 @@ import { motion } from "framer-motion";
 import { Brain } from "lucide-react";
 import { useEffect, useState } from "react";
 import { AIEngagementModal } from "./AIEngagementModal";
+import { gameTheme } from "./game-theme";
 import { CTA_PHRASES } from "./types";
-import { useGameWidgetVisible } from "./useGameWidgetVisible";
 import { cn } from "@/lib/utils";
 
 export function AIEngagementWidget() {
   const [open, setOpen] = useState(false);
   const [phraseIndex, setPhraseIndex] = useState(0);
-  const visible = useGameWidgetVisible();
 
   useEffect(() => {
     const id = window.setInterval(() => {
@@ -22,54 +21,51 @@ export function AIEngagementWidget() {
 
   return (
     <>
-      <div className={cn(!visible && "hidden")}>
-        <motion.button
+      <motion.button
         type="button"
         onClick={() => setOpen(true)}
         aria-label={CTA_PHRASES[phraseIndex]}
-        aria-hidden={!visible}
-        tabIndex={visible ? 0 : -1}
         className={cn(
           "group relative flex items-center gap-2 overflow-hidden rounded-full",
-          "border border-[#AE8C20]/45 bg-zinc-900/85 text-white shadow-[0_10px_28px_rgba(0,0,0,0.35)]",
-          "backdrop-blur-md transition-[opacity,transform,border-color,box-shadow] duration-300",
-          "hover:border-[#AE8C20] hover:shadow-[0_12px_32px_rgba(174,140,32,0.28)]",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#AE8C20] focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950",
-          "h-11 pl-3 pr-3 sm:h-auto sm:py-2.5 sm:pl-3 sm:pr-4",
-          visible
-            ? "pointer-events-auto translate-y-0 scale-100 opacity-100"
-            : "pointer-events-none translate-y-3 scale-95 opacity-0"
+          "border bg-zinc-900/85 text-white shadow-[0_10px_28px_rgba(0,0,0,0.35)]",
+          "backdrop-blur-md transition-[border-color,box-shadow] duration-300",
+          gameTheme.widgetBorder,
+          gameTheme.widgetHover,
+          gameTheme.ring,
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950",
+          "h-10 pl-2.5 pr-3 sm:h-auto sm:py-2 sm:pl-3 sm:pr-4"
         )}
-        initial={false}
-        animate={
-          visible
-            ? { opacity: 1, y: 0, scale: 1 }
-            : { opacity: 0, y: 12, scale: 0.95 }
-        }
-        transition={{ type: "spring", stiffness: 260, damping: 22 }}
-        whileHover={visible ? { scale: 1.03 } : undefined}
-        whileTap={visible ? { scale: 0.97 } : undefined}
+        initial={{ opacity: 0, y: 14, scale: 0.94 }}
+        whileInView={{ opacity: 1, y: 0, scale: 1 }}
+        viewport={{ once: true, amount: 0.6 }}
+        transition={{ type: "spring", stiffness: 260, damping: 22, delay: 0.15 }}
+        whileHover={{ scale: 1.03 }}
+        whileTap={{ scale: 0.97 }}
       >
         <motion.span
-          className="pointer-events-none absolute inset-0 rounded-full bg-[#AE8C20]/10"
-          animate={{ opacity: [0.35, 0.7, 0.35] }}
+          className={cn("pointer-events-none absolute inset-0 rounded-full", gameTheme.widgetPulse)}
+          animate={{ opacity: [0.35, 0.75, 0.35] }}
           transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
         />
 
-        <span className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#AE8C20] to-[#D4AF37] text-zinc-950 shadow-[0_0_16px_rgba(174,140,32,0.45)]">
-          <Brain className="h-4 w-4" aria-hidden />
+        <span
+          className={cn(
+            "relative flex h-7 w-7 shrink-0 items-center justify-center rounded-full sm:h-8 sm:w-8",
+            gameTheme.widgetIcon
+          )}
+        >
+          <Brain className="h-3.5 w-3.5 sm:h-4 sm:w-4" aria-hidden />
         </span>
 
         <motion.span
           key={phraseIndex}
           initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
-          className="relative hidden max-w-[9.5rem] truncate text-left text-xs font-semibold leading-tight sm:inline sm:max-w-none sm:text-sm"
+          className="relative max-w-[8.5rem] truncate bg-gradient-to-r from-cyan-200 via-violet-200 to-fuchsia-200 bg-clip-text text-left text-[11px] font-semibold leading-tight text-transparent sm:max-w-none sm:text-sm"
         >
           {CTA_PHRASES[phraseIndex]}
         </motion.span>
       </motion.button>
-      </div>
 
       <AIEngagementModal open={open} onClose={() => setOpen(false)} />
     </>

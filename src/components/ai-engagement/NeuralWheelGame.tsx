@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useCallback, useMemo, useState } from "react";
 import { AIMascot } from "./AIMascot";
 import { ConfettiBurst } from "./ConfettiBurst";
+import { gameTheme } from "./game-theme";
 import { MicroChallenge } from "./MicroChallenge";
 import { NeuralWheel, rotationForSegment } from "./NeuralWheel";
 import {
@@ -155,7 +156,7 @@ export function NeuralWheelGame() {
         <div className="flex items-center gap-2">
           <AIMascot size="sm" />
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#AE8C20]">
+            <p className={cn("text-xs font-semibold uppercase tracking-[0.14em]", gameTheme.accentText)}>
               Neural Wheel
             </p>
             <p className="text-[11px] text-zinc-400">High score: {highScore}</p>
@@ -164,7 +165,7 @@ export function NeuralWheelGame() {
         <button
           type="button"
           onClick={toggleSound}
-          className="rounded-full border border-zinc-700/80 bg-zinc-900/60 px-3 py-1.5 text-[11px] font-medium text-zinc-300 transition hover:border-[#AE8C20]/50 hover:text-[#D4AF37]"
+          className={gameTheme.chip}
           aria-pressed={soundEnabled}
         >
           Sound {soundEnabled ? "On" : "Off"}
@@ -186,7 +187,7 @@ export function NeuralWheelGame() {
                 key={i}
                 className={cn(
                   "h-2 w-2 rounded-full",
-                  i < lives ? "bg-[#AE8C20]" : "bg-zinc-700"
+                  i < lives ? gameTheme.lifeActive : "bg-zinc-700"
                 )}
               />
             ))}
@@ -204,7 +205,9 @@ export function NeuralWheelGame() {
             className="flex flex-1 flex-col items-center justify-center text-center"
           >
             <AIMascot size="lg" />
-            <h3 className="mt-5 text-2xl font-bold text-white">Spin the Neural Wheel</h3>
+            <h3 className={cn("mt-5 text-2xl font-bold", gameTheme.accentStrong)}>
+              Spin the Neural Wheel
+            </h3>
             <p className="mt-2 max-w-sm text-sm leading-relaxed text-zinc-400">
               Complete {TOTAL_SPINS} spins to beat the AI. Each spin unlocks a
               random micro-challenge — tap tests, prompts, true/false, and more.
@@ -213,14 +216,14 @@ export function NeuralWheelGame() {
               <button
                 type="button"
                 onClick={() => setPhase("instructions")}
-                className="rounded-full border border-zinc-600 px-5 py-2.5 text-sm font-medium text-zinc-200 transition hover:border-zinc-400"
+                className={gameTheme.secondaryBtn}
               >
                 How it works
               </button>
               <button
                 type="button"
                 onClick={resetGame}
-                className="rounded-full bg-gradient-to-r from-[#AE8C20] to-[#D4AF37] px-6 py-2.5 text-sm font-bold text-zinc-950 shadow-[0_8px_28px_rgba(174,140,32,0.35)]"
+                className={cn(gameTheme.primaryBtn, gameTheme.glowBtn)}
               >
                 Start spinning
               </button>
@@ -239,7 +242,7 @@ export function NeuralWheelGame() {
             <h3 className="text-lg font-bold text-white">How to play</h3>
             <ul className="mt-4 space-y-3 text-sm text-zinc-300">
               <li className="rounded-xl border border-zinc-800 bg-zinc-900/50 px-4 py-3">
-                Tap <strong className="text-[#D4AF37]">Spin</strong> to launch the
+                Tap <strong className={gameTheme.accentTextAlt}>Spin</strong> to launch the
                 neural wheel.
               </li>
               <li className="rounded-xl border border-zinc-800 bg-zinc-900/50 px-4 py-3">
@@ -254,7 +257,7 @@ export function NeuralWheelGame() {
             <button
               type="button"
               onClick={resetGame}
-              className="mt-auto rounded-full bg-gradient-to-r from-[#AE8C20] to-[#D4AF37] px-6 py-3 text-sm font-bold text-zinc-950"
+              className={cn("mt-auto", gameTheme.primaryBtnLg, gameTheme.glowBtn)}
             >
               Spin now
             </button>
@@ -285,7 +288,7 @@ export function NeuralWheelGame() {
                   type="button"
                   onClick={startSpin}
                   disabled={landedSegment !== null}
-                  className="mx-auto mt-5 rounded-full bg-gradient-to-r from-[#AE8C20] to-[#D4AF37] px-8 py-3 text-sm font-bold text-zinc-950 shadow-[0_8px_28px_rgba(174,140,32,0.35)] transition hover:brightness-110 disabled:opacity-50"
+                  className={cn("mx-auto mt-5", gameTheme.primaryBtnLg, gameTheme.glowBtn)}
                 >
                   {landedSegment !== null ? "Spinning…" : "Spin the wheel"}
                 </button>
@@ -295,7 +298,7 @@ export function NeuralWheelGame() {
             {(phase === "challenge" || phase === "feedback") && activeChallenge && (
               <div className="flex flex-1 flex-col">
                 {segmentLabel && (
-                  <p className="mb-4 text-center text-xs font-semibold uppercase tracking-wider text-[#AE8C20]">
+                  <p className={cn("mb-4 text-center text-xs font-semibold uppercase tracking-wider", gameTheme.accentText)}>
                     {segmentLabel}
                   </p>
                 )}
@@ -330,18 +333,18 @@ export function NeuralWheelGame() {
             animate={{ opacity: 1, scale: 1 }}
             className="flex flex-1 flex-col items-center justify-center text-center"
           >
-            <div className="rounded-full bg-[#AE8C20]/20 p-4 shadow-[0_0_40px_rgba(174,140,32,0.35)]">
+            <div className={cn("rounded-full p-4", gameTheme.glowViolet, "bg-violet-500/15")}>
               <AIMascot size="lg" />
             </div>
             <h3 className="mt-4 text-2xl font-bold text-white">You beat the AI!</h3>
             <p className="mt-2 text-sm text-zinc-400">
               All {TOTAL_SPINS} spins complete · Score{" "}
-              <span className="font-bold text-[#D4AF37]">{score}</span>
+              <span className={cn("font-bold", gameTheme.accentTextAlt)}>{score}</span>
             </p>
             <button
               type="button"
               onClick={() => setPhase("start")}
-              className="mt-6 rounded-full bg-gradient-to-r from-[#AE8C20] to-[#D4AF37] px-6 py-2.5 text-sm font-bold text-zinc-950"
+              className={cn("mt-6", gameTheme.primaryBtn, gameTheme.glowBtn)}
             >
               Spin again
             </button>
@@ -363,7 +366,7 @@ export function NeuralWheelGame() {
             <button
               type="button"
               onClick={() => setPhase("start")}
-              className="mt-6 rounded-full border border-[#AE8C20]/50 px-6 py-2.5 text-sm font-semibold text-[#D4AF37]"
+              className={cn("mt-6", gameTheme.ghostBtn)}
             >
               Try again
             </button>

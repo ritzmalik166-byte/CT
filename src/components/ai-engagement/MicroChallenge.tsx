@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { ActiveChallenge } from "./types";
+import { gameTheme } from "./game-theme";
 import type { GameAudioHandlers } from "./useGameAudio";
 import { cn } from "@/lib/utils";
 
@@ -49,7 +50,7 @@ function TrueFalseChallenge({
 
   return (
     <div className="text-center">
-      <p className="text-xs font-semibold uppercase tracking-wider text-[#AE8C20]">
+      <p className={cn("text-xs font-semibold uppercase tracking-wider", gameTheme.accentText)}>
         True or False
       </p>
       <p className="mt-3 text-sm leading-relaxed text-zinc-200">{challenge.statement}</p>
@@ -69,7 +70,7 @@ function TrueFalseChallenge({
                 val !== challenge.answer &&
                 "border-red-400/70 bg-red-500/15 text-red-200",
               picked === null &&
-                "border-zinc-700 bg-zinc-900/70 text-zinc-200 hover:border-[#AE8C20]/50"
+                "border-zinc-700 bg-zinc-900/70 text-zinc-200 hover:border-cyan-400/50"
             )}
           >
             {val ? "True" : "False"}
@@ -93,7 +94,7 @@ function PromptChallenge({
 
   return (
     <div>
-      <p className="text-xs font-semibold uppercase tracking-wider text-[#AE8C20]">
+      <p className={cn("text-xs font-semibold uppercase tracking-wider", gameTheme.accentText)}>
         Best Prompt
       </p>
       <p className="mt-2 text-sm text-zinc-300">{challenge.scenario}</p>
@@ -121,7 +122,7 @@ function PromptChallenge({
                 i !== challenge.answerIndex &&
                 "border-red-400/70 bg-red-500/15 text-red-100",
               picked === null &&
-                "border-zinc-700 bg-zinc-900/60 text-zinc-300 hover:border-[#AE8C20]/45"
+                "border-zinc-700 bg-zinc-900/60 text-zinc-300 hover:border-violet-400/45"
             )}
           >
             {opt}
@@ -152,7 +153,7 @@ function AiHumanChallenge({
 
   return (
     <div className="text-center">
-      <p className="text-xs font-semibold uppercase tracking-wider text-[#AE8C20]">
+      <p className={cn("text-xs font-semibold uppercase tracking-wider", gameTheme.accentText)}>
         AI or Human?
       </p>
       <blockquote className="mt-3 rounded-xl border border-zinc-800 bg-zinc-900/50 px-4 py-3 text-sm italic text-zinc-200">
@@ -174,7 +175,7 @@ function AiHumanChallenge({
                 val !== challenge.answer &&
                 "border-red-400/70 bg-red-500/15 text-red-200",
               picked === null &&
-                "border-zinc-700 bg-zinc-900/70 text-zinc-200 hover:border-[#AE8C20]/50"
+                "border-zinc-700 bg-zinc-900/70 text-zinc-200 hover:border-cyan-400/50"
             )}
           >
             {val === "ai" ? "AI" : "Human"}
@@ -220,7 +221,7 @@ function TapRushChallenge({
 
   return (
     <div className="text-center">
-      <p className="text-xs font-semibold uppercase tracking-wider text-[#AE8C20]">
+      <p className={cn("text-xs font-semibold uppercase tracking-wider", gameTheme.accentText)}>
         Tap Rush
       </p>
       <p className="mt-2 text-sm text-zinc-400">Wait for GO — then tap instantly.</p>
@@ -232,7 +233,7 @@ function TapRushChallenge({
           "mt-6 flex h-28 w-full flex-col items-center justify-center rounded-2xl border-2 text-lg font-bold transition",
           phase === "wait" && "border-zinc-700 bg-zinc-900/80 text-zinc-500",
           phase === "go" &&
-            "border-[#AE8C20] bg-[#AE8C20]/20 text-[#D4AF37] shadow-[0_0_40px_rgba(174,140,32,0.35)] animate-pulse",
+            "border-cyan-400 bg-cyan-500/20 text-cyan-200 shadow-[0_0_40px_rgba(34,211,238,0.35)] animate-pulse",
           phase === "done" && "border-zinc-800 bg-zinc-900/50 text-zinc-600"
         )}
       >
@@ -290,7 +291,7 @@ function ReactionBeatChallenge({
 
   return (
     <div className="text-center">
-      <p className="text-xs font-semibold uppercase tracking-wider text-[#AE8C20]">
+      <p className={cn("text-xs font-semibold uppercase tracking-wider", gameTheme.accentText)}>
         Reaction Beat
       </p>
       <p className="mt-2 text-sm text-zinc-400">Tap when the core turns gold.</p>
@@ -304,7 +305,7 @@ function ReactionBeatChallenge({
           className={cn(
             "flex h-24 w-24 items-center justify-center rounded-full border-4",
             phase === "gold"
-              ? "border-[#D4AF37] bg-[#AE8C20]/40 shadow-[0_0_50px_rgba(174,140,32,0.6)]"
+              ? "border-fuchsia-400 bg-violet-500/35 shadow-[0_0_50px_rgba(168,85,247,0.55)]"
               : "border-zinc-700 bg-zinc-900/80"
           )}
           animate={phase === "idle" ? { scale: [1, 1.05, 1] } : {}}

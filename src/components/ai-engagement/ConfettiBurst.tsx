@@ -2,8 +2,7 @@
 
 import { motion } from "framer-motion";
 import { useMemo } from "react";
-
-const COLORS = ["#AE8C20", "#D4AF37", "#C9A730", "#F5E6A8", "#ffffff"];
+import { GAME_CONFETTI } from "./game-theme";
 
 export function ConfettiBurst({ active }: { active: boolean }) {
   const particles = useMemo(
@@ -13,7 +12,7 @@ export function ConfettiBurst({ active }: { active: boolean }) {
         x: (Math.random() - 0.5) * 280,
         y: (Math.random() - 0.5) * 200 - 40,
         rotate: Math.random() * 360,
-        color: COLORS[i % COLORS.length],
+        color: GAME_CONFETTI[i % GAME_CONFETTI.length],
         size: 4 + Math.random() * 6,
         delay: Math.random() * 0.15,
       })),
