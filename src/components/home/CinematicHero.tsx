@@ -379,7 +379,10 @@ export function CinematicHero() {
               </span>
             </p>
           )}
-          <div className="reveal-headline relative flex w-full justify-center px-1 max-md:mt-0 md:mt-8">
+          <div
+            id="but-are-you-section"
+            className="reveal-headline relative flex w-full justify-center px-1 max-md:mt-0 md:mt-8"
+          >
             {prefersReducedMotion ? (
               <h2 className="relative z-10 max-w-5xl text-center text-[clamp(2rem,8.5vw,7.25rem)] font-bold leading-[0.92] tracking-[-0.06em] text-zinc-950 max-md:max-w-[min(100%,18rem)] md:leading-[0.88] md:max-w-5xl">
                 But are you?
