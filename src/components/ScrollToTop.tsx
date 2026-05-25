@@ -12,7 +12,12 @@ import { cn } from "@/lib/utils";
 
 const SHOW_AFTER_PX = 320;
 
-export function ScrollToTop() {
+interface ScrollToTopProps {
+  /** When true, positioning is handled by a parent cluster (e.g. FloatingActionCluster). */
+  embedded?: boolean;
+}
+
+export function ScrollToTop({ embedded = false }: ScrollToTopProps) {
   const { getLenis } = useLenis();
   const [visible, setVisible] = useState(false);
   const isScrollingRef = useRef(false);
@@ -93,14 +98,20 @@ export function ScrollToTop() {
       onClick={scrollToTop}
       aria-label="Scroll to top"
       className={cn(
-        "fixed z-[var(--z-chrome)] flex items-center justify-center rounded-full",
+        embedded
+          ? "relative flex items-center justify-center"
+          : "fixed z-[var(--z-chrome)] flex items-center justify-center",
+        "rounded-full",
         "border border-[#AE8C20]/50 bg-zinc-900/90 text-white shadow-[0_12px_32px_rgba(0,0,0,0.35)]",
         "backdrop-blur-md transition-[opacity,transform,background-color,border-color,color,box-shadow]",
         "duration-300 hover:border-[#AE8C20] hover:bg-[#AE8C20] hover:text-zinc-950 hover:shadow-[0_16px_40px_rgba(174,140,32,0.35)]",
         "active:scale-95",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#AE8C20] focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950",
-        "bottom-[max(1rem,env(safe-area-inset-bottom))] right-[max(1rem,env(safe-area-inset-right))]",
-        "h-11 w-11 sm:bottom-8 sm:right-8 sm:h-12 sm:w-12",
+        !embedded &&
+          "bottom-[max(1rem,env(safe-area-inset-bottom))] right-[max(1rem,env(safe-area-inset-right))]",
+        "h-11 w-11 sm:h-12 sm:w-12",
+        !embedded && "sm:bottom-8 sm:right-8",
+        embedded && !visible && "hidden",
         visible
           ? "pointer-events-auto translate-y-0 opacity-100"
           : "pointer-events-none translate-y-3 opacity-0"

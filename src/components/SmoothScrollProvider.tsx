@@ -11,7 +11,7 @@ import {
 import gsap from "gsap";
 import Lenis from "lenis";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { ScrollToTop } from "@/components/ScrollToTop";
+import { FloatingActionCluster } from "@/components/FloatingActionCluster";
 
 type LenisContextValue = {
   getLenis: () => Lenis | null;
@@ -173,7 +173,7 @@ export function SmoothScrollProvider({
     <LenisContext.Provider value={contextValue}>
       <div className="site-scroll-stack relative z-[var(--z-page-content)] flex w-full min-h-[100dvh] flex-1 touch-pan-y flex-col">
         {children}
-        <ScrollToTop />
+        <FloatingActionCluster />
       </div>
     </LenisContext.Provider>
   );
