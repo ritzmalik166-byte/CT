@@ -173,6 +173,12 @@ export function CinematicHero() {
             0.5
           )
           .fromTo(
+            ".reveal-page-title",
+            { opacity: 0, y: 30 },
+            { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" },
+            0.52
+          )
+          .fromTo(
             ".reveal-headline",
             { opacity: 0, y: 40 },
             { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" },
@@ -358,6 +364,9 @@ export function CinematicHero() {
             reducedMotion={prefersReducedMotion}
             className="pointer-events-none relative z-10 mx-auto !h-24 !w-24 sm:!h-28 sm:!w-28 md:absolute md:left-4 md:top-10 md:z-auto md:mx-0 md:!h-36 md:!w-36 lg:left-8 lg:top-10 lg:!h-40 lg:!w-40"
           />
+          <h1 className="reveal-page-title max-w-4xl text-[clamp(1.125rem,3.2vw,2rem)] font-semibold leading-snug tracking-tight text-zinc-900 max-md:[text-wrap:balance] md:max-w-5xl md:text-[clamp(1.25rem,2.8vw,2.25rem)]">
+            AI Storytelling Agency &amp; AI Creative Studio
+          </h1>
           {prefersReducedMotion ? (
             <p className="reveal-tagline w-full max-w-md px-1 text-base font-medium leading-snug tracking-tight text-zinc-600 max-md:[text-wrap:balance] sm:text-xl md:text-3xl">
               &ldquo;{TAGLINE_TEXT}&rdquo;
@@ -391,11 +400,11 @@ export function CinematicHero() {
             className="reveal-headline relative flex w-full justify-center px-1 max-md:mt-0 md:mt-8"
           >
             {prefersReducedMotion ? (
-              <h2 className="relative z-10 max-w-5xl text-center text-[clamp(2rem,8.5vw,7.25rem)] font-bold leading-[0.92] tracking-[-0.06em] text-zinc-950 max-md:max-w-[min(100%,18rem)] md:leading-[0.88] md:max-w-5xl">
+              <p className="relative z-10 max-w-5xl text-center text-[clamp(2rem,8.5vw,7.25rem)] font-bold leading-[0.92] tracking-[-0.06em] text-zinc-950 max-md:max-w-[min(100%,18rem)] md:leading-[0.88] md:max-w-5xl">
                 But are you?
-              </h2>
+              </p>
             ) : (
-              <motion.h2
+              <motion.p
                 className="relative z-10 max-w-5xl cursor-default text-center text-[clamp(2rem,8.5vw,7.25rem)] font-bold leading-[0.92] tracking-[-0.06em] max-md:max-w-[min(100%,18rem)] md:leading-[0.88] md:max-w-5xl"
                 initial="rest"
                 whileHover="hover"
@@ -435,7 +444,7 @@ export function CinematicHero() {
                     {w.text}
                   </motion.span>
                 ))}
-              </motion.h2>
+              </motion.p>
             )}
           </div>
           <Link

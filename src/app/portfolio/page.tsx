@@ -297,10 +297,7 @@ export default function PortfolioPage() {
           {/* Heading row */}
           <div className="grid gap-6 text-center sm:gap-8 md:grid-cols-[1fr_340px] md:items-start md:gap-8 md:text-left lg:grid-cols-[1fr_480px] lg:gap-10">
             <div>
-              <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.35em] text-[#AE8C20] sm:mb-4 sm:text-xs md:mb-6">
-              AI Creative Experiences
-              </p>
-              <h1 className="portfolio-hero-title text-[2.75rem] font-normal leading-[0.9] tracking-[-0.06em] text-white sm:text-[3.5rem] md:text-[4.5rem] lg:text-[6rem] xl:text-[8rem]">
+              <h1 className="portfolio-hero-title mb-3 text-[2.75rem] font-normal leading-[0.9] tracking-[-0.06em] text-white sm:mb-4 sm:text-[3.5rem] md:mb-6 md:text-[4.5rem] lg:text-[6rem] xl:text-[8rem]">
                 AI Creative
                 <br />
                 Experiences
@@ -458,12 +455,12 @@ export default function PortfolioPage() {
             <div className="gallery-tile col-span-6 row-span-2 flex flex-col justify-center border border-white/10 bg-white p-4 text-center text-zinc-950 sm:col-span-6 sm:p-5 md:col-span-4 md:row-span-1 md:p-6 md:text-left lg:p-7">
               <div className="flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-6 md:flex-col md:items-start md:justify-start md:gap-4">
                 <div>
-                  <h3 className="text-2xl font-bold tracking-tight sm:text-3xl md:text-4xl lg:text-5xl">100+</h3>
+                  <p className="text-2xl font-bold tracking-tight sm:text-3xl md:text-4xl lg:text-5xl">100+</p>
                   <p className="mt-0.5 text-[9px] text-zinc-500 sm:mt-1 sm:text-[10px] md:text-xs lg:text-sm">Satisfied Clients</p>
                 </div>
                 <div className="h-px w-10 shrink-0 bg-zinc-200 sm:h-8 sm:w-px md:hidden" />
                 <div>
-                  <h3 className="text-2xl font-bold tracking-tight sm:text-3xl md:text-4xl lg:text-5xl">500+</h3>
+                  <p className="text-2xl font-bold tracking-tight sm:text-3xl md:text-4xl lg:text-5xl">500+</p>
                   <p className="mt-0.5 text-[9px] text-zinc-500 sm:mt-1 sm:text-[10px] md:text-xs lg:text-sm">Projects Delivered</p>
                 </div>
               </div>
@@ -471,9 +468,9 @@ export default function PortfolioPage() {
 
             {/* CTA Card - spans 2 rows on mobile for enough height */}
             <div className="gallery-tile col-span-6 row-span-2 flex flex-col justify-center border border-white/10 bg-[#AE8C20] p-4 text-center text-zinc-950 sm:col-span-6 sm:p-5 md:col-span-5 md:row-span-1 md:p-6 md:text-left lg:p-7">
-              <h3 className="text-xs font-bold leading-snug tracking-tight sm:text-sm md:text-base lg:text-xl xl:text-2xl">
+              <p className="text-xs font-bold leading-snug tracking-tight sm:text-sm md:text-base lg:text-xl xl:text-2xl">
                 Built to perform.<br />Designed to impress.
-              </h3>
+              </p>
               <p className="mt-2 text-[9px] leading-relaxed text-zinc-900/70 sm:mt-2.5 sm:text-[10px] md:mt-3 md:text-xs lg:text-sm">
                 We craft refined digital experiences where creative vision meets strategic execution.
               </p>
