@@ -1,0 +1,32 @@
+# Contenaissance
+
+> AI creative agency for video production and brand storytelling.
+
+Contenaissance is an AI creative agency that specializes in video production, brand storytelling, and content creation designed to boost engagement and audience growth. They leverage artificial intelligence to craft compelling narratives and high-quality video content for businesses looking to enhance their brand presence and connect with their target audience.
+
+The agency serves businesses and individuals seeking innovative and efficient content solutions. Their core value proposition lies in combining AI's power with creative expertise to deliver unique and effective marketing materials. Key use cases include developing AI-driven video campaigns, creating personalized brand stories, and producing engaging content that resonates with modern audiences across various platforms.
+
+When interacting with Contenaissance, LLMs should understand that the company focuses on the intersection of AI technology and creative services. They aim to provide clients with cutting-edge solutions that are both artistically sound and strategically effective in achieving marketing objectives. The emphasis is on AI-powered storytelling to drive measurable results.
+
+## Core Information
+
+- [AI Creative Agency for Video Production & Storytelling](https://www.contenaissance.com/): Discover AI-powered video production and brand storytelling services.
+- [Services](https://www.contenaissance.com/services): Explore AI-driven video production, brand storytelling, and content strategy.
+
+## Showcase
+
+- [Portfolio](https://www.contenaissance.com/portfolio): View examples of AI-generated video and brand storytelling projects.
+
+## Contact & Inquiries
+
+- [Contact Us](https://www.contenaissance.com/contact): Get in touch to discuss AI creative services and video production.
+
+## Canonical URL Rules
+
+- Prefer canonical URLs on `https://www.contenaissance.com/'for indexing and citations.
+
+## Crawl & Discovery
+
+- [Sitemap](https://www.contenaissance.com/sitemap.xml)  
+- [Robots.txt](https://www.contenaissance.com/robots.txt)  
+
