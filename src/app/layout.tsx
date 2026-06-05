@@ -42,6 +42,42 @@ export const metadata: Metadata = {
   },
 };
 
+const organizationSchema = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "contenaissance",
+  url: "https://www.contenaissance.com/",
+  logo: "https://www.contenaissance.com/assets/favicon.png",
+  contactPoint: {
+    "@type": "ContactPoint",
+    telephone: "9220516777",
+    contactType: "customer service",
+    contactOption: "TollFree",
+    areaServed: "IN",
+    availableLanguage: ["en", "Hindi"],
+  },
+  sameAs: [
+    "https://www.facebook.com/profile.php?id=61579738437856",
+    "https://x.com/contenaissance",
+    "https://www.instagram.com/contenaissance/",
+    "https://www.youtube.com/@Contenaissance",
+    "https://www.linkedin.com/company/108385521/",
+    "https://www.contenaissance.com/",
+  ],
+};
+
+const websiteSchema = {
+  "@context": "https://schema.org/",
+  "@type": "WebSite",
+  name: "contenaissance",
+  url: "https://www.contenaissance.com/contact",
+  potentialAction: {
+    "@type": "SearchAction",
+    target: "https://www.contenaissance.com/services{search_term_string}",
+    "query-input": "required name=search_term_string",
+  },
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -55,6 +91,14 @@ export default function RootLayout({
       <head>
         <link rel="dns-prefetch" href="https://contenaissance.blob.core.windows.net" />
         <link rel="preconnect" href="https://contenaissance.blob.core.windows.net" crossOrigin="anonymous" />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
+        />
       </head>
       <body className="min-h-full flex flex-col bg-white overflow-x-hidden" suppressHydrationWarning>
         <Script
