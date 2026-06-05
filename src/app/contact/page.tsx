@@ -783,7 +783,7 @@ export default function ContactPage() {
         </div>
       </section>
 
-      <CTAFooter />
+      <CTAFooter showBrandHeading={false} />
     </div>
   );
 }
