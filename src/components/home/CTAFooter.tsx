@@ -29,6 +29,8 @@ const NAV_LINKS = [
   { label: "Contact", href: "/contact" },
 ];
 
+const SHOW_AI_GAME = false;
+
 export function CTAFooter() {
   const sectionRef = useRef<HTMLElement>(null);
   const brandTextRef = useRef<HTMLHeadingElement>(null);
@@ -113,7 +115,13 @@ export function CTAFooter() {
   return (
     <section ref={sectionRef} className="relative bg-zinc-950">
       {/* Dotted SVG background area above the footer — below footer in stack order */}
-      <div className="relative z-0 w-full h-[480px] sm:h-[620px] md:h-[720px] lg:h-[780px]">
+      <div
+        className={
+          SHOW_AI_GAME
+            ? "relative z-0 w-full h-[540px] sm:h-[620px] md:h-[720px] lg:h-[780px]"
+            : "relative z-0 w-full h-[220px] sm:h-[260px] md:h-[300px]"
+        }
+      >
         {/* Dotted SVG */}
         <Image
           src="/assets/dotted.svg"
@@ -125,17 +133,22 @@ export function CTAFooter() {
         {/* Bottom gradient to blend into footer */}
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-zinc-950 to-transparent" />
 
-        {/* AI Icons marquee — pinned to top of dotted area */}
+        {/* AI Icons marquee — pinned to top of dotted area, nudged down from header */}
         <div className="absolute inset-x-0 top-0 z-10">
-          <AIIconsMarquee className="pt-5 pb-2 sm:pt-7 sm:pb-3 md:pt-8" />
+          <AIIconsMarquee className="pt-9 pb-2 sm:pt-11 sm:pb-3 md:pt-14" />
         </div>
 
-        {/* AI game promo — boy + challenge button (above footer container) */}
-        <FooterAIEngagement />
+        {SHOW_AI_GAME && <FooterAIEngagement />}
       </div>
 
       {/* Footer container — stacks above boy so legs hide behind rounded top */}
-      <div className="relative z-10 -mt-28 sm:-mt-44 md:-mt-52 lg:-mt-56 mx-auto max-w-[1440px] px-3 sm:px-6 lg:px-8">
+      <div
+        className={
+          SHOW_AI_GAME
+            ? "relative z-10 -mt-28 sm:-mt-44 md:-mt-52 lg:-mt-56 mx-auto max-w-[1440px] px-3 sm:px-6 lg:px-8"
+            : "relative z-10 -mt-10 sm:-mt-12 md:-mt-14 mx-auto max-w-[1440px] px-3 sm:px-6 lg:px-8"
+        }
+      >
         <footer
           className="footer-container relative isolate overflow-hidden rounded-t-[32px] sm:rounded-t-[60px] md:rounded-t-[80px] lg:rounded-t-[120px]"
           style={{

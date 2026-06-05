@@ -1,0 +1,37 @@
+# *
+User-agent: *
+Allow: /
+
+# Googlebot
+User-agent: Googlebot
+Allow: /
+
+# Bingbot
+User-agent: Bingbot
+Allow: /
+
+# OAI-SearchBot
+User-agent: OAI-SearchBot
+Allow: /
+
+# ClaudeBot
+User-agent: ClaudeBot
+Allow: /
+
+# CCBot
+User-agent: CCBot
+Allow: /
+
+# PerplexityBot
+User-agent: PerplexityBot
+Allow: /
+
+# Applebot
+User-agent: Applebot
+Allow: /
+
+# Host
+Host: https://www.contenaissance.com
+
+# Sitemaps
+Sitemap: https://www.contenaissance.com/sitemap.xml

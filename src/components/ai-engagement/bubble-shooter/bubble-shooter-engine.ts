@@ -1,7 +1,7 @@
 import { BUBBLE_TYPE_COUNT } from "./ai-bubble-logos";
 
 /** Fixed compact playfield — small container, 8 columns. */
-export const PLAYFIELD_W = 340;
+export const PLAYFIELD_W = 640;
 export const PLAYFIELD_H = 380;
 export const GRID_COLS = 8;
 export const INITIAL_ROWS = 5;
@@ -436,8 +436,8 @@ export function aimFromPointer(
 ) {
   const cx = layout.width / 2;
   const cy = layout.shooterY;
-  const x = clientX - canvasRect.left;
-  const y = clientY - canvasRect.top;
+  const x = ((clientX - canvasRect.left) / canvasRect.width) * layout.width;
+  const y = ((clientY - canvasRect.top) / canvasRect.height) * layout.height;
 
   let angle = Math.atan2(y - cy, x - cx);
   const min = -Math.PI + 0.25;

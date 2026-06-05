@@ -64,8 +64,8 @@ export type ActiveChallenge =
   | ReactionChallenge;
 
 export const CTA_PHRASES = [
-  "Spin the Neural Wheel",
-  "Beat AI in 5 Spins",
-  "Mini AI Challenge",
+  "Solve the AI Puzzle",
+  "Beat AI — Slide & Win",
+  "AI Picture Challenge",
   "Can You Beat AI?",
 ] as const;
