@@ -1,34 +1,37 @@
-# Allow all crawlers
+# *
 User-agent: *
 Allow: /
 
-# Google
+# Googlebot
 User-agent: Googlebot
 Allow: /
 
-# Bing
+# Bingbot
 User-agent: Bingbot
 Allow: /
 
-# OpenAI
+# OAI-SearchBot
 User-agent: OAI-SearchBot
 Allow: /
 
-# Anthropic
+# ClaudeBot
 User-agent: ClaudeBot
 Allow: /
 
-# Common Crawl
+# CCBot
 User-agent: CCBot
 Allow: /
 
-# Perplexity
+# PerplexityBot
 User-agent: PerplexityBot
 Allow: /
 
-# Apple
+# Applebot
 User-agent: Applebot
 Allow: /
 
-# Sitemap
+# Host
+Host: https://www.contenaissance.com
+
+# Sitemaps
 Sitemap: https://www.contenaissance.com/sitemap.xml
