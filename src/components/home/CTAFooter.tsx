@@ -32,7 +32,11 @@ const NAV_LINKS = [
 
 const SHOW_AI_GAME = false;
 
-export function CTAFooter() {
+type CTAFooterProps = {
+  showBrandHeading?: boolean;
+};
+
+export function CTAFooter({ showBrandHeading = true }: CTAFooterProps) {
   const sectionRef = useRef<HTMLElement>(null);
   const brandTextRef = useRef<HTMLHeadingElement>(null);
   const [email, setEmail] = useState("");
@@ -53,23 +57,24 @@ export function CTAFooter() {
         ease: "power3.out",
       });
 
-      // Letter-by-letter pop-up animation for brand text
-      const letters = brandTextRef.current?.querySelectorAll(".brand-letter");
-      if (letters) {
-        gsap.set(letters, { y: 100, opacity: 0 });
-        
-        gsap.to(letters, {
-          scrollTrigger: {
-            trigger: brandTextRef.current,
-            start: "top 90%",
-            toggleActions: "play none none reverse",
-          },
-          y: 0,
-          opacity: 1,
-          duration: 0.8,
-          stagger: 0.04,
-          ease: "back.out(1.7)",
-        });
+      if (showBrandHeading) {
+        const letters = brandTextRef.current?.querySelectorAll(".brand-letter");
+        if (letters) {
+          gsap.set(letters, { y: 100, opacity: 0 });
+
+          gsap.to(letters, {
+            scrollTrigger: {
+              trigger: brandTextRef.current,
+              start: "top 90%",
+              toggleActions: "play none none reverse",
+            },
+            y: 0,
+            opacity: 1,
+            duration: 0.8,
+            stagger: 0.04,
+            ease: "back.out(1.7)",
+          });
+        }
       }
     },
     { scope: sectionRef }
@@ -249,25 +254,30 @@ export function CTAFooter() {
               </div>
             </div>
 
-            {/* Large brand text — smaller on mobile */}
-            <h2
-              ref={brandTextRef}
-              className="mt-10 overflow-hidden text-center font-bold leading-none tracking-tight text-white sm:mt-14 md:mt-16 lg:mt-20"
-              style={{ fontSize: "clamp(1.75rem, 9vw, 8rem)" }}
-            >
-              {BRAND_TEXT.split("").map((letter, index) => (
-                <span
-                  key={index}
-                  className="brand-letter inline-block"
-                  style={{ willChange: "transform, opacity" }}
-                >
-                  {letter}
-                </span>
-              ))}
-            </h2>
+            {showBrandHeading && (
+              <h2
+                ref={brandTextRef}
+                className="mt-10 overflow-hidden text-center font-bold leading-none tracking-tight text-white sm:mt-14 md:mt-16 lg:mt-20"
+                style={{ fontSize: "clamp(1.75rem, 9vw, 8rem)" }}
+              >
+                {BRAND_TEXT.split("").map((letter, index) => (
+                  <span
+                    key={index}
+                    className="brand-letter inline-block"
+                    style={{ willChange: "transform, opacity" }}
+                  >
+                    {letter}
+                  </span>
+                ))}
+              </h2>
+            )}
 
             {/* Bottom bar */}
-            <div className="mt-6 flex flex-col items-center justify-center gap-3 border-t border-white/10 pt-5 text-center sm:mt-8 sm:gap-4 md:mt-10 lg:flex-row lg:justify-between lg:text-left">
+            <div
+              className={`flex flex-col items-center justify-center gap-3 border-t border-white/10 pt-5 text-center sm:gap-4 lg:flex-row lg:justify-between lg:text-left ${
+                showBrandHeading ? "mt-6 sm:mt-8 md:mt-10" : "mt-8 sm:mt-10 md:mt-12"
+              }`}
+            >
               <p className="text-[11px] text-white/60 sm:text-xs md:text-sm">
                 © {new Date().getFullYear()} Contenaissance. All rights reserved.
               </p>

@@ -489,7 +489,7 @@ export default function PortfolioPage() {
         </div>
       </section>
 
-      <CTAFooter />
+      <CTAFooter showBrandHeading={false} />
     </div>
   );
 }

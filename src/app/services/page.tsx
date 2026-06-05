@@ -634,7 +634,7 @@ export default function ServicesPage() {
       })}
 
       {/* Footer */}
-      <CTAFooter />
+      <CTAFooter showBrandHeading={false} />
 
     </div>
   );

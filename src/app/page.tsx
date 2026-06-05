@@ -14,7 +14,7 @@ import { CTAFooter } from "@/components/home/CTAFooter";
 export const metadata: Metadata = {
   title: "AI Creative Agency for Video Production & Storytelling",
   description:
-    "Create engaging AI-powered videos, brand campaigns, and content that drives audience growth.",
+    "AI creative agency specializing in video production, brand storytelling, and content that drives engagement and audience growth.",
   keywords: [
     "AI Video Production Agency",
     "AI Content Creation",

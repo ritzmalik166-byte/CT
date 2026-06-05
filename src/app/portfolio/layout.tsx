@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Creative Portfolio | AI Brand Films & Commercials",
   description:
-    "View our portfolio of AI-generated commercials, brand films, and digital content campaigns.",
+    "Explore our portfolio of AI-generated brand films, commercials, and digital campaigns designed to captivate audiences.",
   alternates: {
     canonical: "https://www.contenaissance.com/portfolio",
   },
