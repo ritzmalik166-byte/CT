@@ -254,12 +254,14 @@ export default function PortfolioPage() {
 
       <Link
         href="/"
+        title="Home"
         onClick={() => setMenuOpen(false)}
         className="fixed left-4 top-4 z-[var(--z-chrome)] sm:left-5 sm:top-5 md:left-9 md:top-6"
       >
         <Image
           src="/assets/favicon.png"
           alt="Contenaissance"
+          title="Contenaissance"
           width={220}
           height={66}
           className="h-10 w-auto sm:h-12 md:h-16"
@@ -320,6 +322,7 @@ export default function PortfolioPage() {
                 <Image
                   src={image.src}
                   alt={image.alt}
+                  title={image.alt}
                   fill
                   className="object-cover"
                   sizes="(max-width: 768px) 50vw, 25vw"
@@ -443,6 +446,7 @@ export default function PortfolioPage() {
                 <Image
                   src={image.src}
                   alt={image.alt}
+                  title={image.alt}
                   width={900}
                   height={700}
                   className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-125"
@@ -475,6 +479,7 @@ export default function PortfolioPage() {
               </p>
               <Link
                 href="/services"
+                title="Services"
                 className="mx-auto mt-2.5 inline-flex w-fit items-center gap-1.5 rounded-full bg-zinc-950 px-3 py-1.5 text-[9px] font-bold text-white transition-all duration-300 hover:bg-white hover:text-zinc-950 sm:mt-3 sm:gap-2 sm:px-4 sm:py-2 sm:text-[10px] md:mx-0 md:mt-4 md:px-5 md:py-2.5 md:text-xs lg:text-sm"
               >
                 Explore Services

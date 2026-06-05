@@ -13,6 +13,7 @@ import {
   FOOTER_NEWSLETTER_SCRIPT_URL,
   submitToGoogleAppsScript,
 } from "@/lib/googleSheets";
+import { IMAGE_TITLES, LINK_TITLES } from "@/lib/seo-accessibility";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
@@ -125,7 +126,8 @@ export function CTAFooter() {
         {/* Dotted SVG */}
         <Image
           src="/assets/dotted.svg"
-          alt=""
+          alt={IMAGE_TITLES.dottedBackground}
+          title={IMAGE_TITLES.dottedBackground}
           fill
           className="object-cover object-top"
           priority
@@ -189,6 +191,7 @@ export function CTAFooter() {
                   <Link
                     key={link.label}
                     href={link.href}
+                    title={link.label}
                     className="text-sm font-medium text-white/80 transition-colors duration-300 hover:text-[#D4AF37] sm:text-base lg:text-lg"
                   >
                     {link.label}
@@ -271,12 +274,14 @@ export function CTAFooter() {
               <div className="flex flex-wrap items-center justify-center gap-2.5 text-[11px] text-white/60 sm:gap-4 sm:text-xs md:gap-6 md:text-sm">
                 <Link
                   href="#privacy"
+                  title={LINK_TITLES.privacy}
                   className="transition-colors duration-300 hover:text-white"
                 >
                   Privacy Policy
                 </Link>
                 <Link
                   href="#cookies"
+                  title={LINK_TITLES.cookies}
                   className="transition-colors duration-300 hover:text-white"
                 >
                   Cookies Policy
@@ -285,6 +290,7 @@ export function CTAFooter() {
                   Website by{" "}
                   <a
                     href="https://ritzmediaworld.com"
+                    title={LINK_TITLES.ritzmediaworld}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-white/80 underline underline-offset-2 transition-colors duration-300 hover:text-[#AE8C20]"

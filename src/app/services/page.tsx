@@ -445,12 +445,14 @@ export default function ServicesPage() {
 
       <Link
         href="/"
+        title="Home"
         onClick={() => setMenuOpen(false)}
         className="fixed left-4 top-4 z-[var(--z-chrome)] sm:left-5 sm:top-5 md:left-9 md:top-6"
       >
         <Image
           src="/assets/favicon.png"
           alt="Contenaissance"
+          title="Contenaissance"
           width={220}
           height={66}
           className="h-10 w-auto sm:h-12 md:h-16"

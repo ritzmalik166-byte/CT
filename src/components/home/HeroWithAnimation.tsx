@@ -332,10 +332,11 @@ export function HeroWithAnimation() {
 
         <header className="hero-nav relative z-30 px-5 pb-[25px] pt-[25px] md:px-9">
           <div className="mx-auto grid w-full max-w-[1120px] grid-cols-[1fr_auto_1fr] items-center gap-3 md:gap-4">
-            <Link href="/" className="hero-nav-item flex items-center gap-2.5 justify-self-start">
+            <Link href="/" title="Home" className="hero-nav-item flex items-center gap-2.5 justify-self-start">
               <Image
                 src="/assets/favicon.png"
-                alt="Contenaisance logo"
+                alt="Contenaissance"
+                title="Contenaissance"
                 width={148}
                 height={44}
                 className="h-8 w-auto sm:h-9 md:h-11"

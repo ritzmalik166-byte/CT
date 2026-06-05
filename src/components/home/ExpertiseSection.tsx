@@ -41,33 +41,55 @@ const USE_CASES: Array<{
   },
 ];
 
-function ExpertiseGifBadge({ src }: Readonly<{ src: string }>) {
+const EXPERTISE_GIF_META: Record<
+  ExpertiseBadge,
+  { src: string; alt: string; title: string }
+> = {
+  films: {
+    src: "/assets/film-shooting.gif",
+    alt: "AI brand film production",
+    title: "AI brand film production",
+  },
+  digital: {
+    src: "/assets/content-marketing.gif",
+    alt: "Digital content marketing",
+    title: "Digital content marketing",
+  },
+  campaigns: {
+    src: "/assets/copywriting.gif",
+    alt: "AI copywriting and campaigns",
+    title: "AI copywriting and campaigns",
+  },
+  identity: {
+    src: "/assets/visualization.gif",
+    alt: "Visual identity and data visualization",
+    title: "Visual identity and data visualization",
+  },
+};
+
+function ExpertiseGifBadge({
+  src,
+  alt,
+  title,
+}: Readonly<{ src: string; alt: string; title: string }>) {
   return (
     <span className="relative flex h-12 w-fit max-w-[9rem] items-center justify-start sm:h-14 sm:max-w-[11rem] lg:h-16 lg:max-w-[13rem]">
       <Image
         src={src}
-        alt=""
+        alt={alt}
+        title={title}
         width={160}
         height={76}
         unoptimized
         className="expert-badge-gif-golden h-12 w-auto max-h-full max-w-none object-contain object-left sm:h-14 lg:h-16"
-        aria-hidden
       />
     </span>
   );
 }
 
 function ExpertiseBadgeIcon({ badge }: Readonly<{ badge: ExpertiseBadge }>) {
-  switch (badge) {
-    case "films":
-      return <ExpertiseGifBadge src="/assets/film-shooting.gif" />;
-    case "digital":
-      return <ExpertiseGifBadge src="/assets/content-marketing.gif" />;
-    case "campaigns":
-      return <ExpertiseGifBadge src="/assets/copywriting.gif" />;
-    case "identity":
-      return <ExpertiseGifBadge src="/assets/visualization.gif" />;
-  }
+  const meta = EXPERTISE_GIF_META[badge];
+  return <ExpertiseGifBadge src={meta.src} alt={meta.alt} title={meta.title} />;
 }
 
 export function ExpertiseSection() {
@@ -369,10 +391,7 @@ export function ExpertiseSection() {
               />
 
               <div className="relative flex min-h-[220px] flex-1 flex-col sm:min-h-[240px] md:min-h-0 lg:min-h-0">
-                <div
-                  className="expertise-card-icon mb-1 flex min-h-[3rem] w-fit shrink-0 items-center sm:mb-2 sm:min-h-[3.5rem] lg:min-h-16 [&_img]:max-w-none [&_svg]:h-9 [&_svg]:max-w-none [&_svg]:w-auto lg:[&_svg]:h-11"
-                  aria-hidden
-                >
+                <div className="expertise-card-icon mb-1 flex min-h-[3rem] w-fit shrink-0 items-center sm:mb-2 sm:min-h-[3.5rem] lg:min-h-16 [&_img]:max-w-none [&_svg]:h-9 [&_svg]:max-w-none [&_svg]:w-auto lg:[&_svg]:h-11">
                   <ExpertiseBadgeIcon badge={useCase.badge} />
                 </div>
                 <h3 className="mt-2 text-xl font-bold leading-tight tracking-tight text-zinc-900 sm:mt-3 md:max-lg:text-lg lg:text-xl xl:text-[1.35rem] 2xl:text-2xl min-[1920px]:text-[1.65rem] min-[2560px]:text-[clamp(1.5rem,1.1vw,2rem)]">
@@ -383,6 +402,7 @@ export function ExpertiseSection() {
                 </p>
                 <a
                   href="/contact"
+                  title="Contact"
                   className="mt-auto inline-flex items-center gap-2 self-start pt-4 text-sm font-semibold text-[color:var(--gold-favicon-mid)] transition-all duration-300 group-hover:gap-3 md:pt-5 xl:text-base 2xl:text-lg min-[1920px]:pt-6 min-[2560px]:text-xl min-[2560px]:gap-3"
                 >
                   Explore Now

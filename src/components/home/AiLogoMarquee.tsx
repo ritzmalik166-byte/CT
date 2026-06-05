@@ -161,7 +161,8 @@ function LogoWithTooltip({
     >
       <Image
         src={logo.src}
-        alt={logo.alt}
+        alt={`${logo.alt} logo`}
+        title={`${logo.alt} logo`}
         width={180}
         height={60}
         className="h-8 w-auto object-contain grayscale transition-all duration-300 hover:grayscale-0 sm:h-10 md:h-12"

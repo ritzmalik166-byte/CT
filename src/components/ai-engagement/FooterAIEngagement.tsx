@@ -30,7 +30,8 @@ function StackedBoyAboveCard() {
       <div className="relative -mt-0.5">
         <Image
           src="/assets/boy.png"
-          alt=""
+          alt="Contenaissance AI mascot"
+          title="Contenaissance AI mascot"
           width={440}
           height={540}
           className="pointer-events-none h-[clamp(118px,32vw,158px)] w-auto object-contain object-bottom sm:h-[clamp(132px,28vw,172px)] md:h-[clamp(150px,22vw,190px)]"
@@ -88,7 +89,8 @@ export function FooterAIEngagement() {
             <div className="relative">
               <Image
                 src="/assets/boy.png"
-                alt=""
+                alt="Contenaissance AI mascot"
+                title="Contenaissance AI mascot"
                 width={440}
                 height={540}
                 className="pointer-events-none h-[clamp(160px,34vw,300px)] w-auto max-w-[min(44vw,230px)] object-contain object-bottom sm:max-w-[280px] sm:h-[clamp(210px,30vw,340px)] md:max-w-[320px] md:h-[clamp(250px,26vw,380px)] lg:max-w-[360px]"

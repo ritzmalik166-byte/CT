@@ -218,6 +218,7 @@ export function HamburgerMenu({ isOpen, onClose, currentPage = "studio" }: Hambu
                   <motion.div key={link.label} variants={navLinkVariants} custom={i}>
                     <Link
                       href={link.href}
+                      title={link.label}
                       onClick={onClose}
                       onMouseEnter={() => setHoveredNav(link.label)}
                       onMouseLeave={() => setHoveredNav("")}

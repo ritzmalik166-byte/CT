@@ -121,7 +121,8 @@ export function BubbleShooterModal({
         >
           <Image
             src="/assets/dotted.svg"
-            alt=""
+            alt="Decorative dotted background pattern"
+            title="Decorative dotted background pattern"
             fill
             className="pointer-events-none object-cover object-center"
             priority

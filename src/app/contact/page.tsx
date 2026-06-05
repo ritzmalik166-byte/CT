@@ -375,12 +375,14 @@ export default function ContactPage() {
 
       <Link
         href="/"
+        title="Home"
         onClick={() => setMenuOpen(false)}
         className="fixed left-4 top-4 z-[var(--z-chrome)] sm:left-5 sm:top-5 md:left-9 md:top-6"
       >
         <Image
           src="/assets/favicon.png"
           alt="Contenaissance"
+          title="Contenaissance"
           width={220}
           height={66}
           className="h-10 w-auto sm:h-12 md:h-16"
@@ -509,6 +511,7 @@ export default function ContactPage() {
                   {/* Instagram */}
                   <a
                     href="https://www.instagram.com/contenaissance/"
+                    title="Follow Contenaissance on Instagram"
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label="Instagram"
@@ -522,6 +525,7 @@ export default function ContactPage() {
                   {/* LinkedIn */}
                   <a
                     href="https://www.linkedin.com/company/108385521/"
+                    title="Follow Contenaissance on LinkedIn"
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label="LinkedIn"
@@ -535,6 +539,7 @@ export default function ContactPage() {
                   {/* YouTube */}
                   <a
                     href="https://www.youtube.com/@Contenaissance"
+                    title="Subscribe to Contenaissance on YouTube"
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label="YouTube"
@@ -548,6 +553,7 @@ export default function ContactPage() {
                   {/* Facebook */}
                   <a
                     href="https://www.facebook.com/profile.php?id=61579738437856"
+                    title="Follow Contenaissance on Facebook"
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label="Facebook"
@@ -561,6 +567,7 @@ export default function ContactPage() {
                   {/* X (Twitter) */}
                   <a
                     href="https://x.com/contenaissance"
+                    title="Follow Contenaissance on X"
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label="X"
