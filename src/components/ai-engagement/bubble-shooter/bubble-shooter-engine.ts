@@ -436,8 +436,8 @@ export function aimFromPointer(
 ) {
   const cx = layout.width / 2;
   const cy = layout.shooterY;
-  const x = clientX - canvasRect.left;
-  const y = clientY - canvasRect.top;
+  const x = ((clientX - canvasRect.left) / canvasRect.width) * layout.width;
+  const y = ((clientY - canvasRect.top) / canvasRect.height) * layout.height;
 
   let angle = Math.atan2(y - cy, x - cx);
   const min = -Math.PI + 0.25;

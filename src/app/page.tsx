@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { CinematicHero } from "@/components/home/CinematicHero";
 import { TrustedByMarquee } from "@/components/home/TrustedByMarquee";
 import { AIFeaturesGrid } from "@/components/home/AIFeaturesGrid";
@@ -9,6 +10,27 @@ import { ExpertiseSection } from "@/components/home/ExpertiseSection";
 import { Testimonials } from "@/components/home/Testimonials";
 import { TransitionSection } from "@/components/home/TransitionSection";
 import { CTAFooter } from "@/components/home/CTAFooter";
+
+export const metadata: Metadata = {
+  title: "AI Creative Agency for Video Production & Storytelling",
+  description:
+    "Create engaging AI-powered videos, brand campaigns, and content that drives audience growth.",
+  keywords: [
+    "AI Video Production Agency",
+    "AI Content Creation",
+    "Brand Storytelling",
+    "Creative Agency",
+    "AI Marketing Agency",
+    "Commercial Video Production",
+    "Digital Content Creation",
+    "Social Media Content Production",
+    "Branded Content Agency",
+    "AI Creative Services",
+  ],
+  alternates: {
+    canonical: "https://www.contenaissance.com/",
+  },
+};
 
 export default function Home() {
   return (

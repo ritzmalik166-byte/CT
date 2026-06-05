@@ -4,18 +4,22 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useCallback, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { useLenisScrollLock } from "@/components/SmoothScrollProvider";
+import { ENGAGEMENT_MODE_CONFIG, type EngagementMode } from "./engagement-rotation";
 import { gameTheme } from "./game-theme";
 import { NeuralWheelGame } from "./NeuralWheelGame";
+import { AIPicturePuzzle } from "./picture-puzzle/AIPicturePuzzle";
 import { cn } from "@/lib/utils";
 
 interface AIEngagementModalProps {
   open: boolean;
   onClose: () => void;
+  mode: EngagementMode;
 }
 
-export function AIEngagementModal({ open, onClose }: AIEngagementModalProps) {
+export function AIEngagementModal({ open, onClose, mode }: AIEngagementModalProps) {
   useLenisScrollLock(open);
   const [mounted, setMounted] = useState(false);
+  const config = ENGAGEMENT_MODE_CONFIG[mode];
 
   useEffect(() => {
     setMounted(true);
@@ -64,7 +68,7 @@ export function AIEngagementModal({ open, onClose }: AIEngagementModalProps) {
 
           <motion.div
             className={cn(
-              "relative z-10 w-full max-w-lg overflow-hidden rounded-2xl bg-zinc-950/92 backdrop-blur-xl sm:rounded-3xl",
+              "relative z-10 w-full max-w-md overflow-hidden rounded-2xl bg-zinc-950/92 backdrop-blur-xl sm:max-w-lg sm:rounded-3xl",
               gameTheme.modalBorder,
               gameTheme.modalShadow
             )}
@@ -86,9 +90,9 @@ export function AIEngagementModal({ open, onClose }: AIEngagementModalProps) {
                     gameTheme.accentStrong
                   )}
                 >
-                  AI Engagement
+                  Can You Beat AI?
                 </p>
-                <p className="text-xs text-zinc-500">Neural wheel mini-game</p>
+                <p className="text-xs text-zinc-500">{config.subtitle}</p>
               </div>
               <button
                 type="button"
@@ -97,7 +101,7 @@ export function AIEngagementModal({ open, onClose }: AIEngagementModalProps) {
                   "flex h-9 w-9 items-center justify-center rounded-full border border-zinc-700 text-zinc-300 transition hover:border-cyan-400/50 hover:text-cyan-200 focus-visible:outline-none focus-visible:ring-2",
                   gameTheme.ring
                 )}
-                aria-label="Close AI game"
+                aria-label="Close challenge"
               >
                 <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M6 6l12 12M18 6L6 18" />
@@ -105,8 +109,18 @@ export function AIEngagementModal({ open, onClose }: AIEngagementModalProps) {
               </button>
             </div>
 
-            <div className="max-h-[min(78vh,640px)] overflow-y-auto px-4 py-4 sm:px-5 sm:py-5">
-              <NeuralWheelGame />
+            <div className="max-h-[min(82vh,680px)] overflow-y-auto px-4 py-4 sm:px-5 sm:py-5">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={mode}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ duration: 0.25 }}
+                >
+                  {mode === "picture-puzzle" ? <AIPicturePuzzle /> : <NeuralWheelGame />}
+                </motion.div>
+              </AnimatePresence>
             </div>
           </motion.div>
         </motion.div>

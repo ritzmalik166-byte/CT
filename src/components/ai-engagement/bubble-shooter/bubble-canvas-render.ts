@@ -310,15 +310,7 @@ export function renderGameFrame(
   const { width, height } = layout;
   ctx.clearRect(0, 0, width, height);
 
-  const bg = ctx.createLinearGradient(0, 0, width, height);
-  bg.addColorStop(0, "#12121a");
-  bg.addColorStop(0.45, "#0d0d12");
-  bg.addColorStop(1, "#08080c");
-  ctx.fillStyle = bg;
-  ctx.fillRect(0, 0, width, height);
-
   drawAmbient(ctx, width, height, time);
-  drawArcadeInset(ctx, width, height);
 
   const topGlow = ctx.createRadialGradient(width * 0.5, 0, 0, width * 0.5, 0, width * 0.7);
   topGlow.addColorStop(0, "rgba(168, 85, 247, 0.08)");
@@ -390,19 +382,10 @@ export function renderGameFrame(
 export function renderStartBackdrop(
   ctx: CanvasRenderingContext2D,
   layout: LayoutMetrics,
-  time: number
+  _time: number
 ) {
   const { width, height } = layout;
   ctx.clearRect(0, 0, width, height);
-
-  const bg = ctx.createLinearGradient(0, 0, 0, height);
-  bg.addColorStop(0, "#101015");
-  bg.addColorStop(1, "#070709");
-  ctx.fillStyle = bg;
-  ctx.fillRect(0, 0, width, height);
-
-  drawAmbient(ctx, width, height, time);
-  drawArcadeInset(ctx, width, height);
 }
 
 /** Decorative preview bubbles (unused in start flow). */

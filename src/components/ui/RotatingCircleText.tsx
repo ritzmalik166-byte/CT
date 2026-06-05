@@ -6,7 +6,8 @@ import { useId } from "react";
 const PHRASE = "Brand Films • AI Storytelling • AI Visuals •";
 
 /** Circle path radius in SVG user units (viewBox 0–100). */
-const PATH_RADIUS = 29;
+const PATH_RADIUS = 29; 
+/** Circle path length  */
 const PATH_LENGTH = 2 * Math.PI * PATH_RADIUS;
 
 type RotatingCircleTextProps = {

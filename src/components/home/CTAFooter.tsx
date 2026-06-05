@@ -113,7 +113,7 @@ export function CTAFooter() {
   return (
     <section ref={sectionRef} className="relative bg-zinc-950">
       {/* Dotted SVG background area above the footer — below footer in stack order */}
-      <div className="relative z-0 w-full h-[480px] sm:h-[620px] md:h-[720px] lg:h-[780px]">
+      <div className="relative z-0 w-full h-[540px] sm:h-[620px] md:h-[720px] lg:h-[780px]">
         {/* Dotted SVG */}
         <Image
           src="/assets/dotted.svg"

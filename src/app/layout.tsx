@@ -21,10 +21,16 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://www.contenaissance.com"),
   title: "Contenaissance - The Future of AI Storytelling",
   description: "Build, deploy, and scale AI applications with unprecedented speed. Enterprise-grade infrastructure for the next generation of intelligent systems.",
   keywords: ["AI", "Machine Learning", "Storytelling", "Enterprise", "Contenaissance", "GenAI"],
   authors: [{ name: "Contenaissance" }],
+  publisher: "Contenaissance",
+  robots: {
+    index: true,
+    follow: true,
+  },
   icons: {
     icon: "/assets/fav-icon.png",
     apple: "/assets/fav-icon.png",
