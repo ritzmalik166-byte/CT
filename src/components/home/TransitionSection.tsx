@@ -172,6 +172,7 @@ function FeaturedCard({ item }: { item: Extract<Testimonial, { variant: "feature
           <Image
             src={item.image}
             alt={`${item.name} — spotlight`}
+            title={`${item.name} — spotlight`}
             fill
             className="object-cover object-top sm:object-center"
             sizes="(max-width: 1024px) 92vw, 320px"

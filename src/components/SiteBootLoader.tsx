@@ -178,7 +178,8 @@ export function SiteBootLoader({
             <div className="flex max-h-[min(42vh,240px)] w-full items-center justify-center">
               <Image
                 src="/assets/favicon.png"
-                alt=""
+                alt="Contenaissance"
+                title="Contenaissance"
                 width={200}
                 height={200}
                 className="max-h-[min(42vh,240px)] w-auto max-w-full object-contain"

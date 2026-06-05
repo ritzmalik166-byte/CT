@@ -238,10 +238,16 @@ export function CinematicHero() {
   return (
     <>
       {/* Fixed chrome lives outside overflow-hidden so it cannot be clipped */}
-      <Link href="/" onClick={() => setMenuOpen(false)} className="fixed left-4 top-4 z-[var(--z-chrome)] sm:left-5 sm:top-5 md:left-9 md:top-6">
+      <Link
+        href="/"
+        title="Home"
+        onClick={() => setMenuOpen(false)}
+        className="fixed left-4 top-4 z-[var(--z-chrome)] sm:left-5 sm:top-5 md:left-9 md:top-6"
+      >
         <Image
           src="/assets/favicon.png"
           alt="Contenaissance"
+          title="Contenaissance"
           width={220}
           height={66}
           className="h-10 w-auto sm:h-12 md:h-16"
@@ -435,6 +441,7 @@ export function CinematicHero() {
           <Link
             ref={ctaButtonRef}
             href="/portfolio"
+            title="Portfolio"
             className="reveal-cta group relative inline-flex items-center gap-3 overflow-hidden rounded-full bg-zinc-950 px-6 py-3 text-[0.62rem] font-bold uppercase tracking-[0.22em] text-white transition-all duration-300 hover:scale-105 hover:shadow-[0_0_30px_rgba(174,140,32,0.4)] max-md:mt-0 sm:px-7 sm:text-[0.68rem] md:mt-16 md:px-12 md:py-4 md:text-[0.74rem] md:tracking-[0.2em] lg:px-14"
           >
             <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-[#AE8C20] to-transparent opacity-0 transition-all duration-500 group-hover:translate-x-full group-hover:opacity-100" />

@@ -68,7 +68,8 @@ export function RotatingCircleText({
       <div className="pointer-events-none absolute inset-0 z-[1] grid place-items-center">
         <Image
           src="/assets/social-marketing.gif"
-          alt=""
+          alt="Social media marketing"
+          title="Social media marketing"
           width={44}
           height={44}
           unoptimized

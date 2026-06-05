@@ -169,6 +169,7 @@ function LogoWithTooltip({ company }: { company: typeof COMPANIES[0] }) {
       <Image
         src={company.logo}
         alt={`${company.name} logo`}
+        title={`${company.name} logo`}
         width={260}
         height={90}
         className="h-8 w-auto object-contain transition-all duration-300 sm:h-9 md:h-10 lg:h-12"
