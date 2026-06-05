@@ -556,12 +556,12 @@ export default function ServicesPage() {
                   {/* Golden feature lines — aligned to top */}
                   <div className="flex flex-col gap-6 text-center sm:gap-7 md:gap-8 md:text-left lg:gap-7">
                     {service.features.map((feature, i) => (
-                      <p
+                      <h3
                         key={i}
                         className="service-feature m-0 py-0.5 text-[18px] font-bold uppercase leading-snug tracking-[0.04em] text-[#AE8C20] sm:text-[11px] sm:leading-normal sm:tracking-[0.05em] md:text-[18px] md:leading-relaxed md:tracking-[0.06em] lg:text-[18px]"
                       >
                         {feature}
-                      </p>
+                      </h3>
                     ))}
                   </div>
 

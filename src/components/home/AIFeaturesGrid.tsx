@@ -218,9 +218,9 @@ export function AIFeaturesGrid() {
 
         {/* Header */}
         <div className="features-header relative z-10 mx-auto max-w-3xl px-6 text-center">
-          <h1 className="bg-gradient-to-r from-[#AE8C20] to-[#C9A730] bg-clip-text text-4xl font-bold tracking-tight text-transparent sm:text-5xl md:text-6xl lg:text-7xl">
+          <h2 className="bg-gradient-to-r from-[#AE8C20] to-[#C9A730] bg-clip-text text-4xl font-bold tracking-tight text-transparent sm:text-5xl md:text-6xl lg:text-7xl">
             AI Reels
-          </h1>
+          </h2>
           {/* <p className="mt-4 text-base text-zinc-400 md:text-lg">
             Everything you need to build, deploy, and scale intelligent applications.
             No infrastructure headaches. Just pure innovation.
