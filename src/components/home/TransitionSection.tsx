@@ -36,7 +36,7 @@ const TESTIMONIALS: Testimonial[] = [
     variant: "quote",
     quote:
       "Fast, creative, and incredibly consistent their AI content workflow completely changed how we scale campaigns.",
-    name: "FAORFOX-EON",
+    name: "FAIRFOX-EON",
     role: "Marketing Head",
     company: "Ritz Media World",
     initials: "AS",
