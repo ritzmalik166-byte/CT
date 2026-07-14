@@ -50,7 +50,7 @@ const SHOWCASE_REELS: ShowcaseReel[] = [
   },
   {
     id: 6,
-    title: "Automotive 3D Story",
+    title: "3D Stories",
     subtitle: "High-impact launch visuals",
     video: "https://contenaissance.blob.core.windows.net/ct-assets/auto.mp4",
   },
