@@ -50,8 +50,9 @@ const SHOWCASE_REELS: ShowcaseReel[] = [
   },
   {
     id: 6,
-    title: "3D Stories",
-    subtitle: "High-impact launch visuals",
+    title: "Next Gen Stories AI × 3D × CGI",
+    subtitle:
+      "Crafting immersive visual experiences powered by AI, CGI, and 3D. Stories that engage audiences, inspire trust, and drive action.",
     video: "https://contenaissance.blob.core.windows.net/ct-assets/auto.mp4",
   },
   {

@@ -476,12 +476,8 @@ export function ReelModal({ reel, previewVideo, onClose }: ReelModalProps) {
                 {reel.title}
               </h2>
 
-              <p className="mt-2 text-sm text-zinc-300 sm:mt-3 sm:text-base md:mt-4 md:text-lg">
+              <p className="mt-2 text-sm leading-relaxed text-zinc-300 sm:mt-3 sm:text-base md:mt-4 md:text-lg">
                 {reel.subtitle}
-              </p>
-
-              <p className="mt-3 hidden text-sm leading-relaxed text-zinc-400 sm:mt-4 sm:block md:mt-6">
-                Crafted with cinematic precision. Every frame engineered to captivate, every cut designed to convert. This is storytelling reimagined for the AI era.
               </p>
 
               <div className="mt-4 flex flex-col items-center gap-2.5 sm:mt-6 sm:flex-row sm:gap-3 md:mt-8 md:items-start">
