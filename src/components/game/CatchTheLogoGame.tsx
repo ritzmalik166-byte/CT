@@ -96,9 +96,13 @@ type LevelTheme = {
   sky: [string, string, string];
   orbA: string;
   orbB: string;
+  orbC: string;
   fog: string;
   floor: string;
   accent: string;
+  glow: string;
+  rim: string;
+  wall: string;
   weather: "none" | "snow" | "rain" | "heat" | "stars" | "embers" | "sparkle";
   weatherDensity: number;
 };
@@ -162,98 +166,130 @@ const LEVEL_THEMES: LevelTheme[] = [
   {
     id: "neon-night",
     label: "Neon Night",
-    sky: ["#0B1224", "#0F172A", "#1A1035"],
-    orbA: "rgba(79,70,229,0.55)",
-    orbB: "rgba(6,182,212,0.35)",
-    fog: "rgba(15,23,42,0.35)",
-    floor: "rgba(79,70,229,0.22)",
-    accent: "#06B6D4",
-    weather: "none",
-    weatherDensity: 0,
+    sky: ["#050816", "#0B1224", "#1E1040"],
+    orbA: "rgba(99,102,241,0.55)",
+    orbB: "rgba(6,182,212,0.4)",
+    orbC: "rgba(236,72,153,0.25)",
+    fog: "rgba(15,23,42,0.28)",
+    floor: "rgba(79,70,229,0.28)",
+    accent: "#22D3EE",
+    glow: "#818CF8",
+    rim: "#E879F9",
+    wall: "rgba(49,46,129,0.45)",
+    weather: "sparkle",
+    weatherDensity: 28,
   },
   {
     id: "snowfall",
     label: "Snowfall",
-    sky: ["#0F1B2D", "#1E293B", "#334155"],
-    orbA: "rgba(148,163,184,0.35)",
-    orbB: "rgba(224,242,254,0.25)",
-    fog: "rgba(226,232,240,0.12)",
-    floor: "rgba(186,230,253,0.2)",
-    accent: "#BAE6FD",
+    sky: ["#0B1526", "#1E293B", "#475569"],
+    orbA: "rgba(186,230,253,0.4)",
+    orbB: "rgba(241,245,249,0.28)",
+    orbC: "rgba(125,211,252,0.2)",
+    fog: "rgba(241,245,249,0.14)",
+    floor: "rgba(186,230,253,0.26)",
+    accent: "#E0F2FE",
+    glow: "#7DD3FC",
+    rim: "#F8FAFC",
+    wall: "rgba(51,65,85,0.5)",
     weather: "snow",
-    weatherDensity: 70,
+    weatherDensity: 85,
   },
   {
     id: "rainstorm",
     label: "Rainstorm",
-    sky: ["#020617", "#0C1929", "#164E63"],
-    orbA: "rgba(14,116,144,0.4)",
-    orbB: "rgba(56,189,248,0.2)",
-    fog: "rgba(8,47,73,0.4)",
-    floor: "rgba(6,182,212,0.18)",
+    sky: ["#01060F", "#0B1C2C", "#0E4D64"],
+    orbA: "rgba(14,165,233,0.45)",
+    orbB: "rgba(56,189,248,0.28)",
+    orbC: "rgba(15,118,110,0.22)",
+    fog: "rgba(8,47,73,0.42)",
+    floor: "rgba(6,182,212,0.24)",
     accent: "#38BDF8",
+    glow: "#0EA5E9",
+    rim: "#67E8F9",
+    wall: "rgba(12,74,110,0.5)",
     weather: "rain",
-    weatherDensity: 90,
+    weatherDensity: 110,
   },
   {
     id: "heatwave",
     label: "Heatwave",
-    sky: ["#1C0A00", "#431407", "#7C2D12"],
-    orbA: "rgba(249,115,22,0.45)",
-    orbB: "rgba(234,179,8,0.3)",
-    fog: "rgba(120,53,15,0.35)",
-    floor: "rgba(251,146,60,0.22)",
+    sky: ["#1A0800", "#4C1D05", "#9A3412"],
+    orbA: "rgba(249,115,22,0.5)",
+    orbB: "rgba(250,204,21,0.35)",
+    orbC: "rgba(239,68,68,0.25)",
+    fog: "rgba(120,53,15,0.32)",
+    floor: "rgba(251,146,60,0.28)",
     accent: "#FB923C",
+    glow: "#F59E0B",
+    rim: "#FDE68A",
+    wall: "rgba(124,45,18,0.5)",
     weather: "heat",
-    weatherDensity: 40,
+    weatherDensity: 48,
   },
   {
     id: "aurora",
     label: "Aurora",
-    sky: ["#022C22", "#064E3B", "#1E1B4B"],
-    orbA: "rgba(52,211,153,0.4)",
-    orbB: "rgba(167,139,250,0.35)",
-    fog: "rgba(6,78,59,0.3)",
-    floor: "rgba(110,231,183,0.18)",
+    sky: ["#011912", "#053F35", "#1E1B4B"],
+    orbA: "rgba(52,211,153,0.48)",
+    orbB: "rgba(167,139,250,0.4)",
+    orbC: "rgba(34,211,238,0.28)",
+    fog: "rgba(6,78,59,0.28)",
+    floor: "rgba(110,231,183,0.24)",
     accent: "#34D399",
+    glow: "#A78BFA",
+    rim: "#5EEAD4",
+    wall: "rgba(6,78,59,0.48)",
     weather: "sparkle",
-    weatherDensity: 45,
+    weatherDensity: 55,
   },
   {
     id: "cosmic",
     label: "Cosmic Drift",
-    sky: ["#020617", "#1E1B4B", "#312E81"],
-    orbA: "rgba(129,140,248,0.45)",
-    orbB: "rgba(244,114,182,0.3)",
-    fog: "rgba(30,27,75,0.4)",
-    floor: "rgba(129,140,248,0.2)",
+    sky: ["#020617", "#1E1B4B", "#4C1D95"],
+    orbA: "rgba(129,140,248,0.5)",
+    orbB: "rgba(244,114,182,0.35)",
+    orbC: "rgba(56,189,248,0.22)",
+    fog: "rgba(30,27,75,0.38)",
+    floor: "rgba(129,140,248,0.26)",
     accent: "#A78BFA",
+    glow: "#F472B6",
+    rim: "#C4B5FD",
+    wall: "rgba(49,46,129,0.52)",
     weather: "stars",
-    weatherDensity: 55,
+    weatherDensity: 68,
   },
   {
     id: "magma",
     label: "Magma Core",
-    sky: ["#1A0505", "#450A0A", "#7F1D1D"],
-    orbA: "rgba(239,68,68,0.45)",
-    orbB: "rgba(250,204,21,0.3)",
-    fog: "rgba(69,10,10,0.4)",
-    floor: "rgba(248,113,113,0.2)",
+    sky: ["#140303", "#450A0A", "#991B1B"],
+    orbA: "rgba(239,68,68,0.5)",
+    orbB: "rgba(250,204,21,0.35)",
+    orbC: "rgba(249,115,22,0.28)",
+    fog: "rgba(69,10,10,0.38)",
+    floor: "rgba(248,113,113,0.26)",
     accent: "#F87171",
+    glow: "#FBBF24",
+    rim: "#FDBA74",
+    wall: "rgba(127,29,29,0.52)",
     weather: "embers",
-    weatherDensity: 50,
+    weatherDensity: 60,
   },
   {
     id: "crystal",
     label: "Crystal Cave",
-    sky: ["#082F49", "#0E7490", "#155E75"],
-    orbA: "rgba(34,211,238,0.4)",
-    orbB: "rgba(255,255,255,0.2)",
-    fog: "rgba(8,47,73,0.35)",
-    floor: "rgba(103,232,249,0.2)",
+    sky: ["#041E2A", "#0E7490", "#155E75"],
+    orbA: "rgba(34,211,238,0.48)",
+    orbB: "rgba(255,255,255,0.28)",
+    orbC: "rgba(103,232,249,0.22)",
+    fog: "rgba(8,47,73,0.32)",
+    floor: "rgba(103,232,249,0.26)",
     accent: "#67E8F9",
+    glow: "#22D3EE",
+    rim: "#ECFEFF",
+    wall: "rgba(14,116,144,0.5)",
     weather: "sparkle",
-    weatherDensity: 50,
+    weatherDensity: 58,
   },
 ];
 
@@ -601,71 +637,124 @@ function toastFor(kind: ItemKind): string {
 function drawSpecialItem(
   ctx: CanvasRenderingContext2D,
   kind: Exclude<ItemKind, "logo">,
-  size: number
+  size: number,
+  time: number
 ) {
   const s = size;
   ctx.save();
+
+  // Soft contact shadow (grounds the object in 3D space)
+  ctx.globalAlpha = 0.28;
+  ctx.fillStyle = "#000";
+  ctx.beginPath();
+  ctx.ellipse(2, s * 0.42, s * 0.38, s * 0.12, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.globalAlpha = 1;
+
   if (kind === "heart") {
-    ctx.fillStyle = "#F43F5E";
+    const pulse = 1 + Math.sin(time * 6) * 0.04;
+    ctx.scale(pulse, pulse);
+    const g = ctx.createRadialGradient(-s * 0.15, -s * 0.15, 2, 0, 0, s * 0.7);
+    g.addColorStop(0, "#FDA4AF");
+    g.addColorStop(0.45, "#F43F5E");
+    g.addColorStop(1, "#9F1239");
+    ctx.fillStyle = g;
     ctx.shadowColor = "#FB7185";
-    ctx.shadowBlur = 16;
+    ctx.shadowBlur = 20;
     ctx.beginPath();
-    const x = 0;
-    const y = 0;
-    ctx.moveTo(x, y + s * 0.2);
-    ctx.bezierCurveTo(x, y, x - s * 0.5, y, x - s * 0.5, y + s * 0.25);
-    ctx.bezierCurveTo(x - s * 0.5, y + s * 0.55, x, y + s * 0.75, x, y + s * 0.9);
-    ctx.bezierCurveTo(x, y + s * 0.75, x + s * 0.5, y + s * 0.55, x + s * 0.5, y + s * 0.25);
-    ctx.bezierCurveTo(x + s * 0.5, y, x, y, x, y + s * 0.2);
+    ctx.moveTo(0, s * 0.18);
+    ctx.bezierCurveTo(0, -s * 0.05, -s * 0.55, -s * 0.05, -s * 0.55, s * 0.22);
+    ctx.bezierCurveTo(-s * 0.55, s * 0.52, 0, s * 0.72, 0, s * 0.88);
+    ctx.bezierCurveTo(0, s * 0.72, s * 0.55, s * 0.52, s * 0.55, s * 0.22);
+    ctx.bezierCurveTo(s * 0.55, -s * 0.05, 0, -s * 0.05, 0, s * 0.18);
+    ctx.fill();
+    // Specular
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = "rgba(255,255,255,0.55)";
+    ctx.beginPath();
+    ctx.ellipse(-s * 0.16, s * 0.08, s * 0.1, s * 0.06, -0.5, 0, Math.PI * 2);
     ctx.fill();
   } else if (kind === "poison") {
-    ctx.shadowColor = "#A855F7";
-    ctx.shadowBlur = 14;
-    ctx.fillStyle = "#7E22CE";
+    ctx.shadowColor = "#C084FC";
+    ctx.shadowBlur = 18;
+    const g = ctx.createRadialGradient(-s * 0.15, -s * 0.2, 2, 0, 0, s * 0.5);
+    g.addColorStop(0, "#E9D5FF");
+    g.addColorStop(0.4, "#A855F7");
+    g.addColorStop(1, "#581C87");
+    ctx.fillStyle = g;
     ctx.beginPath();
-    ctx.arc(0, 0, s * 0.42, 0, Math.PI * 2);
+    ctx.arc(0, 0, s * 0.44, 0, Math.PI * 2);
     ctx.fill();
-    ctx.fillStyle = "#E9D5FF";
-    ctx.beginPath();
-    ctx.arc(-s * 0.12, -s * 0.08, s * 0.08, 0, Math.PI * 2);
-    ctx.arc(s * 0.14, -s * 0.1, s * 0.08, 0, Math.PI * 2);
-    ctx.arc(0, s * 0.12, s * 0.08, 0, Math.PI * 2);
-    ctx.fill();
-  } else if (kind === "expand") {
-    ctx.shadowColor = "#34D399";
-    ctx.shadowBlur = 14;
-    ctx.fillStyle = "#059669";
-    drawRoundedRect(ctx, -s * 0.45, -s * 0.28, s * 0.9, s * 0.56, 8);
-    ctx.fill();
-    ctx.strokeStyle = "#A7F3D0";
-    ctx.lineWidth = 3;
-    ctx.beginPath();
-    ctx.moveTo(-s * 0.2, 0);
-    ctx.lineTo(s * 0.2, 0);
-    ctx.moveTo(0, -s * 0.18);
-    ctx.lineTo(0, s * 0.18);
+    // Glass rim
+    ctx.shadowBlur = 0;
+    ctx.strokeStyle = "rgba(255,255,255,0.4)";
+    ctx.lineWidth = 2;
     ctx.stroke();
-  } else if (kind === "shrink") {
-    ctx.shadowColor = "#FBBF24";
-    ctx.shadowBlur = 14;
-    ctx.fillStyle = "#D97706";
-    drawRoundedRect(ctx, -s * 0.45, -s * 0.28, s * 0.9, s * 0.56, 8);
-    ctx.fill();
-    ctx.strokeStyle = "#FEF3C7";
-    ctx.lineWidth = 3;
+    // Bubbles
+    ctx.fillStyle = "rgba(255,255,255,0.55)";
     ctx.beginPath();
-    ctx.moveTo(-s * 0.22, 0);
-    ctx.lineTo(s * 0.22, 0);
+    ctx.arc(-s * 0.14, -s * 0.12, s * 0.09, 0, Math.PI * 2);
+    ctx.arc(s * 0.12, -s * 0.06, s * 0.06, 0, Math.PI * 2);
+    ctx.arc(0, s * 0.14, s * 0.07, 0, Math.PI * 2);
+    ctx.fill();
+    // Skull hint
+    ctx.fillStyle = "rgba(15,23,42,0.55)";
+    ctx.beginPath();
+    ctx.arc(-s * 0.1, 0, s * 0.05, 0, Math.PI * 2);
+    ctx.arc(s * 0.1, 0, s * 0.05, 0, Math.PI * 2);
+    ctx.fill();
+  } else if (kind === "expand" || kind === "shrink") {
+    const grow = kind === "expand";
+    ctx.shadowColor = grow ? "#34D399" : "#FBBF24";
+    ctx.shadowBlur = 16;
+    // 3D pill / capsule
+    const g = ctx.createLinearGradient(0, -s * 0.35, 0, s * 0.35);
+    if (grow) {
+      g.addColorStop(0, "#6EE7B7");
+      g.addColorStop(0.5, "#059669");
+      g.addColorStop(1, "#064E3B");
+    } else {
+      g.addColorStop(0, "#FDE68A");
+      g.addColorStop(0.5, "#D97706");
+      g.addColorStop(1, "#78350F");
+    }
+    ctx.fillStyle = g;
+    drawRoundedRect(ctx, -s * 0.48, -s * 0.3, s * 0.96, s * 0.6, 14);
+    ctx.fill();
+    // Top highlight bevel
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = "rgba(255,255,255,0.28)";
+    drawRoundedRect(ctx, -s * 0.4, -s * 0.26, s * 0.8, s * 0.16, 8);
+    ctx.fill();
+    ctx.strokeStyle = grow ? "#A7F3D0" : "#FEF3C7";
+    ctx.lineWidth = 3;
+    ctx.lineCap = "round";
+    ctx.beginPath();
+    if (grow) {
+      ctx.moveTo(-s * 0.22, 0);
+      ctx.lineTo(s * 0.22, 0);
+      ctx.moveTo(0, -s * 0.2);
+      ctx.lineTo(0, s * 0.2);
+    } else {
+      ctx.moveTo(-s * 0.24, 0);
+      ctx.lineTo(s * 0.24, 0);
+    }
     ctx.stroke();
   } else {
-    // star bonus
+    // Faceted gem star
+    const spin = time * 2;
+    ctx.rotate(spin * 0.15);
     ctx.shadowColor = "#FDE047";
-    ctx.shadowBlur = 18;
-    ctx.fillStyle = "#FACC15";
+    ctx.shadowBlur = 22;
+    const g = ctx.createRadialGradient(0, 0, 2, 0, 0, s * 0.55);
+    g.addColorStop(0, "#FEF9C3");
+    g.addColorStop(0.45, "#FACC15");
+    g.addColorStop(1, "#A16207");
+    ctx.fillStyle = g;
     ctx.beginPath();
-    for (let i = 0; i < 5; i++) {
-      const a = (i * Math.PI * 2) / 5 - Math.PI / 2;
-      const r = i % 2 === 0 ? s * 0.48 : s * 0.2;
+    for (let i = 0; i < 10; i++) {
+      const a = (i * Math.PI) / 5 - Math.PI / 2;
+      const r = i % 2 === 0 ? s * 0.5 : s * 0.22;
       const px = Math.cos(a) * r;
       const py = Math.sin(a) * r;
       if (i === 0) ctx.moveTo(px, py);
@@ -673,6 +762,190 @@ function drawSpecialItem(
     }
     ctx.closePath();
     ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.strokeStyle = "rgba(255,255,255,0.55)";
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+    ctx.fillStyle = "rgba(255,255,255,0.7)";
+    ctx.beginPath();
+    ctx.arc(-s * 0.08, -s * 0.12, s * 0.08, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
+function drawLogoItem(
+  ctx: CanvasRenderingContext2D,
+  img: HTMLImageElement | null,
+  size: number,
+  accent: string,
+  time: number
+) {
+  const s = size;
+  ctx.save();
+  // Contact shadow
+  ctx.globalAlpha = 0.3;
+  ctx.fillStyle = "#000";
+  ctx.beginPath();
+  ctx.ellipse(3, s * 0.4, s * 0.4, s * 0.14, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.globalAlpha = 1;
+
+  // Outer glow disc
+  const glow = ctx.createRadialGradient(0, 0, s * 0.2, 0, 0, s * 0.7);
+  glow.addColorStop(0, `${accent}55`);
+  glow.addColorStop(1, "transparent");
+  ctx.fillStyle = glow;
+  ctx.beginPath();
+  ctx.arc(0, 0, s * 0.7, 0, Math.PI * 2);
+  ctx.fill();
+
+  // 3D platform / medallion
+  ctx.shadowColor = accent;
+  ctx.shadowBlur = 18;
+  drawRoundedRect(ctx, -s / 2, -s / 2, s, s, s * 0.22);
+  const plate = ctx.createLinearGradient(-s / 2, -s / 2, s / 2, s / 2);
+  plate.addColorStop(0, "#1E293B");
+  plate.addColorStop(0.5, "#0F172A");
+  plate.addColorStop(1, "#312E81");
+  ctx.fillStyle = plate;
+  ctx.fill();
+  ctx.shadowBlur = 0;
+  ctx.strokeStyle = accent;
+  ctx.lineWidth = 2.5;
+  ctx.stroke();
+
+  // Inner bevel ring
+  ctx.strokeStyle = "rgba(255,255,255,0.2)";
+  ctx.lineWidth = 1.5;
+  drawRoundedRect(ctx, -s / 2 + 4, -s / 2 + 4, s - 8, s - 8, s * 0.18);
+  ctx.stroke();
+
+  const pad = s * 0.16;
+  if (img && img.complete && img.naturalWidth > 0) {
+    const ar = img.naturalWidth / img.naturalHeight;
+    let dw = s - pad * 2;
+    let dh = s - pad * 2;
+    if (ar > 1) dh = dw / ar;
+    else dw = dh * ar;
+    ctx.save();
+    ctx.beginPath();
+    drawRoundedRect(ctx, -dw / 2, -dh / 2, dw, dh, 8);
+    ctx.clip();
+    ctx.drawImage(img, -dw / 2, -dh / 2, dw, dh);
+    ctx.restore();
+  } else {
+    drawRoundedRect(ctx, -s * 0.28, -s * 0.28, s * 0.56, s * 0.56, 10);
+    const lg = ctx.createLinearGradient(-s * 0.3, -s * 0.3, s * 0.3, s * 0.3);
+    lg.addColorStop(0, COLORS.primary);
+    lg.addColorStop(1, accent);
+    ctx.fillStyle = lg;
+    ctx.fill();
+  }
+
+  // Specular sweep
+  ctx.globalAlpha = 0.18 + Math.sin(time * 3) * 0.06;
+  const shine = ctx.createLinearGradient(-s / 2, -s / 2, s / 2, s / 2);
+  shine.addColorStop(0, "rgba(255,255,255,0.7)");
+  shine.addColorStop(0.35, "transparent");
+  ctx.fillStyle = shine;
+  drawRoundedRect(ctx, -s / 2, -s / 2, s, s, s * 0.22);
+  ctx.fill();
+  ctx.restore();
+}
+
+function drawBasket3D(
+  ctx: CanvasRenderingContext2D,
+  bw: number,
+  bh: number,
+  mul: number,
+  bounce: number,
+  theme: LevelTheme,
+  time: number
+) {
+  const by = Math.sin(bounce * Math.PI) * -8;
+  ctx.save();
+  ctx.translate(0, by);
+
+  // Stage spotlight under basket
+  const ground = ctx.createRadialGradient(0, bh / 2 + 10, 2, 0, bh / 2 + 10, bw * 0.75);
+  ground.addColorStop(0, `${theme.accent}88`);
+  ground.addColorStop(0.55, `${theme.glow}33`);
+  ground.addColorStop(1, "transparent");
+  ctx.fillStyle = ground;
+  ctx.beginPath();
+  ctx.ellipse(0, bh / 2 + 14, bw * 0.58, 12, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Rear lip (depth)
+  ctx.fillStyle = "#2A1A10";
+  ctx.beginPath();
+  ctx.moveTo(-bw / 2 + 4, -bh / 2);
+  ctx.lineTo(-bw / 2 + 12, -bh / 2 - 12);
+  ctx.lineTo(bw / 2 - 12, -bh / 2 - 12);
+  ctx.lineTo(bw / 2 - 4, -bh / 2);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.shadowColor = theme.glow;
+  ctx.shadowBlur = 28;
+  drawRoundedRect(ctx, -bw / 2, -bh / 2, bw, bh, 14);
+  const wood = ctx.createLinearGradient(0, -bh / 2, 0, bh / 2);
+  wood.addColorStop(0, "#E8C9A8");
+  wood.addColorStop(0.35, "#C4A484");
+  wood.addColorStop(0.7, "#8B5E3C");
+  wood.addColorStop(1, "#4A2C17");
+  ctx.fillStyle = wood;
+  ctx.fill();
+  ctx.shadowBlur = 0;
+
+  // Wood grain
+  ctx.strokeStyle = "rgba(74,44,23,0.25)";
+  ctx.lineWidth = 1;
+  for (let i = 0; i < 4; i++) {
+    const yy = -bh / 2 + 8 + i * (bh / 4.5);
+    ctx.beginPath();
+    ctx.moveTo(-bw / 2 + 10, yy);
+    ctx.quadraticCurveTo(0, yy + 2, bw / 2 - 10, yy);
+    ctx.stroke();
+  }
+
+  // Bevel rim
+  ctx.strokeStyle = "rgba(255,255,255,0.4)";
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  // Chrome band
+  const chrome = ctx.createLinearGradient(-bw / 2, 0, bw / 2, 0);
+  chrome.addColorStop(0, "rgba(255,255,255,0.15)");
+  chrome.addColorStop(0.5, "rgba(255,255,255,0.65)");
+  chrome.addColorStop(1, "rgba(255,255,255,0.15)");
+  ctx.fillStyle = chrome;
+  ctx.fillRect(-bw / 2 + 10, -5, bw - 20, 6);
+
+  // Inner cavity
+  ctx.fillStyle = "rgba(15,23,42,0.45)";
+  drawRoundedRect(ctx, -bw / 2 + 10, -bh / 2 + 8, bw - 20, bh * 0.42, 10);
+  ctx.fill();
+  ctx.strokeStyle = `${theme.accent}88`;
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+
+  // Neon underglow pulse
+  ctx.globalAlpha = 0.45 + Math.sin(time * 4) * 0.15;
+  ctx.fillStyle = theme.accent;
+  ctx.beginPath();
+  ctx.ellipse(0, bh / 2 + 6, bw * 0.4, 5, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.globalAlpha = 1;
+
+  if (mul !== 1) {
+    ctx.strokeStyle = mul > 1 ? "#34D399" : "#FBBF24";
+    ctx.lineWidth = 2.5;
+    ctx.setLineDash([5, 4]);
+    drawRoundedRect(ctx, -bw / 2 - 5, -bh / 2 - 5, bw + 10, bh + 10, 16);
+    ctx.stroke();
+    ctx.setLineDash([]);
   }
   ctx.restore();
 }
@@ -716,6 +989,7 @@ function updateWeather(
       p.vy = 35 + p.z * 40;
       p.vx = Math.sin(time * 1.2 + p.phase) * 18 * p.z;
       p.size = 1.5 + p.z * 2.2;
+      p.rot += dt * 1.5;
     } else if (theme.weather === "rain") {
       p.vy = 520 + p.z * 280;
       p.vx = -40 - p.z * 20;
@@ -762,39 +1036,64 @@ function drawWeather(
     ctx.save();
     ctx.globalAlpha = Math.max(0.05, Math.min(0.9, p.opacity));
     if (theme.weather === "snow") {
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot);
       ctx.fillStyle = "#FFFFFF";
+      ctx.shadowColor = "#E0F2FE";
+      ctx.shadowBlur = 6;
       ctx.beginPath();
-      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      for (let i = 0; i < 6; i++) {
+        const a = (i * Math.PI) / 3;
+        ctx.lineTo(Math.cos(a) * p.size, Math.sin(a) * p.size);
+      }
+      ctx.closePath();
       ctx.fill();
     } else if (theme.weather === "rain") {
-      ctx.strokeStyle = "rgba(125,211,252,0.75)";
-      ctx.lineWidth = 1.2 * p.z;
+      const g = ctx.createLinearGradient(p.x, p.y, p.x + p.vx * 0.02, p.y + 16);
+      g.addColorStop(0, "rgba(186,230,253,0.95)");
+      g.addColorStop(1, "rgba(56,189,248,0.1)");
+      ctx.strokeStyle = g;
+      ctx.lineWidth = 1.4 * p.z;
+      ctx.lineCap = "round";
       ctx.beginPath();
       ctx.moveTo(p.x, p.y);
-      ctx.lineTo(p.x + p.vx * 0.03, p.y + 12 + p.z * 8);
+      ctx.lineTo(p.x + p.vx * 0.03, p.y + 14 + p.z * 8);
       ctx.stroke();
     } else if (theme.weather === "heat") {
       const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size);
-      g.addColorStop(0, "rgba(251,146,60,0.25)");
+      g.addColorStop(0, "rgba(251,146,60,0.3)");
+      g.addColorStop(0.5, "rgba(250,204,21,0.12)");
       g.addColorStop(1, "transparent");
       ctx.fillStyle = g;
       ctx.beginPath();
-      ctx.ellipse(p.x, p.y, p.size, p.size * 0.55, 0, 0, Math.PI * 2);
+      ctx.ellipse(p.x, p.y, p.size, p.size * 0.5, 0, 0, Math.PI * 2);
       ctx.fill();
     } else if (theme.weather === "embers") {
-      ctx.fillStyle = Math.random() > 0.5 ? "#FDBA74" : "#EF4444";
-      ctx.shadowColor = "#F97316";
-      ctx.shadowBlur = 8;
+      const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * 2);
+      g.addColorStop(0, "#FEF3C7");
+      g.addColorStop(0.4, "#FB923C");
+      g.addColorStop(1, "transparent");
+      ctx.fillStyle = g;
       ctx.beginPath();
-      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      ctx.arc(p.x, p.y, p.size * 2, 0, Math.PI * 2);
       ctx.fill();
     } else {
       ctx.fillStyle = theme.accent;
-      ctx.shadowColor = theme.accent;
-      ctx.shadowBlur = 6;
+      ctx.shadowColor = theme.glow;
+      ctx.shadowBlur = 10;
       ctx.beginPath();
       ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
       ctx.fill();
+      // Cross sparkle
+      ctx.shadowBlur = 0;
+      ctx.strokeStyle = "rgba(255,255,255,0.7)";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(p.x - p.size * 1.6, p.y);
+      ctx.lineTo(p.x + p.size * 1.6, p.y);
+      ctx.moveTo(p.x, p.y - p.size * 1.6);
+      ctx.lineTo(p.x, p.y + p.size * 1.6);
+      ctx.stroke();
     }
     ctx.restore();
   }
@@ -808,88 +1107,185 @@ function drawThemedBackground(
   basketY: number,
   time: number
 ) {
-  const grad = ctx.createLinearGradient(0, 0, w * 0.2, h);
+  // Sky dome
+  const grad = ctx.createLinearGradient(0, 0, 0, h);
   grad.addColorStop(0, theme.sky[0]);
-  grad.addColorStop(0.5, theme.sky[1]);
+  grad.addColorStop(0.45, theme.sky[1]);
   grad.addColorStop(1, theme.sky[2]);
   ctx.fillStyle = grad;
-  ctx.fillRect(-30, -30, w + 60, h + 60);
+  ctx.fillRect(-40, -40, w + 80, h + 80);
 
-  // Parallax orbs (pseudo-3D depth)
-  const drift = Math.sin(time * 0.4) * 20;
-  ctx.globalAlpha = 0.4;
-  let orb = ctx.createRadialGradient(
-    w * 0.22 + drift,
-    h * 0.18,
-    0,
-    w * 0.22 + drift,
-    h * 0.18,
-    w * 0.38
-  );
-  orb.addColorStop(0, theme.orbA);
-  orb.addColorStop(1, "transparent");
-  ctx.fillStyle = orb;
+  // Vignette
+  const vig = ctx.createRadialGradient(w / 2, h * 0.4, h * 0.15, w / 2, h * 0.45, h * 0.85);
+  vig.addColorStop(0, "transparent");
+  vig.addColorStop(1, "rgba(0,0,0,0.45)");
+  ctx.fillStyle = vig;
   ctx.fillRect(0, 0, w, h);
 
-  orb = ctx.createRadialGradient(
-    w * 0.82 - drift,
-    h * 0.62,
-    0,
-    w * 0.82 - drift,
-    h * 0.62,
-    w * 0.42
-  );
-  orb.addColorStop(0, theme.orbB);
-  orb.addColorStop(1, "transparent");
-  ctx.fillStyle = orb;
-  ctx.fillRect(0, 0, w, h);
+  // Floating volumetric orbs (parallax layers)
+  const drift = Math.sin(time * 0.35) * 28;
+  const drift2 = Math.cos(time * 0.28) * 22;
+  const layers: Array<{
+    x: number;
+    y: number;
+    r: number;
+    c: string;
+    a: number;
+  }> = [
+    { x: w * 0.18 + drift, y: h * 0.16, r: w * 0.34, c: theme.orbA, a: 0.5 },
+    { x: w * 0.85 - drift, y: h * 0.28, r: w * 0.28, c: theme.orbB, a: 0.4 },
+    { x: w * 0.55 + drift2, y: h * 0.08, r: w * 0.22, c: theme.orbC, a: 0.35 },
+    { x: w * 0.72, y: h * 0.55 + drift2 * 0.5, r: w * 0.18, c: theme.orbA, a: 0.22 },
+  ];
+  for (const L of layers) {
+    ctx.globalAlpha = L.a;
+    const orb = ctx.createRadialGradient(L.x, L.y, 0, L.x, L.y, L.r);
+    orb.addColorStop(0, L.c);
+    orb.addColorStop(0.55, `${theme.accent}22`);
+    orb.addColorStop(1, "transparent");
+    ctx.fillStyle = orb;
+    ctx.beginPath();
+    ctx.arc(L.x, L.y, L.r, 0, Math.PI * 2);
+    ctx.fill();
+  }
   ctx.globalAlpha = 1;
 
-  // Perspective floor grid (3D stage)
-  const horizon = basketY - 90;
+  // Aurora ribbons
+  if (theme.id === "aurora" || theme.id === "cosmic") {
+    ctx.save();
+    ctx.globalAlpha = 0.22;
+    for (let i = 0; i < 3; i++) {
+      ctx.beginPath();
+      const y0 = h * (0.12 + i * 0.08);
+      ctx.moveTo(0, y0);
+      for (let x = 0; x <= w; x += 20) {
+        const yy =
+          y0 +
+          Math.sin(x * 0.012 + time * (0.8 + i * 0.2) + i) * (18 + i * 8);
+        ctx.lineTo(x, yy);
+      }
+      ctx.strokeStyle = i % 2 === 0 ? theme.accent : theme.glow;
+      ctx.lineWidth = 18 - i * 4;
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  // Side walls for theatre / stage depth
+  const horizon = Math.max(h * 0.42, basketY - 110);
+  ctx.fillStyle = theme.wall;
+  ctx.beginPath();
+  ctx.moveTo(0, horizon);
+  ctx.lineTo(w * 0.12, horizon + 20);
+  ctx.lineTo(0, h);
+  ctx.closePath();
+  ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(w, horizon);
+  ctx.lineTo(w * 0.88, horizon + 20);
+  ctx.lineTo(w, h);
+  ctx.closePath();
+  ctx.fill();
+
+  // Neon wall edge lines
+  ctx.strokeStyle = theme.rim;
+  ctx.globalAlpha = 0.35;
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(0, horizon);
+  ctx.lineTo(w * 0.12, horizon + 20);
+  ctx.moveTo(w, horizon);
+  ctx.lineTo(w * 0.88, horizon + 20);
+  ctx.stroke();
+  ctx.globalAlpha = 1;
+
+  // Perspective floor + runway
   ctx.save();
   ctx.beginPath();
-  ctx.rect(0, horizon, w, h - horizon + 40);
+  ctx.rect(0, horizon, w, h - horizon + 50);
   ctx.clip();
-  const floorGrad = ctx.createLinearGradient(0, horizon, 0, h);
-  floorGrad.addColorStop(0, "transparent");
-  floorGrad.addColorStop(1, theme.floor);
-  ctx.fillStyle = floorGrad;
-  ctx.fillRect(0, horizon, w, h - horizon + 40);
 
+  const floorGrad = ctx.createLinearGradient(0, horizon, 0, h);
+  floorGrad.addColorStop(0, "rgba(0,0,0,0)");
+  floorGrad.addColorStop(0.35, theme.floor);
+  floorGrad.addColorStop(1, "rgba(0,0,0,0.55)");
+  ctx.fillStyle = floorGrad;
+  ctx.fillRect(0, horizon, w, h - horizon + 50);
+
+  // Reflective sheen
+  const sheen = ctx.createLinearGradient(0, horizon, 0, h);
+  sheen.addColorStop(0, "rgba(255,255,255,0.08)");
+  sheen.addColorStop(0.4, "transparent");
+  ctx.fillStyle = sheen;
+  ctx.fillRect(0, horizon, w, h - horizon);
+
+  const vanishingX = w / 2 + Math.sin(time * 0.2) * 24;
   ctx.strokeStyle = theme.accent;
-  ctx.globalAlpha = 0.14;
   ctx.lineWidth = 1;
-  const vanishingX = w / 2 + Math.sin(time * 0.25) * 30;
-  for (let i = -8; i <= 8; i++) {
+  for (let i = -10; i <= 10; i++) {
+    const t = Math.abs(i) / 10;
+    ctx.globalAlpha = 0.06 + (1 - t) * 0.12;
     ctx.beginPath();
     ctx.moveTo(vanishingX, horizon);
-    ctx.lineTo(vanishingX + i * (w * 0.18), h + 40);
+    ctx.lineTo(vanishingX + i * (w * 0.16), h + 50);
     ctx.stroke();
   }
-  for (let r = 1; r <= 7; r++) {
-    const t = r / 7;
-    const y = horizon + (h - horizon) * (t * t);
-    ctx.globalAlpha = 0.08 + t * 0.1;
+  for (let r = 1; r <= 9; r++) {
+    const tt = r / 9;
+    const y = horizon + (h - horizon) * (tt * tt);
+    ctx.globalAlpha = 0.06 + tt * 0.14;
     ctx.beginPath();
     ctx.moveTo(0, y);
     ctx.lineTo(w, y);
     ctx.stroke();
   }
+
+  // Center neon runway
+  ctx.globalAlpha = 0.35;
+  const run = ctx.createLinearGradient(w * 0.5 - 40, horizon, w * 0.5 + 40, h);
+  run.addColorStop(0, "transparent");
+  run.addColorStop(0.4, theme.accent);
+  run.addColorStop(1, theme.glow);
+  ctx.fillStyle = run;
+  ctx.beginPath();
+  ctx.moveTo(vanishingX - 6, horizon);
+  ctx.lineTo(w * 0.5 - 55, h);
+  ctx.lineTo(w * 0.5 + 55, h);
+  ctx.lineTo(vanishingX + 6, horizon);
+  ctx.closePath();
+  ctx.fill();
   ctx.restore();
 
-  // Soft fog veil
+  // Floating ring portals (premium 3D accents)
+  ctx.save();
+  ctx.globalAlpha = 0.22;
+  ctx.strokeStyle = theme.rim;
+  ctx.lineWidth = 3;
+  ctx.shadowColor = theme.glow;
+  ctx.shadowBlur = 16;
+  const rx = w * 0.78 + Math.cos(time * 0.4) * 10;
+  const ry = h * 0.22;
+  ctx.beginPath();
+  ctx.ellipse(rx, ry, 42, 18, Math.sin(time * 0.3) * 0.4, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.ellipse(w * 0.2, h * 0.3, 28, 12, -0.5, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.restore();
+
+  // Atmospheric fog bands
   ctx.fillStyle = theme.fog;
-  ctx.globalAlpha = 0.35 + Math.sin(time * 0.7) * 0.08;
-  ctx.fillRect(0, 0, w, h * 0.45);
+  ctx.globalAlpha = 0.28 + Math.sin(time * 0.6) * 0.08;
+  ctx.fillRect(0, 0, w, h * 0.38);
+  ctx.globalAlpha = 0.15;
+  ctx.fillRect(0, h * 0.55, w, h * 0.2);
   ctx.globalAlpha = 1;
 
-  // Heatwave distortion bars
   if (theme.weather === "heat") {
-    for (let i = 0; i < 6; i++) {
-      const yy = ((time * 40 + i * 70) % (h + 40)) - 20;
-      ctx.fillStyle = "rgba(251,146,60,0.04)";
-      ctx.fillRect(0, yy, w, 18);
+    for (let i = 0; i < 8; i++) {
+      const yy = ((time * 50 + i * 60) % (h + 40)) - 20;
+      ctx.fillStyle = "rgba(251,146,60,0.035)";
+      ctx.fillRect(0, yy, w, 16);
     }
   }
 }
@@ -1355,35 +1751,21 @@ export default function CatchTheLogoGame({
       // Depth-sort falling items
       const sorted = [...itemsRef.current].sort((a, c) => a.z - c.z);
       const img = logoImgRef.current;
+      const t = timeRef.current;
       for (const item of sorted) {
         const bob = Math.sin(item.bounce) * 3;
-        const depthScale = 0.85 + item.z * 0.2;
+        const depthScale = 0.82 + item.z * 0.22;
+        const perspectiveY = 1 + (item.y / h) * 0.08;
         ctx.save();
         ctx.translate(item.x, item.y + bob);
         ctx.rotate(item.rot);
-        ctx.scale(depthScale, depthScale);
+        ctx.scale(depthScale * perspectiveY, depthScale * perspectiveY);
         ctx.globalAlpha = item.opacity;
         const s = item.size * item.scale;
         if (item.kind === "logo") {
-          ctx.shadowColor = theme.accent;
-          ctx.shadowBlur = 16;
-          if (img && img.complete && img.naturalWidth > 0) {
-            const ar = img.naturalWidth / img.naturalHeight;
-            let dw = s;
-            let dh = s;
-            if (ar > 1) dh = s / ar;
-            else dw = s * ar;
-            ctx.drawImage(img, -dw / 2, -dh / 2, dw, dh);
-          } else {
-            drawRoundedRect(ctx, -s / 2, -s / 2, s, s, s * 0.22);
-            const lg = ctx.createLinearGradient(-s / 2, -s / 2, s / 2, s / 2);
-            lg.addColorStop(0, COLORS.primary);
-            lg.addColorStop(1, theme.accent);
-            ctx.fillStyle = lg;
-            ctx.fill();
-          }
+          drawLogoItem(ctx, img, s, theme.accent, t);
         } else {
-          drawSpecialItem(ctx, item.kind, s);
+          drawSpecialItem(ctx, item.kind, s, t);
         }
         ctx.restore();
       }
@@ -1391,42 +1773,9 @@ export default function CatchTheLogoGame({
       // Basket
       const bw = b.baseW * b.mul;
       const bh = b.h;
-      const by = b.y + Math.sin(b.bounce * Math.PI) * -8;
       ctx.save();
-      ctx.translate(b.x, by);
-      ctx.shadowColor = theme.accent;
-      ctx.shadowBlur = 24;
-      drawRoundedRect(ctx, -bw / 2, -bh / 2, bw, bh, 12);
-      const wood = ctx.createLinearGradient(0, -bh / 2, 0, bh / 2);
-      wood.addColorStop(0, "#C4A484");
-      wood.addColorStop(0.5, "#8B5E3C");
-      wood.addColorStop(1, "#5C3A21");
-      ctx.fillStyle = wood;
-      ctx.fill();
-      ctx.strokeStyle = "rgba(255,255,255,0.35)";
-      ctx.lineWidth = 2;
-      ctx.stroke();
-      ctx.fillStyle = "rgba(226,232,240,0.55)";
-      ctx.fillRect(-bw / 2 + 8, -4, bw - 16, 5);
-      ctx.shadowBlur = 0;
-      ctx.fillStyle = "rgba(15,23,42,0.35)";
-      drawRoundedRect(ctx, -bw / 2 + 8, -bh / 2 + 6, bw - 16, bh * 0.45, 8);
-      ctx.fill();
-      ctx.globalAlpha = 0.55;
-      ctx.fillStyle = theme.accent;
-      ctx.beginPath();
-      ctx.ellipse(0, bh / 2 + 6, bw * 0.38, 6, 0, 0, Math.PI * 2);
-      ctx.fill();
-      // Size indicator ring when powered
-      if (b.mul !== 1) {
-        ctx.globalAlpha = 0.7;
-        ctx.strokeStyle = b.mul > 1 ? "#34D399" : "#FBBF24";
-        ctx.lineWidth = 2;
-        ctx.setLineDash([4, 4]);
-        drawRoundedRect(ctx, -bw / 2 - 4, -bh / 2 - 4, bw + 8, bh + 8, 14);
-        ctx.stroke();
-        ctx.setLineDash([]);
-      }
+      ctx.translate(b.x, b.y);
+      drawBasket3D(ctx, bw, bh, b.mul, b.bounce, theme, t);
       ctx.restore();
 
       for (const p of particlesRef.current) {
