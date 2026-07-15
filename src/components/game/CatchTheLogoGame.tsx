@@ -127,11 +127,24 @@ type GameHud = {
 const BEST_KEY = "catch-the-logo-best";
 const MUTE_KEY = "catch-the-logo-mute";
 const MAX_LIVES = 5;
-const ROUND_SECONDS = 60;
 const BASE_FALL = 140;
 const BASE_SPAWN = 1.15;
 const BASKET_MUL_MIN = 0.62;
 const BASKET_MUL_MAX = 1.55;
+
+/** Difficulty ramps every level — faster falls, denser spawns, more chaos. */
+function difficultyForLevel(level: number) {
+  const lv = Math.max(1, level);
+  return {
+    fallSpeed: BASE_FALL + (lv - 1) * 45,
+    fallJitter: 28 + lv * 14,
+    spawnInterval: Math.max(0.2, BASE_SPAWN - (lv - 1) * 0.11),
+    maxItems: Math.min(24, 8 + Math.floor(lv * 1.35)),
+    gravity: 15 + (lv - 1) * 4,
+    drift: 16 + (lv - 1) * 9,
+    rotSpeed: 2.2 + (lv - 1) * 0.4,
+  };
+}
 
 const SITE_URL = "https://www.contenaissance.com/";
 const SITE_NAME = "Contenaissance";
@@ -328,7 +341,7 @@ const useCatchStore = create<Store>((set) => ({
   bestScore: 0,
   lives: MAX_LIVES,
   level: 1,
-  timeLeft: ROUND_SECONDS,
+  timeLeft: 0,
   catches: 0,
   misses: 0,
   phase: "playing",
@@ -345,7 +358,7 @@ const useCatchStore = create<Store>((set) => ({
       bestScore: best,
       lives: MAX_LIVES,
       level: 1,
-      timeLeft: ROUND_SECONDS,
+      timeLeft: 0,
       catches: 0,
       misses: 0,
       phase: "playing",
@@ -606,14 +619,15 @@ function spawnBurst(
 
 function rollItemKind(level: number): ItemKind {
   const r = Math.random();
-  // Special chance rises slightly with level
-  const specialChance = Math.min(0.34, 0.16 + level * 0.02);
+  // More specials (and hazards) as levels climb
+  const specialChance = Math.min(0.42, 0.16 + level * 0.028);
   if (r > specialChance) return "logo";
   const s = Math.random();
-  if (s < 0.22) return "heart";
-  if (s < 0.4) return "poison";
-  if (s < 0.58) return "expand";
-  if (s < 0.76) return "shrink";
+  const poisonWeight = Math.min(0.38, 0.22 + level * 0.015);
+  if (s < 0.18) return "heart";
+  if (s < 0.18 + poisonWeight) return "poison";
+  if (s < 0.18 + poisonWeight + 0.16) return "expand";
+  if (s < 0.18 + poisonWeight + 0.32) return "shrink";
   return "star";
 }
 
@@ -1342,7 +1356,7 @@ export default function CatchTheLogoGame({
     score: 0,
     lives: MAX_LIVES,
     level: 1,
-    timeLeft: ROUND_SECONDS,
+    timeLeft: 0,
     catches: 0,
     misses: 0,
     elapsed: 0,
@@ -1380,7 +1394,7 @@ export default function CatchTheLogoGame({
       score: s.score,
       lives: s.lives,
       level: s.level,
-      timeLeft: Math.max(0, s.timeLeft),
+      timeLeft: 0,
       catches: s.catches,
       misses: s.misses,
       phase: phaseRef.current,
@@ -1428,7 +1442,7 @@ export default function CatchTheLogoGame({
       score: 0,
       lives: MAX_LIVES,
       level: 1,
-      timeLeft: ROUND_SECONDS,
+      timeLeft: 0,
       catches: 0,
       misses: 0,
       elapsed: 0,
@@ -1467,6 +1481,7 @@ export default function CatchTheLogoGame({
   const spawnItem = useCallback(() => {
     const { w } = sizeRef.current;
     const level = statsRef.current.level;
+    const diff = difficultyForLevel(level);
     const kind = rollItemKind(level);
     const size =
       kind === "logo" ? 36 + Math.random() * 22 : 30 + Math.random() * 16;
@@ -1476,10 +1491,10 @@ export default function CatchTheLogoGame({
       kind,
       x: margin + Math.random() * Math.max(1, w - margin * 2),
       y: -size - Math.random() * 40,
-      vx: (Math.random() - 0.5) * (20 + level * 4),
-      vy: BASE_FALL + level * 28 + Math.random() * 40,
+      vx: (Math.random() - 0.5) * diff.drift,
+      vy: diff.fallSpeed + Math.random() * diff.fallJitter,
       rot: Math.random() * Math.PI * 2,
-      rotSpeed: (Math.random() - 0.5) * 2.8,
+      rotSpeed: (Math.random() - 0.5) * diff.rotSpeed,
       scale: 0.85 + Math.random() * 0.35,
       opacity: 0.9 + Math.random() * 0.1,
       size,
@@ -1549,26 +1564,19 @@ export default function CatchTheLogoGame({
         b.x += (b.targetX - b.x) * Math.min(1, lerp * 14);
         b.bounce *= Math.pow(0.05, dt);
 
-        statsRef.current.timeLeft -= dt;
+        // Unlimited run — track elapsed only (no time-limit game over)
         statsRef.current.elapsed += dt;
-        if (statsRef.current.timeLeft <= 0) {
-          statsRef.current.timeLeft = 0;
-          endGame();
-        }
 
-        const spawnRate = Math.max(
-          0.32,
-          BASE_SPAWN - (statsRef.current.level - 1) * 0.08
-        );
+        const diff = difficultyForLevel(statsRef.current.level);
         spawnAccRef.current += dt;
-        while (spawnAccRef.current >= spawnRate) {
-          spawnAccRef.current -= spawnRate;
-          if (itemsRef.current.length < 12) spawnItem();
+        while (spawnAccRef.current >= diff.spawnInterval) {
+          spawnAccRef.current -= diff.spawnInterval;
+          if (itemsRef.current.length < diff.maxItems) spawnItem();
         }
 
         const still: FallingItem[] = [];
         for (const item of itemsRef.current) {
-          item.vy += 18 * dt;
+          item.vy += diff.gravity * dt;
           item.x += item.vx * dt;
           item.y += item.vy * dt;
           item.rot += item.rotSpeed * dt;
@@ -1606,13 +1614,16 @@ export default function CatchTheLogoGame({
               if (statsRef.current.catches % 10 === 0) {
                 statsRef.current.level += 1;
                 const nextTheme = themeForLevel(statsRef.current.level);
+                const nextDiff = difficultyForLevel(statsRef.current.level);
                 weatherRef.current = [];
                 useCatchStore.getState().setHud({
                   levelUpFlash: 1.8,
                   level: statsRef.current.level,
                   themeLabel: nextTheme.label,
                 });
-                showToast(`Theme: ${nextTheme.label}`);
+                showToast(
+                  `${nextTheme.label} · Speed +${Math.round((nextDiff.fallSpeed / BASE_FALL - 1) * 100)}%`
+                );
                 beep(mutedRef.current, 660, 0.12, "square", 0.05);
               }
             } else if (item.kind === "heart") {
@@ -1998,10 +2009,12 @@ export default function CatchTheLogoGame({
     [getSharePayload]
   );
 
-  const timerPct = useMemo(
-    () => Math.max(0, Math.min(1, hud.timeLeft / ROUND_SECONDS)),
-    [hud.timeLeft]
-  );
+  const elapsedLabel = useMemo(() => {
+    const total = Math.floor(hud.elapsed);
+    const m = Math.floor(total / 60);
+    const s = total % 60;
+    return `${m}:${String(s).padStart(2, "0")}`;
+  }, [hud.elapsed]);
 
   const hearts = useMemo(
     () =>
@@ -2085,31 +2098,23 @@ export default function CatchTheLogoGame({
                 </div>
               </div>
 
-              <div className="pointer-events-auto flex flex-col items-center gap-2">
-                <div className="relative h-14 w-14 sm:h-16 sm:w-16">
-                  <svg viewBox="0 0 36 36" className="h-full w-full -rotate-90">
-                    <circle
-                      cx="18"
-                      cy="18"
-                      r="15.5"
-                      fill="none"
-                      stroke="rgba(255,255,255,0.12)"
-                      strokeWidth="3"
-                    />
-                    <circle
-                      cx="18"
-                      cy="18"
-                      r="15.5"
-                      fill="none"
-                      stroke={themeAccent}
-                      strokeWidth="3"
-                      strokeLinecap="round"
-                      strokeDasharray={`${timerPct * 97.4} 97.4`}
-                      style={{ filter: `drop-shadow(0 0 6px ${themeAccent})` }}
-                    />
-                  </svg>
-                  <span className="absolute inset-0 flex items-center justify-center text-sm font-bold text-white">
-                    {Math.ceil(hud.timeLeft)}
+              <div className="pointer-events-auto flex flex-col items-center gap-1">
+                <div
+                  className="flex min-w-[4.5rem] flex-col items-center rounded-2xl border border-white/10 px-3 py-2 backdrop-blur-xl"
+                  style={{ background: "rgba(30,41,59,0.72)" }}
+                  aria-label={`Play time ${elapsedLabel}, unlimited`}
+                >
+                  <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                    Time
+                  </span>
+                  <span
+                    className="text-lg font-bold tabular-nums text-white"
+                    style={{ textShadow: `0 0 12px ${themeAccent}` }}
+                  >
+                    {elapsedLabel}
+                  </span>
+                  <span className="text-[9px] font-medium text-cyan-300/90">
+                    Unlimited
                   </span>
                 </div>
               </div>
