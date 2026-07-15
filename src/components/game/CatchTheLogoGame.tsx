@@ -35,8 +35,12 @@ export interface CatchTheLogoGameProps {
 
 type Phase = "playing" | "paused" | "gameover";
 
-type FallingLogo = {
+/** Falling collectibles — logos + unique power / hazard objects. */
+type ItemKind = "logo" | "heart" | "poison" | "expand" | "shrink" | "star";
+
+type FallingItem = {
   id: number;
+  kind: ItemKind;
   x: number;
   y: number;
   vx: number;
@@ -47,6 +51,7 @@ type FallingLogo = {
   opacity: number;
   size: number;
   bounce: number;
+  z: number;
 };
 
 type Particle = {
@@ -62,6 +67,42 @@ type Particle = {
   kind: "spark" | "star" | "dust" | "confetti";
 };
 
+type WeatherFx = {
+  id: number;
+  x: number;
+  y: number;
+  z: number;
+  vx: number;
+  vy: number;
+  size: number;
+  rot: number;
+  opacity: number;
+  phase: number;
+};
+
+type ThemeId =
+  | "neon-night"
+  | "snowfall"
+  | "rainstorm"
+  | "heatwave"
+  | "aurora"
+  | "cosmic"
+  | "magma"
+  | "crystal";
+
+type LevelTheme = {
+  id: ThemeId;
+  label: string;
+  sky: [string, string, string];
+  orbA: string;
+  orbB: string;
+  fog: string;
+  floor: string;
+  accent: string;
+  weather: "none" | "snow" | "rain" | "heat" | "stars" | "embers" | "sparkle";
+  weatherDensity: number;
+};
+
 type GameHud = {
   score: number;
   bestScore: number;
@@ -75,14 +116,38 @@ type GameHud = {
   muted: boolean;
   accuracy: number;
   elapsed: number;
+  themeLabel: string;
+  toast: string;
 };
 
 const BEST_KEY = "catch-the-logo-best";
 const MUTE_KEY = "catch-the-logo-mute";
-const MAX_LIVES = 3;
+const MAX_LIVES = 5;
 const ROUND_SECONDS = 60;
 const BASE_FALL = 140;
 const BASE_SPAWN = 1.15;
+const BASKET_MUL_MIN = 0.62;
+const BASKET_MUL_MAX = 1.55;
+
+const SITE_URL = "https://www.contenaissance.com/";
+const SITE_NAME = "Contenaissance";
+const SITE_TAGLINE = "AI Creative Agency for Video Production & Storytelling";
+
+type SharePlatform =
+  | "facebook"
+  | "instagram"
+  | "telegram"
+  | "linkedin"
+  | "whatsapp"
+  | "snapchat"
+  | "copy"
+  | "native";
+
+type SharePayload = {
+  title: string;
+  text: string;
+  url: string;
+};
 
 const COLORS = {
   primary: "#4F46E5",
@@ -92,6 +157,109 @@ const COLORS = {
   card: "#1E293B",
   white: "#FFFFFF",
 };
+
+const LEVEL_THEMES: LevelTheme[] = [
+  {
+    id: "neon-night",
+    label: "Neon Night",
+    sky: ["#0B1224", "#0F172A", "#1A1035"],
+    orbA: "rgba(79,70,229,0.55)",
+    orbB: "rgba(6,182,212,0.35)",
+    fog: "rgba(15,23,42,0.35)",
+    floor: "rgba(79,70,229,0.22)",
+    accent: "#06B6D4",
+    weather: "none",
+    weatherDensity: 0,
+  },
+  {
+    id: "snowfall",
+    label: "Snowfall",
+    sky: ["#0F1B2D", "#1E293B", "#334155"],
+    orbA: "rgba(148,163,184,0.35)",
+    orbB: "rgba(224,242,254,0.25)",
+    fog: "rgba(226,232,240,0.12)",
+    floor: "rgba(186,230,253,0.2)",
+    accent: "#BAE6FD",
+    weather: "snow",
+    weatherDensity: 70,
+  },
+  {
+    id: "rainstorm",
+    label: "Rainstorm",
+    sky: ["#020617", "#0C1929", "#164E63"],
+    orbA: "rgba(14,116,144,0.4)",
+    orbB: "rgba(56,189,248,0.2)",
+    fog: "rgba(8,47,73,0.4)",
+    floor: "rgba(6,182,212,0.18)",
+    accent: "#38BDF8",
+    weather: "rain",
+    weatherDensity: 90,
+  },
+  {
+    id: "heatwave",
+    label: "Heatwave",
+    sky: ["#1C0A00", "#431407", "#7C2D12"],
+    orbA: "rgba(249,115,22,0.45)",
+    orbB: "rgba(234,179,8,0.3)",
+    fog: "rgba(120,53,15,0.35)",
+    floor: "rgba(251,146,60,0.22)",
+    accent: "#FB923C",
+    weather: "heat",
+    weatherDensity: 40,
+  },
+  {
+    id: "aurora",
+    label: "Aurora",
+    sky: ["#022C22", "#064E3B", "#1E1B4B"],
+    orbA: "rgba(52,211,153,0.4)",
+    orbB: "rgba(167,139,250,0.35)",
+    fog: "rgba(6,78,59,0.3)",
+    floor: "rgba(110,231,183,0.18)",
+    accent: "#34D399",
+    weather: "sparkle",
+    weatherDensity: 45,
+  },
+  {
+    id: "cosmic",
+    label: "Cosmic Drift",
+    sky: ["#020617", "#1E1B4B", "#312E81"],
+    orbA: "rgba(129,140,248,0.45)",
+    orbB: "rgba(244,114,182,0.3)",
+    fog: "rgba(30,27,75,0.4)",
+    floor: "rgba(129,140,248,0.2)",
+    accent: "#A78BFA",
+    weather: "stars",
+    weatherDensity: 55,
+  },
+  {
+    id: "magma",
+    label: "Magma Core",
+    sky: ["#1A0505", "#450A0A", "#7F1D1D"],
+    orbA: "rgba(239,68,68,0.45)",
+    orbB: "rgba(250,204,21,0.3)",
+    fog: "rgba(69,10,10,0.4)",
+    floor: "rgba(248,113,113,0.2)",
+    accent: "#F87171",
+    weather: "embers",
+    weatherDensity: 50,
+  },
+  {
+    id: "crystal",
+    label: "Crystal Cave",
+    sky: ["#082F49", "#0E7490", "#155E75"],
+    orbA: "rgba(34,211,238,0.4)",
+    orbB: "rgba(255,255,255,0.2)",
+    fog: "rgba(8,47,73,0.35)",
+    floor: "rgba(103,232,249,0.2)",
+    accent: "#67E8F9",
+    weather: "sparkle",
+    weatherDensity: 50,
+  },
+];
+
+function themeForLevel(level: number): LevelTheme {
+  return LEVEL_THEMES[(Math.max(1, level) - 1) % LEVEL_THEMES.length]!;
+}
 
 const PLACEHOLDER_LOGO =
   "data:image/svg+xml;utf8," +
@@ -111,7 +279,7 @@ const PLACEHOLDER_LOGO =
 </svg>`);
 
 /* -------------------------------------------------------------------------- */
-/* Zustand store (internal only)                                              */
+/* Zustand store                                                              */
 /* -------------------------------------------------------------------------- */
 
 type Store = GameHud & {
@@ -132,6 +300,8 @@ const useCatchStore = create<Store>((set) => ({
   muted: false,
   accuracy: 100,
   elapsed: 0,
+  themeLabel: LEVEL_THEMES[0]!.label,
+  toast: "",
   setHud: (patch) => set(patch),
   resetHud: (best, muted) =>
     set({
@@ -147,11 +317,13 @@ const useCatchStore = create<Store>((set) => ({
       muted,
       accuracy: 100,
       elapsed: 0,
+      themeLabel: LEVEL_THEMES[0]!.label,
+      toast: "",
     }),
 }));
 
 /* -------------------------------------------------------------------------- */
-/* Audio (Web Audio API, optional)                                            */
+/* Audio                                                                      */
 /* -------------------------------------------------------------------------- */
 
 let audioCtx: AudioContext | null = null;
@@ -226,6 +398,116 @@ function writeMute(m: boolean) {
   }
 }
 
+function buildSharePayload(stats: {
+  score: number;
+  level: number;
+  catches: number;
+  misses: number;
+  accuracy: number;
+}): SharePayload {
+  const accuracy =
+    stats.accuracy ||
+    (stats.catches + stats.misses === 0
+      ? 100
+      : Math.round((stats.catches / (stats.catches + stats.misses)) * 100));
+
+  const text = [
+    `I scored ${stats.score} in Catch the Logo on ${SITE_NAME}!`,
+    `Level ${stats.level} · ${accuracy}% accuracy`,
+    "",
+    SITE_TAGLINE,
+    `Play the game & explore our work: ${SITE_URL}`,
+  ].join("\n");
+
+  return {
+    title: `${stats.score} pts in Catch the Logo | ${SITE_NAME}`,
+    text,
+    url: SITE_URL,
+  };
+}
+
+function openShareWindow(href: string) {
+  window.open(href, "_blank", "noopener,noreferrer,width=640,height=720");
+}
+
+async function shareToPlatform(
+  platform: SharePlatform,
+  payload: SharePayload
+): Promise<string> {
+  const { title, text, url } = payload;
+  const encodedText = encodeURIComponent(text);
+  const encodedUrl = encodeURIComponent(url);
+
+  switch (platform) {
+    case "facebook":
+      openShareWindow(
+        `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}&quote=${encodedText}`
+      );
+      return "Opening Facebook…";
+    case "telegram":
+      openShareWindow(
+        `https://t.me/share/url?url=${encodedUrl}&text=${encodedText}`
+      );
+      return "Opening Telegram…";
+    case "linkedin":
+      openShareWindow(
+        `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`
+      );
+      try {
+        await navigator.clipboard.writeText(text);
+        return "LinkedIn opened · caption copied — paste into your post";
+      } catch {
+        return "Opening LinkedIn…";
+      }
+    case "whatsapp":
+      openShareWindow(`https://wa.me/?text=${encodedText}`);
+      return "Opening WhatsApp…";
+    case "instagram":
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        /* ignore */
+      }
+      openShareWindow("https://www.instagram.com/");
+      return "Caption copied · paste it into your Instagram post or story";
+    case "snapchat":
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        /* ignore */
+      }
+      openShareWindow(
+        `https://www.snapchat.com/scan?attachmentUrl=${encodedUrl}`
+      );
+      return "Caption copied · Snapchat opened with Contenaissance link";
+    case "copy":
+      await navigator.clipboard.writeText(text);
+      return "Score + website info copied";
+    case "native":
+      if (typeof navigator.share === "function") {
+        await navigator.share({ title, text, url });
+        return "Shared";
+      }
+      await navigator.clipboard.writeText(text);
+      return "Score + website info copied";
+    default:
+      return "";
+  }
+}
+
+const SHARE_OPTIONS: {
+  id: SharePlatform;
+  label: string;
+  color: string;
+}[] = [
+  { id: "facebook", label: "Facebook", color: "#1877F2" },
+  { id: "instagram", label: "Instagram", color: "#E4405F" },
+  { id: "telegram", label: "Telegram", color: "#26A5E4" },
+  { id: "linkedin", label: "LinkedIn", color: "#0A66C2" },
+  { id: "whatsapp", label: "WhatsApp", color: "#25D366" },
+  { id: "snapchat", label: "Snapchat", color: "#FFFC00" },
+];
+
 function isTouchUi() {
   if (typeof window === "undefined") return false;
   return (
@@ -257,9 +539,15 @@ function spawnBurst(
   x: number,
   y: number,
   good: boolean,
-  nextId: () => number
+  nextId: () => number,
+  colors?: string[]
 ) {
   const n = good ? 22 : 10;
+  const palette =
+    colors ??
+    (good
+      ? [COLORS.accent, COLORS.primary, COLORS.secondary, "#FBBF24", "#FFFFFF"]
+      : ["#94A3B8", "#64748B", "#475569"]);
   for (let i = 0; i < n; i++) {
     const a = Math.random() * Math.PI * 2;
     const sp = good ? 80 + Math.random() * 220 : 40 + Math.random() * 100;
@@ -271,16 +559,338 @@ function spawnBurst(
       vy: Math.sin(a) * sp - (good ? 40 : 0),
       life: 1,
       maxLife: good ? 0.55 + Math.random() * 0.45 : 0.35 + Math.random() * 0.25,
-      color: good
-        ? [COLORS.accent, COLORS.primary, COLORS.secondary, "#FBBF24", "#FFFFFF"][
-            i % 5
-          ]!
-        : ["#94A3B8", "#64748B", "#475569"][i % 3]!,
+      color: palette[i % palette.length]!,
       size: good ? 2 + Math.random() * 4 : 1.5 + Math.random() * 3,
       kind: good
         ? (["spark", "star", "confetti"] as const)[i % 3]!
         : "dust",
     });
+  }
+}
+
+function rollItemKind(level: number): ItemKind {
+  const r = Math.random();
+  // Special chance rises slightly with level
+  const specialChance = Math.min(0.34, 0.16 + level * 0.02);
+  if (r > specialChance) return "logo";
+  const s = Math.random();
+  if (s < 0.22) return "heart";
+  if (s < 0.4) return "poison";
+  if (s < 0.58) return "expand";
+  if (s < 0.76) return "shrink";
+  return "star";
+}
+
+function toastFor(kind: ItemKind): string {
+  switch (kind) {
+    case "heart":
+      return "+1 Heart";
+    case "poison":
+      return "Toxic hit −1 Heart";
+    case "expand":
+      return "Basket Expanded!";
+    case "shrink":
+      return "Basket Shrunk!";
+    case "star":
+      return "Bonus +25";
+    default:
+      return "";
+  }
+}
+
+function drawSpecialItem(
+  ctx: CanvasRenderingContext2D,
+  kind: Exclude<ItemKind, "logo">,
+  size: number
+) {
+  const s = size;
+  ctx.save();
+  if (kind === "heart") {
+    ctx.fillStyle = "#F43F5E";
+    ctx.shadowColor = "#FB7185";
+    ctx.shadowBlur = 16;
+    ctx.beginPath();
+    const x = 0;
+    const y = 0;
+    ctx.moveTo(x, y + s * 0.2);
+    ctx.bezierCurveTo(x, y, x - s * 0.5, y, x - s * 0.5, y + s * 0.25);
+    ctx.bezierCurveTo(x - s * 0.5, y + s * 0.55, x, y + s * 0.75, x, y + s * 0.9);
+    ctx.bezierCurveTo(x, y + s * 0.75, x + s * 0.5, y + s * 0.55, x + s * 0.5, y + s * 0.25);
+    ctx.bezierCurveTo(x + s * 0.5, y, x, y, x, y + s * 0.2);
+    ctx.fill();
+  } else if (kind === "poison") {
+    ctx.shadowColor = "#A855F7";
+    ctx.shadowBlur = 14;
+    ctx.fillStyle = "#7E22CE";
+    ctx.beginPath();
+    ctx.arc(0, 0, s * 0.42, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "#E9D5FF";
+    ctx.beginPath();
+    ctx.arc(-s * 0.12, -s * 0.08, s * 0.08, 0, Math.PI * 2);
+    ctx.arc(s * 0.14, -s * 0.1, s * 0.08, 0, Math.PI * 2);
+    ctx.arc(0, s * 0.12, s * 0.08, 0, Math.PI * 2);
+    ctx.fill();
+  } else if (kind === "expand") {
+    ctx.shadowColor = "#34D399";
+    ctx.shadowBlur = 14;
+    ctx.fillStyle = "#059669";
+    drawRoundedRect(ctx, -s * 0.45, -s * 0.28, s * 0.9, s * 0.56, 8);
+    ctx.fill();
+    ctx.strokeStyle = "#A7F3D0";
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(-s * 0.2, 0);
+    ctx.lineTo(s * 0.2, 0);
+    ctx.moveTo(0, -s * 0.18);
+    ctx.lineTo(0, s * 0.18);
+    ctx.stroke();
+  } else if (kind === "shrink") {
+    ctx.shadowColor = "#FBBF24";
+    ctx.shadowBlur = 14;
+    ctx.fillStyle = "#D97706";
+    drawRoundedRect(ctx, -s * 0.45, -s * 0.28, s * 0.9, s * 0.56, 8);
+    ctx.fill();
+    ctx.strokeStyle = "#FEF3C7";
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(-s * 0.22, 0);
+    ctx.lineTo(s * 0.22, 0);
+    ctx.stroke();
+  } else {
+    // star bonus
+    ctx.shadowColor = "#FDE047";
+    ctx.shadowBlur = 18;
+    ctx.fillStyle = "#FACC15";
+    ctx.beginPath();
+    for (let i = 0; i < 5; i++) {
+      const a = (i * Math.PI * 2) / 5 - Math.PI / 2;
+      const r = i % 2 === 0 ? s * 0.48 : s * 0.2;
+      const px = Math.cos(a) * r;
+      const py = Math.sin(a) * r;
+      if (i === 0) ctx.moveTo(px, py);
+      else ctx.lineTo(px, py);
+    }
+    ctx.closePath();
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
+function ensureWeather(
+  fx: WeatherFx[],
+  theme: LevelTheme,
+  w: number,
+  h: number,
+  nextId: () => number
+) {
+  const target = theme.weatherDensity;
+  while (fx.length < target) {
+    fx.push({
+      id: nextId(),
+      x: Math.random() * w,
+      y: Math.random() * h,
+      z: 0.4 + Math.random() * 1.4,
+      vx: 0,
+      vy: 0,
+      size: 1,
+      rot: Math.random() * Math.PI * 2,
+      opacity: 0.3 + Math.random() * 0.6,
+      phase: Math.random() * Math.PI * 2,
+    });
+  }
+  if (fx.length > target) fx.length = target;
+}
+
+function updateWeather(
+  fx: WeatherFx[],
+  theme: LevelTheme,
+  dt: number,
+  w: number,
+  h: number,
+  time: number
+) {
+  for (const p of fx) {
+    p.phase += dt;
+    if (theme.weather === "snow") {
+      p.vy = 35 + p.z * 40;
+      p.vx = Math.sin(time * 1.2 + p.phase) * 18 * p.z;
+      p.size = 1.5 + p.z * 2.2;
+    } else if (theme.weather === "rain") {
+      p.vy = 520 + p.z * 280;
+      p.vx = -40 - p.z * 20;
+      p.size = 1 + p.z * 1.2;
+    } else if (theme.weather === "heat") {
+      p.vy = -20 - p.z * 30;
+      p.vx = Math.sin(time * 2 + p.phase) * 40;
+      p.size = 8 + p.z * 18;
+      p.opacity = 0.08 + Math.sin(p.phase) * 0.06;
+    } else if (theme.weather === "embers") {
+      p.vy = -30 - p.z * 50;
+      p.vx = Math.sin(time * 3 + p.phase) * 25;
+      p.size = 1.5 + p.z * 2;
+    } else if (theme.weather === "stars" || theme.weather === "sparkle") {
+      p.vy = Math.sin(time + p.phase) * 8;
+      p.vx = Math.cos(time * 0.5 + p.phase) * 6;
+      p.size = 1 + p.z * 1.8;
+      p.opacity = 0.35 + Math.sin(p.phase * 3) * 0.35;
+    } else {
+      p.vy = 20;
+    }
+    p.x += p.vx * dt;
+    p.y += p.vy * dt;
+    if (p.y > h + 10) {
+      p.y = -10;
+      p.x = Math.random() * w;
+    }
+    if (p.y < -20) {
+      p.y = h + 10;
+      p.x = Math.random() * w;
+    }
+    if (p.x < -20) p.x = w + 10;
+    if (p.x > w + 20) p.x = -10;
+  }
+}
+
+function drawWeather(
+  ctx: CanvasRenderingContext2D,
+  fx: WeatherFx[],
+  theme: LevelTheme
+) {
+  if (theme.weather === "none") return;
+  for (const p of fx) {
+    ctx.save();
+    ctx.globalAlpha = Math.max(0.05, Math.min(0.9, p.opacity));
+    if (theme.weather === "snow") {
+      ctx.fillStyle = "#FFFFFF";
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      ctx.fill();
+    } else if (theme.weather === "rain") {
+      ctx.strokeStyle = "rgba(125,211,252,0.75)";
+      ctx.lineWidth = 1.2 * p.z;
+      ctx.beginPath();
+      ctx.moveTo(p.x, p.y);
+      ctx.lineTo(p.x + p.vx * 0.03, p.y + 12 + p.z * 8);
+      ctx.stroke();
+    } else if (theme.weather === "heat") {
+      const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size);
+      g.addColorStop(0, "rgba(251,146,60,0.25)");
+      g.addColorStop(1, "transparent");
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.ellipse(p.x, p.y, p.size, p.size * 0.55, 0, 0, Math.PI * 2);
+      ctx.fill();
+    } else if (theme.weather === "embers") {
+      ctx.fillStyle = Math.random() > 0.5 ? "#FDBA74" : "#EF4444";
+      ctx.shadowColor = "#F97316";
+      ctx.shadowBlur = 8;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      ctx.fill();
+    } else {
+      ctx.fillStyle = theme.accent;
+      ctx.shadowColor = theme.accent;
+      ctx.shadowBlur = 6;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+}
+
+function drawThemedBackground(
+  ctx: CanvasRenderingContext2D,
+  w: number,
+  h: number,
+  theme: LevelTheme,
+  basketY: number,
+  time: number
+) {
+  const grad = ctx.createLinearGradient(0, 0, w * 0.2, h);
+  grad.addColorStop(0, theme.sky[0]);
+  grad.addColorStop(0.5, theme.sky[1]);
+  grad.addColorStop(1, theme.sky[2]);
+  ctx.fillStyle = grad;
+  ctx.fillRect(-30, -30, w + 60, h + 60);
+
+  // Parallax orbs (pseudo-3D depth)
+  const drift = Math.sin(time * 0.4) * 20;
+  ctx.globalAlpha = 0.4;
+  let orb = ctx.createRadialGradient(
+    w * 0.22 + drift,
+    h * 0.18,
+    0,
+    w * 0.22 + drift,
+    h * 0.18,
+    w * 0.38
+  );
+  orb.addColorStop(0, theme.orbA);
+  orb.addColorStop(1, "transparent");
+  ctx.fillStyle = orb;
+  ctx.fillRect(0, 0, w, h);
+
+  orb = ctx.createRadialGradient(
+    w * 0.82 - drift,
+    h * 0.62,
+    0,
+    w * 0.82 - drift,
+    h * 0.62,
+    w * 0.42
+  );
+  orb.addColorStop(0, theme.orbB);
+  orb.addColorStop(1, "transparent");
+  ctx.fillStyle = orb;
+  ctx.fillRect(0, 0, w, h);
+  ctx.globalAlpha = 1;
+
+  // Perspective floor grid (3D stage)
+  const horizon = basketY - 90;
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(0, horizon, w, h - horizon + 40);
+  ctx.clip();
+  const floorGrad = ctx.createLinearGradient(0, horizon, 0, h);
+  floorGrad.addColorStop(0, "transparent");
+  floorGrad.addColorStop(1, theme.floor);
+  ctx.fillStyle = floorGrad;
+  ctx.fillRect(0, horizon, w, h - horizon + 40);
+
+  ctx.strokeStyle = theme.accent;
+  ctx.globalAlpha = 0.14;
+  ctx.lineWidth = 1;
+  const vanishingX = w / 2 + Math.sin(time * 0.25) * 30;
+  for (let i = -8; i <= 8; i++) {
+    ctx.beginPath();
+    ctx.moveTo(vanishingX, horizon);
+    ctx.lineTo(vanishingX + i * (w * 0.18), h + 40);
+    ctx.stroke();
+  }
+  for (let r = 1; r <= 7; r++) {
+    const t = r / 7;
+    const y = horizon + (h - horizon) * (t * t);
+    ctx.globalAlpha = 0.08 + t * 0.1;
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(w, y);
+    ctx.stroke();
+  }
+  ctx.restore();
+
+  // Soft fog veil
+  ctx.fillStyle = theme.fog;
+  ctx.globalAlpha = 0.35 + Math.sin(time * 0.7) * 0.08;
+  ctx.fillRect(0, 0, w, h * 0.45);
+  ctx.globalAlpha = 1;
+
+  // Heatwave distortion bars
+  if (theme.weather === "heat") {
+    for (let i = 0; i < 6; i++) {
+      const yy = ((time * 40 + i * 70) % (h + 40)) - 20;
+      ctx.fillStyle = "rgba(251,146,60,0.04)";
+      ctx.fillRect(0, yy, w, 18);
+    }
   }
 }
 
@@ -301,20 +911,33 @@ export default function CatchTheLogoGame({
   const lastTsRef = useRef(0);
   const idRef = useRef(1);
   const nextId = () => idRef.current++;
+  const timeRef = useRef(0);
 
-  const logosRef = useRef<FallingLogo[]>([]);
+  const itemsRef = useRef<FallingItem[]>([]);
   const particlesRef = useRef<Particle[]>([]);
-  const basketRef = useRef({ x: 0, targetX: 0, y: 0, w: 120, h: 36, bounce: 0 });
+  const weatherRef = useRef<WeatherFx[]>([]);
+  const basketRef = useRef({
+    x: 0,
+    targetX: 0,
+    y: 0,
+    baseW: 120,
+    mul: 1,
+    mulTimer: 0,
+    h: 36,
+    bounce: 0,
+  });
   const keysRef = useRef({ left: false, right: false });
   const holdRef = useRef<"left" | "right" | null>(null);
   const mouseActiveRef = useRef(false);
   const flashRef = useRef(0);
+  const flashColorRef = useRef(COLORS.accent);
   const shakeRef = useRef(0);
   const sizeRef = useRef({ w: 0, h: 0, dpr: 1 });
   const runningRef = useRef(false);
   const spawnAccRef = useRef(0);
   const hiddenRef = useRef(false);
   const touchUiRef = useRef(false);
+  const toastTimerRef = useRef(0);
 
   const hud = useCatchStore();
   const phaseRef = useRef<Phase>("playing");
@@ -337,9 +960,26 @@ export default function CatchTheLogoGame({
     setMounted(true);
   }, []);
 
+  const applyBasketWidth = useCallback(() => {
+    const { w, h } = sizeRef.current;
+    const b = basketRef.current;
+    b.baseW = Math.max(90, Math.min(160, w * 0.22));
+    b.h = Math.max(28, b.baseW * 0.3);
+    b.y = h - Math.max(70, h * 0.12);
+    const half = (b.baseW * b.mul) / 2;
+    b.x = Math.min(Math.max(b.x, half + 8), w - half - 8);
+    b.targetX = b.x;
+  }, []);
+
+  const showToast = useCallback((msg: string) => {
+    useCatchStore.getState().setHud({ toast: msg });
+    toastTimerRef.current = 1.8;
+  }, []);
+
   const syncHud = useCallback(() => {
     const s = statsRef.current;
     const total = s.catches + s.misses;
+    const theme = themeForLevel(s.level);
     useCatchStore.getState().setHud({
       score: s.score,
       lives: s.lives,
@@ -351,6 +991,7 @@ export default function CatchTheLogoGame({
       elapsed: s.elapsed,
       accuracy: total === 0 ? 100 : Math.round((s.catches / total) * 100),
       levelUpFlash: useCatchStore.getState().levelUpFlash,
+      themeLabel: theme.label,
     });
   }, []);
 
@@ -378,12 +1019,15 @@ export default function CatchTheLogoGame({
     const muted = readMute();
     mutedRef.current = muted;
     phaseRef.current = "playing";
-    logosRef.current = [];
+    itemsRef.current = [];
     particlesRef.current = [];
+    weatherRef.current = [];
     flashRef.current = 0;
     shakeRef.current = 0;
     spawnAccRef.current = 0;
     lastTsRef.current = 0;
+    timeRef.current = 0;
+    toastTimerRef.current = 0;
     statsRef.current = {
       score: 0,
       lives: MAX_LIVES,
@@ -394,17 +1038,15 @@ export default function CatchTheLogoGame({
       elapsed: 0,
     };
     const { w, h } = sizeRef.current;
-    const bw = Math.max(90, Math.min(160, w * 0.22));
-    basketRef.current = {
-      x: w / 2,
-      targetX: w / 2,
-      y: h - Math.max(70, h * 0.12),
-      w: bw,
-      h: Math.max(28, bw * 0.3),
-      bounce: 0,
-    };
+    basketRef.current.x = w / 2;
+    basketRef.current.targetX = w / 2;
+    basketRef.current.mul = 1;
+    basketRef.current.mulTimer = 0;
+    basketRef.current.bounce = 0;
+    applyBasketWidth();
+    void h;
     useCatchStore.getState().resetHud(best, muted);
-  }, []);
+  }, [applyBasketWidth]);
 
   const resize = useCallback(() => {
     const canvas = canvasRef.current;
@@ -421,26 +1063,21 @@ export default function CatchTheLogoGame({
     canvas.style.height = `${h}px`;
     const ctx = canvas.getContext("2d");
     if (ctx) ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-
-    const b = basketRef.current;
-    const bw = Math.max(90, Math.min(160, w * 0.22));
-    b.w = bw;
-    b.h = Math.max(28, bw * 0.3);
-    b.y = h - Math.max(70, h * 0.12);
-    b.x = Math.min(Math.max(b.x, b.w / 2 + 8), w - b.w / 2 - 8);
-    b.targetX = b.x;
-
+    applyBasketWidth();
     touchUiRef.current = isTouchUi();
     setTouchUi(touchUiRef.current);
-  }, []);
+  }, [applyBasketWidth]);
 
-  const spawnLogo = useCallback(() => {
+  const spawnItem = useCallback(() => {
     const { w } = sizeRef.current;
     const level = statsRef.current.level;
-    const size = 36 + Math.random() * 22;
+    const kind = rollItemKind(level);
+    const size =
+      kind === "logo" ? 36 + Math.random() * 22 : 30 + Math.random() * 16;
     const margin = size;
-    logosRef.current.push({
+    itemsRef.current.push({
       id: nextId(),
+      kind,
       x: margin + Math.random() * Math.max(1, w - margin * 2),
       y: -size - Math.random() * 40,
       vx: (Math.random() - 0.5) * (20 + level * 4),
@@ -448,9 +1085,10 @@ export default function CatchTheLogoGame({
       rot: Math.random() * Math.PI * 2,
       rotSpeed: (Math.random() - 0.5) * 2.8,
       scale: 0.85 + Math.random() * 0.35,
-      opacity: 0.88 + Math.random() * 0.12,
+      opacity: 0.9 + Math.random() * 0.1,
       size,
       bounce: Math.random() * Math.PI * 2,
+      z: 0.7 + Math.random() * 0.6,
     });
   }, []);
 
@@ -472,12 +1110,23 @@ export default function CatchTheLogoGame({
       let dt = (ts - lastTsRef.current) / 1000;
       lastTsRef.current = ts;
       dt = Math.min(0.05, Math.max(0, dt));
+      timeRef.current += dt;
 
       const { w, h } = sizeRef.current;
       const phase = phaseRef.current;
       const b = basketRef.current;
+      const theme = themeForLevel(statsRef.current.level);
 
-      // Input → basket target
+      ensureWeather(weatherRef.current, theme, w, h, nextId);
+      updateWeather(weatherRef.current, theme, dt, w, h, timeRef.current);
+
+      if (toastTimerRef.current > 0) {
+        toastTimerRef.current -= dt;
+        if (toastTimerRef.current <= 0) {
+          useCatchStore.getState().setHud({ toast: "" });
+        }
+      }
+
       if (phase === "playing") {
         const speed = Math.max(420, w * 0.7);
         if (keysRef.current.left || holdRef.current === "left") {
@@ -488,13 +1137,22 @@ export default function CatchTheLogoGame({
           b.targetX += speed * dt;
           mouseActiveRef.current = false;
         }
-        b.targetX = Math.min(Math.max(b.targetX, b.w / 2 + 8), w - b.w / 2 - 8);
 
+        if (b.mulTimer > 0) {
+          b.mulTimer -= dt;
+          if (b.mulTimer <= 0) {
+            b.mul = 1;
+            b.mulTimer = 0;
+            showToast("Basket size reset");
+          }
+        }
+
+        const halfW = (b.baseW * b.mul) / 2;
+        b.targetX = Math.min(Math.max(b.targetX, halfW + 8), w - halfW - 8);
         const lerp = 1 - Math.pow(0.001, dt);
         b.x += (b.targetX - b.x) * Math.min(1, lerp * 14);
         b.bounce *= Math.pow(0.05, dt);
 
-        // Timer & stats
         statsRef.current.timeLeft -= dt;
         statsRef.current.elapsed += dt;
         if (statsRef.current.timeLeft <= 0) {
@@ -502,74 +1160,159 @@ export default function CatchTheLogoGame({
           endGame();
         }
 
-        // Spawn
-        const spawnRate = Math.max(0.35, BASE_SPAWN - (statsRef.current.level - 1) * 0.08);
+        const spawnRate = Math.max(
+          0.32,
+          BASE_SPAWN - (statsRef.current.level - 1) * 0.08
+        );
         spawnAccRef.current += dt;
         while (spawnAccRef.current >= spawnRate) {
           spawnAccRef.current -= spawnRate;
-          if (logosRef.current.length < 10) spawnLogo();
+          if (itemsRef.current.length < 12) spawnItem();
         }
 
-        // Logos
-        const still: FallingLogo[] = [];
-        for (const logo of logosRef.current) {
-          logo.vy += 18 * dt;
-          logo.x += logo.vx * dt;
-          logo.y += logo.vy * dt;
-          logo.rot += logo.rotSpeed * dt;
-          logo.bounce += dt * 6;
-          if (logo.x < logo.size / 2 || logo.x > w - logo.size / 2) {
-            logo.vx *= -0.85;
-            logo.x = Math.min(Math.max(logo.x, logo.size / 2), w - logo.size / 2);
+        const still: FallingItem[] = [];
+        for (const item of itemsRef.current) {
+          item.vy += 18 * dt;
+          item.x += item.vx * dt;
+          item.y += item.vy * dt;
+          item.rot += item.rotSpeed * dt;
+          item.bounce += dt * 6;
+          if (item.x < item.size / 2 || item.x > w - item.size / 2) {
+            item.vx *= -0.85;
+            item.x = Math.min(
+              Math.max(item.x, item.size / 2),
+              w - item.size / 2
+            );
           }
 
-          const half = (logo.size * logo.scale) / 2;
+          const half = (item.size * item.scale) / 2;
+          const bw = b.baseW * b.mul;
           const caught =
-            logo.y + half >= b.y - b.h * 0.35 &&
-            logo.y - half <= b.y + b.h * 0.55 &&
-            logo.x > b.x - b.w / 2 + 6 &&
-            logo.x < b.x + b.w / 2 - 6;
+            item.y + half >= b.y - b.h * 0.35 &&
+            item.y - half <= b.y + b.h * 0.55 &&
+            item.x > b.x - bw / 2 + 6 &&
+            item.x < b.x + bw / 2 - 6;
 
           if (caught) {
-            statsRef.current.score += 10;
-            statsRef.current.catches += 1;
             b.bounce = 1;
-            flashRef.current = 0.25;
-            spawnBurst(particlesRef.current, logo.x, b.y, true, nextId);
-            beep(mutedRef.current, 520 + Math.random() * 80, 0.1, "sine", 0.07);
-            beep(mutedRef.current, 780, 0.08, "triangle", 0.04);
+            if (item.kind === "logo") {
+              statsRef.current.score += 10;
+              statsRef.current.catches += 1;
+              flashRef.current = 0.25;
+              flashColorRef.current = theme.accent;
+              spawnBurst(particlesRef.current, item.x, b.y, true, nextId, [
+                theme.accent,
+                COLORS.primary,
+                "#fff",
+              ]);
+              beep(mutedRef.current, 520 + Math.random() * 80, 0.1, "sine", 0.07);
 
-            if (statsRef.current.catches % 10 === 0) {
-              statsRef.current.level += 1;
-              useCatchStore.getState().setHud({ levelUpFlash: 1.6, level: statsRef.current.level });
-              beep(mutedRef.current, 660, 0.12, "square", 0.05);
+              if (statsRef.current.catches % 10 === 0) {
+                statsRef.current.level += 1;
+                const nextTheme = themeForLevel(statsRef.current.level);
+                weatherRef.current = [];
+                useCatchStore.getState().setHud({
+                  levelUpFlash: 1.8,
+                  level: statsRef.current.level,
+                  themeLabel: nextTheme.label,
+                });
+                showToast(`Theme: ${nextTheme.label}`);
+                beep(mutedRef.current, 660, 0.12, "square", 0.05);
+              }
+            } else if (item.kind === "heart") {
+              statsRef.current.lives = Math.min(
+                MAX_LIVES,
+                statsRef.current.lives + 1
+              );
+              flashRef.current = 0.35;
+              flashColorRef.current = "#F43F5E";
+              spawnBurst(particlesRef.current, item.x, b.y, true, nextId, [
+                "#F43F5E",
+                "#FB7185",
+                "#fff",
+              ]);
+              showToast(toastFor("heart"));
+              beep(mutedRef.current, 720, 0.12, "sine", 0.07);
+            } else if (item.kind === "poison") {
+              statsRef.current.lives -= 1;
+              shakeRef.current = 1;
+              flashRef.current = 0.5;
+              flashColorRef.current = "#A855F7";
+              spawnBurst(particlesRef.current, item.x, b.y, false, nextId, [
+                "#A855F7",
+                "#7E22CE",
+              ]);
+              showToast(toastFor("poison"));
+              beep(mutedRef.current, 120, 0.2, "sawtooth", 0.07);
+              if (statsRef.current.lives <= 0) {
+                statsRef.current.lives = 0;
+                endGame();
+              }
+            } else if (item.kind === "expand") {
+              b.mul = Math.min(BASKET_MUL_MAX, b.mul + 0.35);
+              b.mulTimer = Math.max(b.mulTimer, 8);
+              flashRef.current = 0.3;
+              flashColorRef.current = "#34D399";
+              spawnBurst(particlesRef.current, item.x, b.y, true, nextId, [
+                "#34D399",
+                "#A7F3D0",
+              ]);
+              showToast(toastFor("expand"));
+              beep(mutedRef.current, 480, 0.1, "triangle", 0.06);
+            } else if (item.kind === "shrink") {
+              b.mul = Math.max(BASKET_MUL_MIN, b.mul - 0.28);
+              b.mulTimer = Math.max(b.mulTimer, 7);
+              flashRef.current = 0.3;
+              flashColorRef.current = "#FBBF24";
+              spawnBurst(particlesRef.current, item.x, b.y, false, nextId, [
+                "#FBBF24",
+                "#D97706",
+              ]);
+              showToast(toastFor("shrink"));
+              beep(mutedRef.current, 220, 0.12, "square", 0.05);
+            } else if (item.kind === "star") {
+              statsRef.current.score += 25;
+              flashRef.current = 0.3;
+              flashColorRef.current = "#FACC15";
+              spawnBurst(particlesRef.current, item.x, b.y, true, nextId, [
+                "#FACC15",
+                "#FDE047",
+                "#fff",
+              ]);
+              showToast(toastFor("star"));
+              beep(mutedRef.current, 880, 0.1, "sine", 0.06);
             }
 
             if (statsRef.current.score > useCatchStore.getState().bestScore) {
               writeBest(statsRef.current.score);
-              useCatchStore.getState().setHud({ bestScore: statsRef.current.score });
+              useCatchStore
+                .getState()
+                .setHud({ bestScore: statsRef.current.score });
             }
             continue;
           }
 
-          if (logo.y - half > h + 20) {
-            statsRef.current.lives -= 1;
-            statsRef.current.misses += 1;
-            shakeRef.current = 1;
-            flashRef.current = 0.45;
-            spawnBurst(particlesRef.current, logo.x, h - 40, false, nextId);
-            beep(mutedRef.current, 160, 0.18, "sawtooth", 0.06);
-            if (statsRef.current.lives <= 0) {
-              statsRef.current.lives = 0;
-              endGame();
+          if (item.y - half > h + 20) {
+            // Only missed logos cost a life
+            if (item.kind === "logo") {
+              statsRef.current.lives -= 1;
+              statsRef.current.misses += 1;
+              shakeRef.current = 1;
+              flashRef.current = 0.45;
+              flashColorRef.current = "#EF4444";
+              spawnBurst(particlesRef.current, item.x, h - 40, false, nextId);
+              beep(mutedRef.current, 160, 0.18, "sawtooth", 0.06);
+              if (statsRef.current.lives <= 0) {
+                statsRef.current.lives = 0;
+                endGame();
+              }
             }
             continue;
           }
-          still.push(logo);
+          still.push(item);
         }
-        logosRef.current = still;
+        itemsRef.current = still;
 
-        // Particles
         particlesRef.current = particlesRef.current.filter((p) => {
           p.life -= dt / p.maxLife;
           p.x += p.vx * dt;
@@ -579,16 +1322,16 @@ export default function CatchTheLogoGame({
           return p.life > 0;
         });
 
-        // HUD throttle ~10fps
         if (Math.floor(ts / 100) !== Math.floor((ts - dt * 1000) / 100)) {
           const flash = useCatchStore.getState().levelUpFlash;
           if (flash > 0) {
-            useCatchStore.getState().setHud({ levelUpFlash: Math.max(0, flash - dt * 2.2) });
+            useCatchStore
+              .getState()
+              .setHud({ levelUpFlash: Math.max(0, flash - dt * 2.2) });
           }
           syncHud();
         }
       } else {
-        // Still animate particles gently when paused/over
         particlesRef.current = particlesRef.current.filter((p) => {
           p.life -= dt / p.maxLife;
           p.x += p.vx * dt * 0.3;
@@ -600,80 +1343,59 @@ export default function CatchTheLogoGame({
       flashRef.current = Math.max(0, flashRef.current - dt * 2.2);
       shakeRef.current = Math.max(0, shakeRef.current - dt * 3.5);
 
-      // Draw
       const sx = shakeRef.current * (Math.random() - 0.5) * 10;
       const sy = shakeRef.current * (Math.random() - 0.5) * 8;
       ctx.save();
       ctx.clearRect(0, 0, w, h);
       ctx.translate(sx, sy);
 
-      // Background
-      const grad = ctx.createLinearGradient(0, 0, w, h);
-      grad.addColorStop(0, "#0B1224");
-      grad.addColorStop(0.45, COLORS.bg);
-      grad.addColorStop(1, "#1A1035");
-      ctx.fillStyle = grad;
-      ctx.fillRect(-20, -20, w + 40, h + 40);
+      drawThemedBackground(ctx, w, h, theme, b.y, timeRef.current);
+      drawWeather(ctx, weatherRef.current, theme);
 
-      // Soft orbs
-      ctx.globalAlpha = 0.35;
-      const orb = ctx.createRadialGradient(w * 0.2, h * 0.15, 0, w * 0.2, h * 0.15, w * 0.35);
-      orb.addColorStop(0, "rgba(79,70,229,0.55)");
-      orb.addColorStop(1, "transparent");
-      ctx.fillStyle = orb;
-      ctx.fillRect(0, 0, w, h);
-      const orb2 = ctx.createRadialGradient(w * 0.85, h * 0.7, 0, w * 0.85, h * 0.7, w * 0.4);
-      orb2.addColorStop(0, "rgba(6,182,212,0.35)");
-      orb2.addColorStop(1, "transparent");
-      ctx.fillStyle = orb2;
-      ctx.fillRect(0, 0, w, h);
-      ctx.globalAlpha = 1;
-
-      // Floor glow
-      const floor = ctx.createLinearGradient(0, b.y - 40, 0, h);
-      floor.addColorStop(0, "transparent");
-      floor.addColorStop(1, "rgba(79,70,229,0.18)");
-      ctx.fillStyle = floor;
-      ctx.fillRect(0, b.y - 40, w, h - b.y + 40);
-
-      // Logos
+      // Depth-sort falling items
+      const sorted = [...itemsRef.current].sort((a, c) => a.z - c.z);
       const img = logoImgRef.current;
-      for (const logo of logosRef.current) {
-        const bob = Math.sin(logo.bounce) * 3;
+      for (const item of sorted) {
+        const bob = Math.sin(item.bounce) * 3;
+        const depthScale = 0.85 + item.z * 0.2;
         ctx.save();
-        ctx.translate(logo.x, logo.y + bob);
-        ctx.rotate(logo.rot);
-        ctx.globalAlpha = logo.opacity;
-        ctx.shadowColor = "rgba(6,182,212,0.55)";
-        ctx.shadowBlur = 18;
-        const s = logo.size * logo.scale;
-        if (img && img.complete && img.naturalWidth > 0) {
-          const ar = img.naturalWidth / img.naturalHeight;
-          let dw = s;
-          let dh = s;
-          if (ar > 1) dh = s / ar;
-          else dw = s * ar;
-          ctx.drawImage(img, -dw / 2, -dh / 2, dw, dh);
+        ctx.translate(item.x, item.y + bob);
+        ctx.rotate(item.rot);
+        ctx.scale(depthScale, depthScale);
+        ctx.globalAlpha = item.opacity;
+        const s = item.size * item.scale;
+        if (item.kind === "logo") {
+          ctx.shadowColor = theme.accent;
+          ctx.shadowBlur = 16;
+          if (img && img.complete && img.naturalWidth > 0) {
+            const ar = img.naturalWidth / img.naturalHeight;
+            let dw = s;
+            let dh = s;
+            if (ar > 1) dh = s / ar;
+            else dw = s * ar;
+            ctx.drawImage(img, -dw / 2, -dh / 2, dw, dh);
+          } else {
+            drawRoundedRect(ctx, -s / 2, -s / 2, s, s, s * 0.22);
+            const lg = ctx.createLinearGradient(-s / 2, -s / 2, s / 2, s / 2);
+            lg.addColorStop(0, COLORS.primary);
+            lg.addColorStop(1, theme.accent);
+            ctx.fillStyle = lg;
+            ctx.fill();
+          }
         } else {
-          drawRoundedRect(ctx, -s / 2, -s / 2, s, s, s * 0.22);
-          const lg = ctx.createLinearGradient(-s / 2, -s / 2, s / 2, s / 2);
-          lg.addColorStop(0, COLORS.primary);
-          lg.addColorStop(1, COLORS.accent);
-          ctx.fillStyle = lg;
-          ctx.fill();
+          drawSpecialItem(ctx, item.kind, s);
         }
         ctx.restore();
       }
 
       // Basket
+      const bw = b.baseW * b.mul;
+      const bh = b.h;
       const by = b.y + Math.sin(b.bounce * Math.PI) * -8;
       ctx.save();
       ctx.translate(b.x, by);
-      ctx.shadowColor = "rgba(124,58,237,0.65)";
-      ctx.shadowBlur = 22;
-      // body
-      const bw = b.w;
-      const bh = b.h;
+      ctx.shadowColor = theme.accent;
+      ctx.shadowBlur = 24;
       drawRoundedRect(ctx, -bw / 2, -bh / 2, bw, bh, 12);
       const wood = ctx.createLinearGradient(0, -bh / 2, 0, bh / 2);
       wood.addColorStop(0, "#C4A484");
@@ -681,27 +1403,32 @@ export default function CatchTheLogoGame({
       wood.addColorStop(1, "#5C3A21");
       ctx.fillStyle = wood;
       ctx.fill();
-      // rim
       ctx.strokeStyle = "rgba(255,255,255,0.35)";
       ctx.lineWidth = 2;
       ctx.stroke();
-      // metal band
       ctx.fillStyle = "rgba(226,232,240,0.55)";
       ctx.fillRect(-bw / 2 + 8, -4, bw - 16, 5);
-      // inner
       ctx.shadowBlur = 0;
       ctx.fillStyle = "rgba(15,23,42,0.35)";
       drawRoundedRect(ctx, -bw / 2 + 8, -bh / 2 + 6, bw - 16, bh * 0.45, 8);
       ctx.fill();
-      // neon underglow
-      ctx.globalAlpha = 0.5;
-      ctx.fillStyle = COLORS.accent;
+      ctx.globalAlpha = 0.55;
+      ctx.fillStyle = theme.accent;
       ctx.beginPath();
       ctx.ellipse(0, bh / 2 + 6, bw * 0.38, 6, 0, 0, Math.PI * 2);
       ctx.fill();
+      // Size indicator ring when powered
+      if (b.mul !== 1) {
+        ctx.globalAlpha = 0.7;
+        ctx.strokeStyle = b.mul > 1 ? "#34D399" : "#FBBF24";
+        ctx.lineWidth = 2;
+        ctx.setLineDash([4, 4]);
+        drawRoundedRect(ctx, -bw / 2 - 4, -bh / 2 - 4, bw + 8, bh + 8, 14);
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
       ctx.restore();
 
-      // Particles
       for (const p of particlesRef.current) {
         ctx.save();
         ctx.globalAlpha = Math.max(0, p.life);
@@ -727,23 +1454,18 @@ export default function CatchTheLogoGame({
         ctx.restore();
       }
 
-      // Flash overlays
       if (flashRef.current > 0) {
         ctx.globalAlpha = flashRef.current * 0.35;
-        ctx.fillStyle =
-          phase === "gameover" || statsRef.current.lives === 0
-            ? "#EF4444"
-            : COLORS.accent;
+        ctx.fillStyle = flashColorRef.current;
         ctx.fillRect(0, 0, w, h);
         ctx.globalAlpha = 1;
       }
 
       ctx.restore();
     },
-    [endGame, spawnLogo, syncHud]
+    [endGame, showToast, spawnItem, syncHud]
   );
 
-  // Load logo image
   useEffect(() => {
     const img = new Image();
     img.decoding = "async";
@@ -763,7 +1485,6 @@ export default function CatchTheLogoGame({
     };
   }, [logoSrc]);
 
-  // Open / close lifecycle
   useEffect(() => {
     if (!open) {
       runningRef.current = false;
@@ -778,11 +1499,10 @@ export default function CatchTheLogoGame({
     document.body.style.overflow = "hidden";
 
     resetGame();
-    // Wait a frame for layout
     const id = requestAnimationFrame(() => {
       resize();
-      spawnLogo();
-      spawnLogo();
+      spawnItem();
+      spawnItem();
       runningRef.current = true;
       lastTsRef.current = 0;
       rafRef.current = requestAnimationFrame(tick);
@@ -795,9 +1515,8 @@ export default function CatchTheLogoGame({
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
       rafRef.current = 0;
     };
-  }, [open, resetGame, resize, spawnLogo, tick]);
+  }, [open, resetGame, resize, spawnItem, tick]);
 
-  // Resize / orientation / visibility
   useEffect(() => {
     if (!open) return;
 
@@ -824,7 +1543,6 @@ export default function CatchTheLogoGame({
     };
   }, [open, resize]);
 
-  // Keyboard
   useEffect(() => {
     if (!open) return;
 
@@ -839,7 +1557,7 @@ export default function CatchTheLogoGame({
         e.preventDefault();
         beep(mutedRef.current, 400, 0.08, "sine", 0.05);
         resetGame();
-        spawnLogo();
+        spawnItem();
         return;
       }
       if (k === " " || k === "spacebar") {
@@ -874,7 +1592,7 @@ export default function CatchTheLogoGame({
       window.removeEventListener("keydown", onKeyDown);
       window.removeEventListener("keyup", onKeyUp);
     };
-  }, [open, onClose, resetGame, spawnLogo]);
+  }, [open, onClose, resetGame, spawnItem]);
 
   const onPointerMove = useCallback((e: ReactPointerEvent<HTMLDivElement>) => {
     if (phaseRef.current !== "playing") return;
@@ -902,25 +1620,34 @@ export default function CatchTheLogoGame({
     beep(mutedRef.current, 440, 0.06, "sine", 0.05);
   }, []);
 
-  const shareScore = useCallback(async () => {
+  const getSharePayload = useCallback((): SharePayload => {
     const s = statsRef.current;
-    const text = `I scored ${s.score} in Catch the Logo! Level ${s.level} · ${Math.round(
-      (s.catches / Math.max(1, s.catches + s.misses)) * 100
-    )}% accuracy`;
-    try {
-      if (navigator.share) {
-        await navigator.share({ title: "Catch the Logo", text });
-      } else {
-        await navigator.clipboard.writeText(text);
-        setShareMsg("Copied to clipboard");
-        setTimeout(() => setShareMsg(null), 1800);
-      }
-    } catch {
-      setShareMsg("Share cancelled");
-      setTimeout(() => setShareMsg(null), 1400);
-    }
-    beep(mutedRef.current, 480, 0.08, "sine", 0.05);
+    const total = s.catches + s.misses;
+    return buildSharePayload({
+      score: s.score,
+      level: s.level,
+      catches: s.catches,
+      misses: s.misses,
+      accuracy: total === 0 ? 100 : Math.round((s.catches / total) * 100),
+    });
   }, []);
+
+  const handleShare = useCallback(
+    async (platform: SharePlatform) => {
+      beep(mutedRef.current, 480, 0.08, "sine", 0.05);
+      try {
+        const msg = await shareToPlatform(platform, getSharePayload());
+        if (msg) {
+          setShareMsg(msg);
+          setTimeout(() => setShareMsg(null), 2800);
+        }
+      } catch {
+        setShareMsg("Share cancelled");
+        setTimeout(() => setShareMsg(null), 1600);
+      }
+    },
+    [getSharePayload]
+  );
 
   const timerPct = useMemo(
     () => Math.max(0, Math.min(1, hud.timeLeft / ROUND_SECONDS)),
@@ -932,6 +1659,8 @@ export default function CatchTheLogoGame({
       Array.from({ length: MAX_LIVES }, (_, i) => (i < hud.lives ? "❤️" : "🖤")),
     [hud.lives]
   );
+
+  const themeAccent = themeForLevel(hud.level).accent;
 
   if (!mounted) return null;
 
@@ -955,7 +1684,6 @@ export default function CatchTheLogoGame({
           exit={reduceMotion ? { opacity: 0 } : { opacity: 0 }}
           transition={{ duration: 0.25 }}
         >
-          {/* Backdrop */}
           <motion.div
             className="absolute inset-0 bg-slate-950/80 backdrop-blur-md"
             initial={{ opacity: 0 }}
@@ -979,25 +1707,32 @@ export default function CatchTheLogoGame({
             transition={{ type: "spring", stiffness: 280, damping: 26 }}
             onClick={(e) => e.stopPropagation()}
           >
-            {/* HUD */}
             <div className="pointer-events-none relative z-20 flex items-start justify-between gap-3 px-3 pb-2 pt-3 sm:px-5">
               <div className="pointer-events-auto flex flex-col gap-2">
                 <div
-                  className="rounded-2xl border border-white/10 px-3 py-2 text-lg tracking-wide text-white shadow-lg backdrop-blur-xl sm:text-xl"
+                  className="rounded-2xl border border-white/10 px-3 py-2 text-base tracking-wide text-white shadow-lg backdrop-blur-xl sm:text-lg"
                   style={{ background: "rgba(30,41,59,0.72)" }}
                   aria-label={`${hud.lives} lives remaining`}
                 >
-                  {hearts.join(" ")}
+                  {hearts.join("")}
                 </div>
                 <div
-                  className="inline-flex items-center gap-2 rounded-full border border-white/10 px-3 py-1 text-xs font-semibold text-cyan-200 backdrop-blur-xl"
+                  className="inline-flex flex-col gap-0.5 rounded-2xl border border-white/10 px-3 py-1.5 backdrop-blur-xl"
                   style={{ background: "rgba(30,41,59,0.72)" }}
                 >
-                  <span
-                    className="inline-block h-2 w-2 rounded-full"
-                    style={{ background: COLORS.accent, boxShadow: `0 0 10px ${COLORS.accent}` }}
-                  />
-                  Level {hud.level}
+                  <span className="inline-flex items-center gap-2 text-xs font-semibold text-cyan-200">
+                    <span
+                      className="inline-block h-2 w-2 rounded-full"
+                      style={{
+                        background: themeAccent,
+                        boxShadow: `0 0 10px ${themeAccent}`,
+                      }}
+                    />
+                    Level {hud.level}
+                  </span>
+                  <span className="text-[10px] font-medium uppercase tracking-wider text-slate-300">
+                    {hud.themeLabel}
+                  </span>
                 </div>
               </div>
 
@@ -1017,11 +1752,11 @@ export default function CatchTheLogoGame({
                       cy="18"
                       r="15.5"
                       fill="none"
-                      stroke={COLORS.accent}
+                      stroke={themeAccent}
                       strokeWidth="3"
                       strokeLinecap="round"
                       strokeDasharray={`${timerPct * 97.4} 97.4`}
-                      style={{ filter: `drop-shadow(0 0 6px ${COLORS.accent})` }}
+                      style={{ filter: `drop-shadow(0 0 6px ${themeAccent})` }}
                     />
                   </svg>
                   <span className="absolute inset-0 flex items-center justify-center text-sm font-bold text-white">
@@ -1041,7 +1776,7 @@ export default function CatchTheLogoGame({
                     animate={{ scale: 1, y: 0 }}
                     className="text-xl font-bold tabular-nums sm:text-2xl"
                     style={{
-                      background: `linear-gradient(90deg,${COLORS.accent},${COLORS.secondary})`,
+                      background: `linear-gradient(90deg,${themeAccent},${COLORS.secondary})`,
                       WebkitBackgroundClip: "text",
                       color: "transparent",
                     }}
@@ -1073,11 +1808,10 @@ export default function CatchTheLogoGame({
               </div>
             </div>
 
-            {/* Level up banner */}
             <AnimatePresence>
               {hud.levelUpFlash > 0.2 && hud.phase === "playing" ? (
                 <motion.div
-                  className="pointer-events-none absolute left-1/2 top-[22%] z-30 -translate-x-1/2"
+                  className="pointer-events-none absolute left-1/2 top-[20%] z-30 -translate-x-1/2 text-center"
                   initial={{ opacity: 0, scale: 0.7, y: 12 }}
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 1.1 }}
@@ -1085,17 +1819,38 @@ export default function CatchTheLogoGame({
                   <div
                     className="rounded-full px-6 py-2 text-sm font-extrabold tracking-[0.2em] text-white shadow-2xl"
                     style={{
-                      background: `linear-gradient(90deg,${COLORS.primary},${COLORS.secondary},${COLORS.accent})`,
-                      boxShadow: `0 0 40px ${COLORS.secondary}88`,
+                      background: `linear-gradient(90deg,${COLORS.primary},${COLORS.secondary},${themeAccent})`,
+                      boxShadow: `0 0 40px ${themeAccent}88`,
                     }}
                   >
                     LEVEL UP
+                  </div>
+                  <p className="mt-2 text-xs font-semibold uppercase tracking-[0.18em] text-white/90">
+                    {hud.themeLabel}
+                  </p>
+                </motion.div>
+              ) : null}
+            </AnimatePresence>
+
+            <AnimatePresence>
+              {hud.toast ? (
+                <motion.div
+                  key={hud.toast}
+                  className="pointer-events-none absolute left-1/2 top-[32%] z-30 -translate-x-1/2"
+                  initial={{ opacity: 0, y: 8, scale: 0.9 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -6 }}
+                >
+                  <div
+                    className="rounded-full border border-white/20 px-4 py-1.5 text-xs font-bold text-white shadow-lg backdrop-blur-md"
+                    style={{ background: "rgba(15,23,42,0.75)" }}
+                  >
+                    {hud.toast}
                   </div>
                 </motion.div>
               ) : null}
             </AnimatePresence>
 
-            {/* Canvas */}
             <div
               ref={wrapRef}
               className="relative z-10 mx-3 mb-3 min-h-0 flex-1 overflow-hidden rounded-3xl border border-white/10 shadow-2xl sm:mx-5 sm:mb-4"
@@ -1111,7 +1866,16 @@ export default function CatchTheLogoGame({
                 aria-label="Catch the logo playfield"
               />
 
-              {/* Mobile controls */}
+              {/* Legend */}
+              <div className="pointer-events-none absolute left-3 top-3 z-20 hidden rounded-xl border border-white/10 bg-slate-950/45 px-2.5 py-2 text-[10px] text-slate-200 backdrop-blur-md sm:block">
+                <p className="mb-1 font-semibold uppercase tracking-wider text-slate-400">
+                  Catch these
+                </p>
+                <p>❤️ +Heart · ⭐ Bonus</p>
+                <p>🟩 Grow desk · 🟧 Shrink</p>
+                <p className="text-rose-300">☠️ Toxic −Heart</p>
+              </div>
+
               {touchUi ? (
                 <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 flex items-end justify-between px-5 pb-5">
                   <HoldButton
@@ -1134,12 +1898,11 @@ export default function CatchTheLogoGame({
               )}
             </div>
 
-            {/* Pause overlay */}
             <AnimatePresence>
               {hud.phase === "paused" ? (
                 <OverlayCard
                   title="Paused"
-                  subtitle="Take a breath — logos wait for no one."
+                  subtitle="Weather waits — your logos don’t forever."
                 >
                   <ActionButton
                     label="Resume"
@@ -1155,7 +1918,7 @@ export default function CatchTheLogoGame({
                     onClick={() => {
                       beep(mutedRef.current, 380, 0.08, "sine", 0.05);
                       resetGame();
-                      spawnLogo();
+                      spawnItem();
                     }}
                   />
                   <ActionButton label="Exit" onClick={onClose} />
@@ -1163,12 +1926,11 @@ export default function CatchTheLogoGame({
               ) : null}
             </AnimatePresence>
 
-            {/* Game over */}
             <AnimatePresence>
               {hud.phase === "gameover" ? (
                 <OverlayCard
                   title="Game Over"
-                  subtitle="Nice catch streak — try again for a new best."
+                  subtitle="Survived the weather — climb higher next run."
                 >
                   <div className="mb-4 grid grid-cols-2 gap-2 text-center text-sm text-slate-200">
                     <Stat label="Score" value={String(hud.score)} />
@@ -1182,15 +1944,19 @@ export default function CatchTheLogoGame({
                     onClick={() => {
                       beep(mutedRef.current, 500, 0.1, "sine", 0.06);
                       resetGame();
-                      spawnLogo();
-                      spawnLogo();
+                      spawnItem();
+                      spawnItem();
                     }}
                   />
-                  <ActionButton label="Share Score" onClick={shareScore} />
+                  <SharePanel
+                    onShare={handleShare}
+                    status={shareMsg}
+                    supportsNative={
+                      typeof navigator !== "undefined" &&
+                      typeof navigator.share === "function"
+                    }
+                  />
                   <ActionButton label="Close" onClick={onClose} />
-                  {shareMsg ? (
-                    <p className="mt-2 text-center text-xs text-cyan-300">{shareMsg}</p>
-                  ) : null}
                 </OverlayCard>
               ) : null}
             </AnimatePresence>
@@ -1203,7 +1969,7 @@ export default function CatchTheLogoGame({
 }
 
 /* -------------------------------------------------------------------------- */
-/* Small UI bits (same file, no exports)                                      */
+/* UI bits                                                                    */
 /* -------------------------------------------------------------------------- */
 
 function HoldButton({
@@ -1274,10 +2040,11 @@ function OverlayCard({
     >
       <motion.div
         role="document"
-        className="w-full max-w-sm rounded-3xl border border-white/15 p-6 text-white shadow-2xl"
+        className="max-h-[min(92vh,720px)] w-full max-w-md overflow-y-auto rounded-3xl border border-white/15 p-6 text-white shadow-2xl"
         style={{
           background: "rgba(30,41,59,0.92)",
-          boxShadow: "0 30px 80px rgba(0,0,0,0.55), 0 0 40px rgba(79,70,229,0.25)",
+          boxShadow:
+            "0 30px 80px rgba(0,0,0,0.55), 0 0 40px rgba(79,70,229,0.25)",
         }}
         initial={{ scale: 0.92, y: 16 }}
         animate={{ scale: 1, y: 0 }}
@@ -1337,8 +2104,130 @@ function ActionButton({
 function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-2xl border border-white/10 bg-slate-950/40 px-3 py-2">
-      <div className="text-[10px] uppercase tracking-wider text-slate-400">{label}</div>
+      <div className="text-[10px] uppercase tracking-wider text-slate-400">
+        {label}
+      </div>
       <div className="text-lg font-bold tabular-nums text-white">{value}</div>
     </div>
   );
+}
+
+function SharePanel({
+  onShare,
+  status,
+  supportsNative,
+}: {
+  onShare: (platform: SharePlatform) => void;
+  status: string | null;
+  supportsNative: boolean;
+}) {
+  return (
+    <div className="rounded-2xl border border-white/10 bg-slate-950/40 p-3">
+      <p className="text-center text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+        Share your score
+      </p>
+      <p className="mt-1 text-center text-[11px] leading-snug text-slate-400">
+        Includes your score + {SITE_NAME} ({SITE_URL.replace(/^https?:\/\//, "")}
+        )
+      </p>
+      <div className="mt-3 grid grid-cols-3 gap-2">
+        {SHARE_OPTIONS.map((opt) => (
+          <motion.button
+            key={opt.id}
+            type="button"
+            whileHover={{ scale: 1.04 }}
+            whileTap={{ scale: 0.96 }}
+            onClick={() => onShare(opt.id)}
+            aria-label={`Share on ${opt.label}`}
+            className="flex flex-col items-center gap-1 rounded-xl border border-white/10 px-1.5 py-2.5 text-[10px] font-semibold text-white transition hover:border-white/25 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
+            style={{
+              background: `linear-gradient(160deg, ${opt.color}33, rgba(15,23,42,0.85))`,
+            }}
+          >
+            <ShareIcon platform={opt.id} />
+            <span
+              className={
+                opt.id === "snapchat" ? "text-slate-900 drop-shadow-sm" : ""
+              }
+              style={opt.id === "snapchat" ? { color: "#FACC15" } : undefined}
+            >
+              {opt.label}
+            </span>
+          </motion.button>
+        ))}
+      </div>
+      <div className="mt-2 grid grid-cols-2 gap-2">
+        <button
+          type="button"
+          onClick={() => onShare("copy")}
+          className="rounded-full border border-white/15 bg-slate-900/70 px-3 py-2 text-xs font-semibold text-white transition hover:border-cyan-400/40"
+        >
+          Copy text
+        </button>
+        <button
+          type="button"
+          onClick={() => onShare(supportsNative ? "native" : "copy")}
+          className="rounded-full border border-white/15 bg-slate-900/70 px-3 py-2 text-xs font-semibold text-white transition hover:border-violet-400/40"
+        >
+          {supportsNative ? "More…" : "Copy link"}
+        </button>
+      </div>
+      {status ? (
+        <p className="mt-2 text-center text-[11px] text-cyan-300" role="status">
+          {status}
+        </p>
+      ) : null}
+    </div>
+  );
+}
+
+function ShareIcon({ platform }: { platform: SharePlatform }) {
+  const common = {
+    width: 18,
+    height: 18,
+    viewBox: "0 0 24 24",
+    fill: "currentColor",
+    "aria-hidden": true as const,
+  };
+
+  switch (platform) {
+    case "facebook":
+      return (
+        <svg {...common}>
+          <path d="M14 8h3V4h-3c-2.8 0-5 2.2-5 5v2H6v4h3v7h4v-7h3l1-4h-4V9c0-.6.4-1 1-1z" />
+        </svg>
+      );
+    case "instagram":
+      return (
+        <svg {...common}>
+          <path d="M7 3h10a4 4 0 0 1 4 4v10a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V7a4 4 0 0 1 4-4zm5 4.5A4.5 4.5 0 1 0 16.5 12 4.5 4.5 0 0 0 12 7.5zm5.2-.9a1.1 1.1 0 1 0 1.1 1.1 1.1 1.1 0 0 0-1.1-1.1zM12 9.5A2.5 2.5 0 1 1 9.5 12 2.5 2.5 0 0 1 12 9.5z" />
+        </svg>
+      );
+    case "telegram":
+      return (
+        <svg {...common}>
+          <path d="M9.5 15.3 9.3 19c.4 0 .6-.2.8-.4l1.9-1.8 4 2.9c.7.4 1.2.2 1.4-.7l2.5-11.8c.2-.9-.3-1.3-1-.9L4.2 10.6c-.9.3-.9.8-.2 1l3.9 1.2 9-5.7c.4-.3.8-.1.5.2l-7.9 7.9z" />
+        </svg>
+      );
+    case "linkedin":
+      return (
+        <svg {...common}>
+          <path d="M6.5 9H3v12h3.5V9zM4.7 3A2.1 2.1 0 1 0 4.8 7.2 2.1 2.1 0 0 0 4.7 3zM21 13.4c0-3.2-1.7-4.7-4-4.7a3.4 3.4 0 0 0-3.1 1.7V9H10.5v12H14v-6.5c0-1.7.3-3.4 2.5-3.4s2.2 2 2.2 3.5V21H22v-7.6z" />
+        </svg>
+      );
+    case "whatsapp":
+      return (
+        <svg {...common}>
+          <path d="M12 3a9 9 0 0 0-7.8 13.5L3 21l4.7-1.2A9 9 0 1 0 12 3zm0 1.8a7.2 7.2 0 0 1 6.1 10.9l-.3.5.7 2.6-2.7-.7-.5.3A7.2 7.2 0 1 1 12 4.8zm4.1 9.3c-.2-.1-1.3-.6-1.5-.7s-.3-.1-.5.1-.6.7-.7.9-.3.2-.5.1a5.9 5.9 0 0 1-1.7-1 6.5 6.5 0 0 1-1.2-1.5c-.1-.2 0-.4.1-.5l.4-.4.1-.3c0-.1 0-.3-.1-.4s-.5-1.1-.6-1.5-.4-.3-.5-.3h-.4a.8.8 0 0 0-.6.3 2.4 2.4 0 0 0-.7 1.8 4.1 4.1 0 0 0 .9 2.2 9.4 9.4 0 0 0 3.6 3.2 12 12 0 0 0 1.3.5 3.1 3.1 0 0 0 1.4.1 2.3 2.3 0 0 0 1.5-1.1 1.9 1.9 0 0 0 .1-1.1c-.1 0-.2-.1-.4-.2z" />
+        </svg>
+      );
+    case "snapchat":
+      return (
+        <svg {...common} fill="#FACC15">
+          <path d="M12 3c-2.8 0-4.7 2.1-4.7 5.2 0 1.1-.1 2.1-.8 2.7-.3.3-.2.6.1.7.7.2 1.3.5 1.3 1.1 0 .5-.5.8-1 .9-.2 0-.3.2-.2.4.4.9 1.9 1.5 2.8 1.7-.3.5-.8 1.3-.9 1.7 0 .2.1.3.3.3 1.1-.2 2-.9 2.5-1.1.2 1.1.8 2.4 2.6 2.4s2.4-1.3 2.6-2.4c.5.2 1.4.9 2.5 1.1.2 0 .3-.1.3-.3-.1-.4-.6-1.2-.9-1.7.9-.2 2.4-.8 2.8-1.7.1-.2 0-.4-.2-.4-.5-.1-1-.4-1-.9 0-.6.6-.9 1.3-1.1.3-.1.4-.4.1-.7-.7-.6-.8-1.6-.8-2.7C16.7 5.1 14.8 3 12 3z" />
+        </svg>
+      );
+    default:
+      return null;
+  }
 }
