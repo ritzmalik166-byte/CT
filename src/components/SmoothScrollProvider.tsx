@@ -12,6 +12,7 @@ import gsap from "gsap";
 import Lenis from "lenis";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { FloatingActionCluster } from "@/components/FloatingActionCluster";
+import { GsapRouteSync } from "@/components/GsapRouteSync";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
@@ -185,7 +186,7 @@ export function SmoothScrollProvider({
   return (
     <LenisContext.Provider value={contextValue}>
       <div className="site-scroll-stack relative z-[var(--z-page-content)] flex w-full min-h-[100dvh] flex-1 touch-pan-y flex-col">
-        {children}
+        <GsapRouteSync>{children}</GsapRouteSync>
         <FloatingActionCluster />
       </div>
     </LenisContext.Provider>

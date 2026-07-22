@@ -23,7 +23,7 @@ export default async function AdminUsersPage() {
       title="User Management"
       description="Superadmin can create admins and grant or revoke blog and asset permissions."
     >
-      <UsersManager />
+      <UsersManager currentUser={session} />
     </AdminShell>
   );
 }
