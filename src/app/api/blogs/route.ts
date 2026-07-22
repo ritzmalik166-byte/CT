@@ -6,6 +6,7 @@ import {
 } from "@/lib/api-response";
 import { AuthError, requirePermission, requireSession } from "@/lib/auth-guard";
 import { slugifyTitle } from "@/lib/auth";
+import { auditFromSession } from "@/lib/audit-log";
 import { promoteScheduledBlogs } from "@/lib/blog-db";
 import { query, queryOne } from "@/lib/db";
 import { getSessionUser } from "@/lib/session";
@@ -147,6 +148,15 @@ export async function POST(request: Request) {
       `${BLOG_SELECT} WHERE b.slug = ? LIMIT 1`,
       [slug],
     );
+
+    await auditFromSession(session, {
+      action: "create",
+      resourceType: "blog",
+      resourceId: created?.id ?? null,
+      resourceLabel: title,
+      details: { status, slug },
+      request,
+    });
 
     return jsonSuccess(created, 201);
   } catch (error) {

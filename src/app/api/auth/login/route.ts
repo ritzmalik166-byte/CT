@@ -14,6 +14,7 @@ import {
   verifyPassword,
 } from "@/lib/auth";
 import { getUserByEmail } from "@/lib/session";
+import { writeAuditLog } from "@/lib/audit-log";
 
 export async function POST(request: Request) {
   try {
@@ -32,12 +33,29 @@ export async function POST(request: Request) {
     const user = await getUserByEmail(email);
 
     if (!user || !user.is_active || !isPanelRole(user.role)) {
+      await writeAuditLog({
+        userEmail: email,
+        action: "login_failed",
+        resourceType: "session",
+        details: { reason: "invalid_credentials" },
+        request,
+      });
       return jsonUnauthorized("Invalid credentials");
     }
 
     const valid = await verifyPassword(password, user.password_hash);
 
     if (!valid) {
+      await writeAuditLog({
+        userId: user.id,
+        userName: user.name,
+        userEmail: user.email,
+        userRole: user.role,
+        action: "login_failed",
+        resourceType: "session",
+        details: { reason: "invalid_password" },
+        request,
+      });
       return jsonUnauthorized("Invalid credentials");
     }
 
@@ -49,6 +67,16 @@ export async function POST(request: Request) {
 
     const cookieStore = await cookies();
     cookieStore.set(getAuthCookieOptions(token));
+
+    await writeAuditLog({
+      userId: user.id,
+      userName: user.name,
+      userEmail: user.email,
+      userRole: user.role,
+      action: "login",
+      resourceType: "session",
+      request,
+    });
 
     return jsonSuccess({
       id: user.id,
@@ -62,7 +90,7 @@ export async function POST(request: Request) {
   }
 }
 
-export async function DELETE() {
+export async function DELETE(request: Request) {
   const cookieStore = await cookies();
   cookieStore.set(getClearAuthCookieOptions());
   return jsonSuccess({ loggedOut: true });

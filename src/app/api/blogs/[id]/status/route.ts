@@ -6,6 +6,7 @@ import {
   jsonSuccess,
 } from "@/lib/api-response";
 import { AuthError, requirePermission } from "@/lib/auth-guard";
+import { auditFromSession } from "@/lib/audit-log";
 import { query, queryOne } from "@/lib/db";
 import type { BlogStatus, BlogWithAuthor } from "@/types/admin";
 
@@ -23,7 +24,7 @@ interface RouteContext {
 
 export async function POST(request: Request, context: RouteContext) {
   try {
-    await requirePermission("can_manage_blogs");
+    const session = await requirePermission("can_manage_blogs");
     const { id } = await context.params;
     const blogId = Number(id);
 
@@ -34,8 +35,8 @@ export async function POST(request: Request, context: RouteContext) {
       return jsonError("Status must be published or inactive");
     }
 
-    const existing = await queryOne<{ id: number }>(
-      "SELECT id FROM blogs WHERE id = ? LIMIT 1",
+    const existing = await queryOne<{ id: number; title: string; status: BlogStatus }>(
+      "SELECT id, title, status FROM blogs WHERE id = ? LIMIT 1",
       [blogId],
     );
 
@@ -61,6 +62,18 @@ export async function POST(request: Request, context: RouteContext) {
       `${BLOG_SELECT} WHERE b.id = ? LIMIT 1`,
       [blogId],
     );
+
+    await auditFromSession(session, {
+      action: "status_change",
+      resourceType: "blog",
+      resourceId: blogId,
+      resourceLabel: existing.title,
+      details: {
+        from_status: existing.status,
+        to_status: status,
+      },
+      request,
+    });
 
     return jsonSuccess(updated);
   } catch (error) {

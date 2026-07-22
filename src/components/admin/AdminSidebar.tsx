@@ -8,6 +8,7 @@ import {
   LayoutDashboard,
   LogOut,
   PenSquare,
+  ScrollText,
   Users,
 } from "lucide-react";
 import type { SessionUser } from "@/types/admin";
@@ -54,6 +55,12 @@ const groups = [
         href: "/admin/dashboard/users",
         label: "Manage Users",
         icon: Users,
+        show: (user: SessionUser) => user.role === "superadmin",
+      },
+      {
+        href: "/admin/dashboard/logs",
+        label: "Admin Logs",
+        icon: ScrollText,
         show: (user: SessionUser) => user.role === "superadmin",
       },
     ],

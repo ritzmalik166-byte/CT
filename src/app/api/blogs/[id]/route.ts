@@ -7,6 +7,7 @@ import {
 } from "@/lib/api-response";
 import { AuthError, requirePermission, requireSession } from "@/lib/auth-guard";
 import { slugifyTitle } from "@/lib/auth";
+import { auditFromSession } from "@/lib/audit-log";
 import { query, queryOne } from "@/lib/db";
 import type { BlogFormPayload, BlogStatus, BlogWithAuthor } from "@/types/admin";
 
@@ -83,7 +84,7 @@ export async function GET(_request: Request, context: RouteContext) {
 
 export async function PUT(request: Request, context: RouteContext) {
   try {
-    await requirePermission("can_manage_blogs");
+    const session = await requirePermission("can_manage_blogs");
     const { id } = await context.params;
     const blogId = Number(id);
 
@@ -143,6 +144,19 @@ export async function PUT(request: Request, context: RouteContext) {
       [blogId],
     );
 
+    await auditFromSession(session, {
+      action: "update",
+      resourceType: "blog",
+      resourceId: blogId,
+      resourceLabel: title,
+      details: {
+        from_status: existing.status,
+        to_status: status,
+        slug,
+      },
+      request,
+    });
+
     return jsonSuccess(updated);
   } catch (error) {
     if (error instanceof AuthError) {
@@ -153,14 +167,14 @@ export async function PUT(request: Request, context: RouteContext) {
   }
 }
 
-export async function DELETE(_request: Request, context: RouteContext) {
+export async function DELETE(request: Request, context: RouteContext) {
   try {
-    await requirePermission("can_manage_blogs");
+    const session = await requirePermission("can_manage_blogs");
     const { id } = await context.params;
     const blogId = Number(id);
 
-    const existing = await queryOne<{ id: number }>(
-      "SELECT id FROM blogs WHERE id = ? LIMIT 1",
+    const existing = await queryOne<{ id: number; title: string }>(
+      "SELECT id, title FROM blogs WHERE id = ? LIMIT 1",
       [blogId],
     );
 
@@ -169,6 +183,14 @@ export async function DELETE(_request: Request, context: RouteContext) {
     }
 
     await query("DELETE FROM blogs WHERE id = ?", [blogId]);
+
+    await auditFromSession(session, {
+      action: "delete",
+      resourceType: "blog",
+      resourceId: blogId,
+      resourceLabel: existing.title,
+      request,
+    });
 
     return jsonSuccess({ deleted: true });
   } catch (error) {

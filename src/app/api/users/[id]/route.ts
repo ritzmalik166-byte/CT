@@ -7,6 +7,7 @@ import {
 } from "@/lib/api-response";
 import { AuthError, requireSuperAdmin } from "@/lib/auth-guard";
 import { hashPassword, isSuperAdmin } from "@/lib/auth";
+import { auditFromSession } from "@/lib/audit-log";
 import { query, queryOne } from "@/lib/db";
 import { listPanelUsers } from "@/lib/session";
 import type { UserPermissions } from "@/types/admin";
@@ -33,8 +34,8 @@ export async function PUT(request: Request, context: RouteContext) {
       permissions?: Partial<UserPermissions>;
     };
 
-    const target = await queryOne<{ id: number; role: string }>(
-      "SELECT id, role FROM users WHERE id = ? LIMIT 1",
+    const target = await queryOne<{ id: number; role: string; email: string }>(
+      "SELECT id, role, email FROM users WHERE id = ? LIMIT 1",
       [userId],
     );
 
@@ -90,6 +91,22 @@ export async function PUT(request: Request, context: RouteContext) {
     const users = await listPanelUsers();
     const updated = users.find((user) => user.id === userId);
 
+    const changedFields: string[] = [];
+    if (body.name) changedFields.push("name");
+    if (body.email) changedFields.push("email");
+    if (body.password) changedFields.push("password");
+    if (typeof body.is_active === "boolean") changedFields.push("is_active");
+    if (body.permissions) changedFields.push("permissions");
+
+    await auditFromSession(session, {
+      action: "update",
+      resourceType: "user",
+      resourceId: userId,
+      resourceLabel: updated?.email ?? target.email,
+      details: { changed_fields: changedFields },
+      request,
+    });
+
     return jsonSuccess(updated);
   } catch (error) {
     if (error instanceof AuthError) {
@@ -100,7 +117,7 @@ export async function PUT(request: Request, context: RouteContext) {
   }
 }
 
-export async function DELETE(_request: Request, context: RouteContext) {
+export async function DELETE(request: Request, context: RouteContext) {
   try {
     const session = await requireSuperAdmin();
     const { id } = await context.params;
@@ -114,8 +131,8 @@ export async function DELETE(_request: Request, context: RouteContext) {
       return jsonError("You cannot delete your own account");
     }
 
-    const target = await queryOne<{ id: number; role: string }>(
-      "SELECT id, role FROM users WHERE id = ? LIMIT 1",
+    const target = await queryOne<{ id: number; role: string; email: string; name: string }>(
+      "SELECT id, role, email, name FROM users WHERE id = ? LIMIT 1",
       [userId],
     );
 
@@ -128,6 +145,14 @@ export async function DELETE(_request: Request, context: RouteContext) {
     }
 
     await query("DELETE FROM users WHERE id = ?", [userId]);
+
+    await auditFromSession(session, {
+      action: "delete",
+      resourceType: "user",
+      resourceId: userId,
+      resourceLabel: target.email,
+      request,
+    });
 
     return jsonSuccess({ deleted: true });
   } catch (error) {

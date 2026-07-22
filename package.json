@@ -11,6 +11,7 @@
     "db:init": "node --env-file=.env.local scripts/init-db.mjs",
     "db:migrate-v2": "node --env-file=.env.local scripts/migrate-v2.mjs",
     "db:migrate-v3": "node --env-file=.env.local scripts/migrate-v3.mjs",
+    "db:migrate-v4": "node --env-file=.env.local scripts/migrate-v4.mjs",
     "db:seed-admin": "node --env-file=.env.local scripts/seed-admin.mjs"
   },
   "dependencies": {

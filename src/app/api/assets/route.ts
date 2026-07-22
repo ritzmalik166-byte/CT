@@ -6,6 +6,7 @@ import {
 } from "@/lib/api-response";
 import { AuthError, requirePermission, requireSession } from "@/lib/auth-guard";
 import { isSuperAdmin } from "@/lib/auth";
+import { auditFromSession } from "@/lib/audit-log";
 import { query, queryOne } from "@/lib/db";
 import type { SiteAsset } from "@/types/admin";
 
@@ -64,6 +65,15 @@ export async function POST(request: Request) {
       "SELECT * FROM site_assets WHERE asset_key = ? LIMIT 1",
       [assetKey],
     );
+
+    await auditFromSession(session, {
+      action: "create",
+      resourceType: "asset",
+      resourceId: created?.id ?? null,
+      resourceLabel: label,
+      details: { asset_key: assetKey },
+      request,
+    });
 
     return jsonSuccess(created, 201);
   } catch (error) {

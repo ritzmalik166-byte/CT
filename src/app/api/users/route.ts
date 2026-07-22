@@ -6,6 +6,7 @@ import {
 } from "@/lib/api-response";
 import { AuthError, requireSession, requireSuperAdmin } from "@/lib/auth-guard";
 import { hashPassword, isSuperAdmin } from "@/lib/auth";
+import { auditFromSession } from "@/lib/audit-log";
 import { query, queryOne } from "@/lib/db";
 import { listPanelUsers } from "@/lib/session";
 import type { UserPermissions } from "@/types/admin";
@@ -26,7 +27,7 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    await requireSuperAdmin();
+    const session = await requireSuperAdmin();
 
     const body = (await request.json()) as {
       name?: string;
@@ -89,6 +90,18 @@ export async function POST(request: Request) {
 
     const users = await listPanelUsers();
     const created = users.find((user) => user.id === userId);
+
+    await auditFromSession(session, {
+      action: "create",
+      resourceType: "user",
+      resourceId: userId,
+      resourceLabel: email,
+      details: {
+        role,
+        permissions: body.permissions ?? {},
+      },
+      request,
+    });
 
     return jsonSuccess(created, 201);
   } catch (error) {

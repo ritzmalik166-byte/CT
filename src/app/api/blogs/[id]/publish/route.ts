@@ -6,6 +6,7 @@ import {
   jsonSuccess,
 } from "@/lib/api-response";
 import { AuthError, requirePermission } from "@/lib/auth-guard";
+import { auditFromSession } from "@/lib/audit-log";
 import { query, queryOne } from "@/lib/db";
 import type { BlogWithAuthor } from "@/types/admin";
 
@@ -21,14 +22,14 @@ interface RouteContext {
   params: Promise<{ id: string }>;
 }
 
-export async function POST(_request: Request, context: RouteContext) {
+export async function POST(request: Request, context: RouteContext) {
   try {
-    await requirePermission("can_manage_blogs");
+    const session = await requirePermission("can_manage_blogs");
     const { id } = await context.params;
     const blogId = Number(id);
 
-    const existing = await queryOne<{ id: number }>(
-      "SELECT id FROM blogs WHERE id = ? LIMIT 1",
+    const existing = await queryOne<{ id: number; title: string }>(
+      "SELECT id, title FROM blogs WHERE id = ? LIMIT 1",
       [blogId],
     );
 
@@ -47,6 +48,14 @@ export async function POST(_request: Request, context: RouteContext) {
       `${BLOG_SELECT} WHERE b.id = ? LIMIT 1`,
       [blogId],
     );
+
+    await auditFromSession(session, {
+      action: "publish",
+      resourceType: "blog",
+      resourceId: blogId,
+      resourceLabel: existing.title,
+      request,
+    });
 
     return jsonSuccess(updated);
   } catch (error) {

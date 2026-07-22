@@ -94,3 +94,37 @@ export interface DashboardStats {
   totalUsers: number;
   totalAssets: number;
 }
+
+export type AuditAction =
+  | "login"
+  | "logout"
+  | "login_failed"
+  | "create"
+  | "update"
+  | "delete"
+  | "publish"
+  | "status_change";
+
+export interface AuditLog {
+  id: number;
+  user_id: number | null;
+  user_name: string | null;
+  user_email: string | null;
+  user_role: UserRole | null;
+  action: AuditAction;
+  resource_type: string | null;
+  resource_id: number | null;
+  resource_label: string | null;
+  details: Record<string, unknown> | null;
+  ip_address: string | null;
+  user_agent: string | null;
+  created_at: Date;
+}
+
+export interface AuditLogsResponse {
+  logs: AuditLog[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
