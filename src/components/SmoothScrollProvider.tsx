@@ -13,6 +13,10 @@ import Lenis from "lenis";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { FloatingActionCluster } from "@/components/FloatingActionCluster";
 
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger);
+}
+
 type LenisContextValue = {
   getLenis: () => Lenis | null;
 };
@@ -68,6 +72,7 @@ export function SmoothScrollProvider({
     let onLenisScroll: (() => void) | undefined;
     let onScrollTriggerRefresh: (() => void) | undefined;
     let lenisTicker: ((time: number) => void) | undefined;
+    let proxyConfigured = false;
 
     function tearDownLenis() {
       const lenis = lenisInstance;
@@ -77,7 +82,14 @@ export function SmoothScrollProvider({
         lenisTicker = undefined;
       }
 
-      ScrollTrigger.scrollerProxy(document.documentElement, {});
+      if (proxyConfigured) {
+        try {
+          ScrollTrigger.scrollerProxy(document.documentElement, {});
+        } catch {
+          // ScrollTrigger may not be ready during fast route transitions
+        }
+        proxyConfigured = false;
+      }
 
       if (lenis) {
         if (onScrollTriggerRefresh) {
@@ -136,6 +148,7 @@ export function SmoothScrollProvider({
         pinType:
           document.body.style.transform !== "" ? "transform" : "fixed",
       });
+      proxyConfigured = true;
 
       onScrollTriggerRefresh = () => {
         lenis.resize();
