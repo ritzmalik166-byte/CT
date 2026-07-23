@@ -2,10 +2,7 @@ import type { Metadata } from "next";
 import Script from "next/script";
 import { Geist, Geist_Mono, Inter } from "next/font/google";
 import "./globals.css";
-import { NoiseOverlay } from "@/components/NoiseOverlay";
-import { CustomCursor } from "@/components/CustomCursor";
-import { SiteBootLoader } from "@/components/SiteBootLoader";
-import { SmoothScrollProvider } from "@/components/SmoothScrollProvider";
+import { ConditionalSiteShell } from "@/components/ConditionalSiteShell";
 import { cn } from "@/lib/utils";
 
 const inter = Inter({subsets:['latin'],variable:'--font-sans'});
@@ -113,14 +110,7 @@ export default function RootLayout({
             gtag('config', 'G-9KKTHS4QY2');
           `}
         </Script>
-        <NoiseOverlay />
-        <CustomCursor />
-        <SiteBootLoader>
-          <SmoothScrollProvider>
-          
-            {children}
-          </SmoothScrollProvider>
-        </SiteBootLoader>
+        <ConditionalSiteShell>{children}</ConditionalSiteShell>
       </body>
     </html>
   );
