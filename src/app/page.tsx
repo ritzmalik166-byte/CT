@@ -9,6 +9,7 @@ import { CaseStudies } from "@/components/home/CaseStudies";
 import { ExpertiseSection } from "@/components/home/ExpertiseSection";
 import { Testimonials } from "@/components/home/Testimonials";
 import { TransitionSection } from "@/components/home/TransitionSection";
+import { CatchTheLogoSection } from "@/components/home/CatchTheLogoSection";
 import { CTAFooter } from "@/components/home/CTAFooter";
 
 export const metadata: Metadata = {
@@ -45,6 +46,7 @@ export default function Home() {
       <ExpertiseSection />
       <Testimonials />
       <TransitionSection />
+      <CatchTheLogoSection />
       <CTAFooter />
     </main>
   );
