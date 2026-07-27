@@ -211,7 +211,7 @@ export default function ServicesPage() {
   useGSAP(
     () => {
       // Hero title split text animation
-      const heroTitle = document.querySelector(".hero-title");
+      const heroTitle = pageRef.current?.querySelector(".hero-title");
       if (heroTitle) {
         const split = SplitText.create(heroTitle, { type: "chars, words" });
         gsap.fromTo(
