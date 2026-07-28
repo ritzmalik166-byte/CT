@@ -13,9 +13,9 @@ import { CatchTheLogoSection } from "@/components/home/CatchTheLogoSection";
 import { CTAFooter } from "@/components/home/CTAFooter";
 
 export const metadata: Metadata = {
-  title: "AI Creative Agency for Video Production & Storytelling",
+  title: "Contenaissance | AI Creative Agency, Branding & Digital Marketing Company",
   description:
-    "AI creative agency specializing in video production, brand storytelling, and content that drives engagement and audience growth.",
+    "Contenaissance is an AI-powered creative agency offering branding, website development, digital marketing, content creation, UI/UX design, and business growth solutions for modern brands.",
   keywords: [
     "AI Video Production Agency",
     "AI Content Creation",
