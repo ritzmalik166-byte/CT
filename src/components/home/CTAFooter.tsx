@@ -110,6 +110,16 @@ export function CTAFooter({ showBrandHeading = true }: CTAFooterProps) {
 
       await submitToGoogleAppsScript(FOOTER_NEWSLETTER_SCRIPT_URL, payload);
 
+      const telegramRes = await fetch("/api/enquiry", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type: "footer", ...payload }),
+      });
+
+      if (!telegramRes.ok) {
+        throw new Error("Telegram notification failed");
+      }
+
       setStatus("success");
       setEmail("");
     } catch {

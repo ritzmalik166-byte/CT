@@ -336,6 +336,16 @@ export default function ContactPage() {
         body: JSON.stringify(payload),
       });
 
+      const telegramRes = await fetch("/api/enquiry", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type: "contact", ...payload }),
+      });
+
+      if (!telegramRes.ok) {
+        throw new Error("Telegram notification failed");
+      }
+
       // eslint-disable-next-line no-console
       console.info("[contact] lead submitted", payload);
 
