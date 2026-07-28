@@ -24,6 +24,57 @@ const SERVICES = [
   "Other",
 ];
 
+const COUNTRY_OPTIONS = ["India", "UAE", "UK", "Singapore", "USA"] as const;
+type CountryOption = (typeof COUNTRY_OPTIONS)[number];
+
+/** Local mobile rules per country (digits only, no country code). */
+const COUNTRY_PHONE_RULES: Record<
+  CountryOption,
+  {
+    length: number | number[];
+    regex: RegExp;
+    countryCodes: string[];
+    message: string;
+  }
+> = {
+  India: {
+    length: 10,
+    regex: /^[6-9]\d{9}$/,
+    countryCodes: ["91"],
+    message: "Enter a valid 10-digit Indian mobile number starting with 6–9.",
+  },
+  UAE: {
+    length: 9,
+    regex: /^5\d{8}$/,
+    countryCodes: ["971"],
+    message: "Enter a valid 9-digit UAE mobile number starting with 5.",
+  },
+  UK: {
+    length: 10,
+    regex: /^7\d{9}$/,
+    countryCodes: ["44"],
+    message: "Enter a valid 10-digit UK mobile number starting with 7.",
+  },
+  Singapore: {
+    length: 8,
+    regex: /^[89]\d{7}$/,
+    countryCodes: ["65"],
+    message: "Enter a valid 8-digit Singapore mobile number starting with 8 or 9.",
+  },
+  USA: {
+    length: 10,
+    regex: /^[2-9]\d{2}[2-9]\d{6}$/,
+    countryCodes: ["1"],
+    message: "Enter a valid 10-digit USA phone number (area code cannot start with 0 or 1).",
+  },
+};
+
+const REPEATED_PATTERN_MESSAGE =
+  "Please enter a valid phone number. Repeated patterns like 9999999999, 8888888888, 0000000000, or 9898989898 are not allowed.";
+
+const EMAIL_INVALID_MESSAGE =
+  "Please enter a valid email address (e.g. name@example.com).";
+
 type Status = "idle" | "loading" | "success" | "error";
 
 interface FormData {
@@ -31,17 +82,130 @@ interface FormData {
   email: string;
   phone: string;
   service: string;
+  country: CountryOption;
   message: string;
 }
 
 type FormErrors = Partial<Record<keyof FormData, string>>;
 
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const NAME_REGEX = /^[A-Za-z][A-Za-z\s.'-]{1,49}$/;
-// Allow +, spaces, dashes, parentheses, but require 7–15 digits in total
-const PHONE_DIGITS_REGEX = /^[+\d][\d\s().-]{6,18}$/;
 
-const validateField = (name: keyof FormData, value: string): string => {
+function hasInvalidRepeatedPattern(digits: string) {
+  if (!digits) return false;
+  if (/^(\d)\1+$/.test(digits)) return true;
+  if (digits.length >= 4 && /^(\d)(\d)(?:\1\2)+$/.test(digits)) return true;
+  if (digits.length >= 4 && /^(\d{2})\1+$/.test(digits)) return true;
+  return false;
+}
+
+function normalizeLocalPhone(phone: string, country: CountryOption) {
+  let digits = String(phone || "").replace(/\D/g, "");
+  if (!digits) return "";
+
+  const rule = COUNTRY_PHONE_RULES[country];
+  if (!rule) return digits;
+
+  const lengths = Array.isArray(rule.length) ? rule.length : [rule.length];
+  const maxLen = Math.max(...lengths);
+
+  const codes = [...(rule.countryCodes || [])].sort((a, b) => b.length - a.length);
+  for (const code of codes) {
+    if (digits.startsWith(code) && digits.length > maxLen) {
+      digits = digits.slice(code.length);
+      break;
+    }
+  }
+
+  if (digits.startsWith("0") && digits.length > maxLen) {
+    digits = digits.slice(1);
+  }
+
+  return digits;
+}
+
+function validatePhoneForCountry(phone: string, country: CountryOption | "") {
+  if (!country) {
+    return "Please select a country.";
+  }
+
+  const rule = COUNTRY_PHONE_RULES[country];
+  if (!rule) {
+    return "Please select a valid country.";
+  }
+
+  const local = normalizeLocalPhone(phone, country);
+  if (!local) {
+    return "Please enter your phone number.";
+  }
+
+  const lengths = Array.isArray(rule.length) ? rule.length : [rule.length];
+  if (!lengths.includes(local.length) || !rule.regex.test(local)) {
+    return rule.message;
+  }
+
+  if (hasInvalidRepeatedPattern(local)) {
+    return REPEATED_PATTERN_MESSAGE;
+  }
+
+  return null;
+}
+
+function validateEmail(email: string) {
+  const value = String(email || "").trim();
+  if (!value) {
+    return "Please enter your email address.";
+  }
+
+  const atIndex = value.indexOf("@");
+  if (atIndex <= 0 || atIndex !== value.lastIndexOf("@")) {
+    return EMAIL_INVALID_MESSAGE;
+  }
+
+  const local = value.slice(0, atIndex);
+  const domain = value.slice(atIndex + 1);
+
+  if (!local || local.startsWith(".") || local.endsWith(".") || local.includes("..")) {
+    return EMAIL_INVALID_MESSAGE;
+  }
+
+  if (!/^[A-Za-z0-9!#$%&'*+/=?^_`{|}~.-]+$/.test(local)) {
+    return EMAIL_INVALID_MESSAGE;
+  }
+
+  if (!domain || !domain.includes(".")) {
+    return EMAIL_INVALID_MESSAGE;
+  }
+
+  const labels = domain.split(".");
+  if (labels.length < 2) {
+    return EMAIL_INVALID_MESSAGE;
+  }
+
+  const tld = labels[labels.length - 1];
+  if (!/^[A-Za-z]{2,}$/.test(tld)) {
+    return EMAIL_INVALID_MESSAGE;
+  }
+
+  for (const label of labels) {
+    if (!label || label.startsWith("-") || label.endsWith("-")) {
+      return EMAIL_INVALID_MESSAGE;
+    }
+    if (!/^[A-Za-z0-9-]+$/.test(label)) {
+      return EMAIL_INVALID_MESSAGE;
+    }
+  }
+
+  return null;
+}
+
+function getPhoneMaxLength(country: CountryOption) {
+  const rule = COUNTRY_PHONE_RULES[country];
+  if (!rule) return 15;
+  const lengths = Array.isArray(rule.length) ? rule.length : [rule.length];
+  return Math.max(...lengths) + 4;
+}
+
+const validateField = (name: keyof FormData, value: string, form: FormData): string => {
   const v = value.trim();
   switch (name) {
     case "fullName":
@@ -50,16 +214,16 @@ const validateField = (name: keyof FormData, value: string): string => {
       if (!NAME_REGEX.test(v)) return "Use letters, spaces, hyphens or apostrophes only.";
       return "";
     case "email":
-      if (!v) return "Email is required.";
-      if (!EMAIL_REGEX.test(v)) return "Enter a valid email address.";
-      return "";
+      return validateEmail(value) || "";
     case "phone":
-      if (!v) return ""; // optional
-      if (!PHONE_DIGITS_REGEX.test(v)) return "Enter a valid phone number.";
-      if ((v.match(/\d/g) || []).length < 7) return "Phone must have at least 7 digits.";
-      return "";
+      return validatePhoneForCountry(value, form.country) || "";
     case "service":
       if (!v) return "Please choose a service.";
+      return "";
+    case "country":
+      if (!v || !(COUNTRY_OPTIONS as readonly string[]).includes(v)) {
+        return "Please select a country.";
+      }
       return "";
     case "message":
       if (!v) return "Message is required.";
@@ -74,10 +238,19 @@ const validateField = (name: keyof FormData, value: string): string => {
 const validateAll = (form: FormData): FormErrors => {
   const errors: FormErrors = {};
   (Object.keys(form) as (keyof FormData)[]).forEach((k) => {
-    const msg = validateField(k, form[k]);
+    const msg = validateField(k, form[k], form);
     if (msg) errors[k] = msg;
   });
   return errors;
+};
+
+const EMPTY_FORM: FormData = {
+  fullName: "",
+  email: "",
+  phone: "",
+  service: "",
+  country: "India",
+  message: "",
 };
 
 export default function ContactPage() {
@@ -85,13 +258,7 @@ export default function ContactPage() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [status, setStatus] = useState<Status>("idle");
   const [errorMsg, setErrorMsg] = useState<string>("");
-  const [form, setForm] = useState<FormData>({
-    fullName: "",
-    email: "",
-    phone: "",
-    service: "",
-    message: "",
-  });
+  const [form, setForm] = useState<FormData>(EMPTY_FORM);
   const [errors, setErrors] = useState<FormErrors>({});
   const [touched, setTouched] = useState<Partial<Record<keyof FormData, boolean>>>({});
 
@@ -272,10 +439,19 @@ export default function ContactPage() {
   ) => {
     const name = e.target.name as keyof FormData;
     const value = e.target.value;
-    setForm((prev) => ({ ...prev, [name]: value }));
-    // Re-validate live only if the user already touched the field
+    const nextForm = { ...form, [name]: value } as FormData;
+    setForm(nextForm);
+
     if (touched[name]) {
-      setErrors((prev) => ({ ...prev, [name]: validateField(name, value) }));
+      setErrors((prev) => ({ ...prev, [name]: validateField(name, value, nextForm) }));
+    }
+
+    // Re-validate phone when country changes
+    if (name === "country" && touched.phone) {
+      setErrors((prev) => ({
+        ...prev,
+        phone: validateField("phone", nextForm.phone, nextForm),
+      }));
     }
   };
 
@@ -284,13 +460,15 @@ export default function ContactPage() {
   ) => {
     const name = e.target.name as keyof FormData;
     setTouched((prev) => ({ ...prev, [name]: true }));
-    setErrors((prev) => ({ ...prev, [name]: validateField(name, e.target.value) }));
+    setErrors((prev) => ({
+      ...prev,
+      [name]: validateField(name, e.target.value, { ...form, [name]: e.target.value }),
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validate everything and surface errors
     const allErrors = validateAll(form);
     setErrors(allErrors);
     setTouched({
@@ -298,13 +476,13 @@ export default function ContactPage() {
       email: true,
       phone: true,
       service: true,
+      country: true,
       message: true,
     });
 
     if (Object.keys(allErrors).length > 0) {
       setStatus("error");
       setErrorMsg("Please fix the highlighted fields and try again.");
-      // Focus the first invalid field
       const firstInvalid = (Object.keys(allErrors) as (keyof FormData)[])[0];
       const el = document.querySelector<HTMLElement>(`[name="${firstInvalid}"]`);
       el?.focus();
@@ -315,20 +493,20 @@ export default function ContactPage() {
     setErrorMsg("");
 
     try {
-      // Field names match what the Google Apps Script doPost expects:
-      // fullName, email, subject (= service), message, contactNumber (= phone).
+      const localPhone = normalizeLocalPhone(form.phone, form.country);
+      // Country is UI-only — concat into message before Google Sheets / Telegram
+      const messageWithCountry = `${form.message.trim()}\n\nCountry: ${form.country}`;
+
       const payload = {
         fullName: form.fullName.trim(),
         email: form.email.trim(),
-        contactNumber: form.phone.trim(),
+        contactNumber: localPhone,
         subject: form.service,
-        message: form.message.trim(),
+        message: messageWithCountry,
         timestamp: new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" }),
         source: typeof window !== "undefined" ? window.location.href : "contact-page",
       };
 
-      // POST as text/plain — Apps Script reads it via e.postData.contents.
-      // text/plain avoids the CORS preflight, while no-cors keeps the request fire-and-forget.
       await fetch(GOOGLE_SCRIPT_URL, {
         method: "POST",
         mode: "no-cors",
@@ -351,7 +529,7 @@ export default function ContactPage() {
 
       setStatus("success");
       setErrorMsg("");
-      setForm({ fullName: "", email: "", phone: "", service: "", message: "" });
+      setForm(EMPTY_FORM);
       setErrors({});
       setTouched({});
     } catch (err) {
@@ -657,7 +835,7 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <label htmlFor="phone" className="mb-2 block text-[10px] font-bold uppercase tracking-[0.25em] text-zinc-500">
-                      Contact Number
+                      Contact Number <span className="text-[#AE8C20]">*</span>
                     </label>
                     <input
                       id="phone"
@@ -666,51 +844,97 @@ export default function ContactPage() {
                       value={form.phone}
                       onChange={handleChange}
                       onBlur={handleBlur}
+                      required
                       autoComplete="tel"
                       inputMode="tel"
-                      maxLength={20}
+                      maxLength={getPhoneMaxLength(form.country)}
                       aria-invalid={!!errors.phone}
-                      placeholder="+91 98765 43210"
+                      placeholder={
+                        form.country === "India"
+                          ? "9876543210"
+                          : form.country === "UAE"
+                            ? "501234567"
+                            : form.country === "UK"
+                              ? "7123456789"
+                              : form.country === "Singapore"
+                                ? "81234567"
+                                : "2025550123"
+                      }
                       className={fieldClass("phone")}
                     />
                     <FieldError name="phone" />
                   </div>
                 </div>
 
-                {/* Row 3 — Service Interest */}
-                <div className="form-field">
-                  <label htmlFor="service" className="mb-2 block text-[10px] font-bold uppercase tracking-[0.25em] text-zinc-500">
-                    Service Interest <span className="text-[#AE8C20]">*</span>
-                  </label>
-                  <div className="relative">
-                    <select
-                      id="service"
-                      name="service"
-                      value={form.service}
-                      onChange={handleChange}
-                      onBlur={handleBlur}
-                      required
-                      aria-invalid={!!errors.service}
-                      className={fieldClass("service", "cursor-pointer appearance-none pr-12")}
-                    >
-                      <option value="" disabled>Select a service</option>
-                      {SERVICES.map((s) => (
-                        <option key={s} value={s} className="bg-zinc-900 text-white">
-                          {s}
-                        </option>
-                      ))}
-                    </select>
-                    <svg
-                      className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      strokeWidth={2}
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 9l6 6 6-6" />
-                    </svg>
+                {/* Row 3 — Service + Country */}
+                <div className="form-field grid gap-5 sm:grid-cols-2">
+                  <div>
+                    <label htmlFor="service" className="mb-2 block text-[10px] font-bold uppercase tracking-[0.25em] text-zinc-500">
+                      Service Interest <span className="text-[#AE8C20]">*</span>
+                    </label>
+                    <div className="relative">
+                      <select
+                        id="service"
+                        name="service"
+                        value={form.service}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        required
+                        aria-invalid={!!errors.service}
+                        className={fieldClass("service", "cursor-pointer appearance-none pr-12")}
+                      >
+                        <option value="" disabled>Select a service</option>
+                        {SERVICES.map((s) => (
+                          <option key={s} value={s} className="bg-zinc-900 text-white">
+                            {s}
+                          </option>
+                        ))}
+                      </select>
+                      <svg
+                        className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth={2}
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 9l6 6 6-6" />
+                      </svg>
+                    </div>
+                    <FieldError name="service" />
                   </div>
-                  <FieldError name="service" />
+                  <div>
+                    <label htmlFor="country" className="mb-2 block text-[10px] font-bold uppercase tracking-[0.25em] text-zinc-500">
+                      Country <span className="text-[#AE8C20]">*</span>
+                    </label>
+                    <div className="relative">
+                      <select
+                        id="country"
+                        name="country"
+                        value={form.country}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        required
+                        aria-invalid={!!errors.country}
+                        className={fieldClass("country", "cursor-pointer appearance-none pr-12")}
+                      >
+                        {COUNTRY_OPTIONS.map((c) => (
+                          <option key={c} value={c} className="bg-zinc-900 text-white">
+                            {c}
+                          </option>
+                        ))}
+                      </select>
+                      <svg
+                        className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth={2}
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 9l6 6 6-6" />
+                      </svg>
+                    </div>
+                    <FieldError name="country" />
+                  </div>
                 </div>
 
                 {/* Row 4 — Message */}
