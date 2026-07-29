@@ -399,11 +399,11 @@
 }
 
 .ct-blog-article-image {
+  display: block;
   width: 100%;
+  height: auto;
   border-radius: 12px;
   border: 1px solid var(--blog-border);
-  object-fit: cover;
-  max-height: 440px;
   margin-bottom: 0.25rem;
 }
 

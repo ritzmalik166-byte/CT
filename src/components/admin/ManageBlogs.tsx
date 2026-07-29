@@ -28,6 +28,7 @@ import {
   parseScheduledFields,
 } from "@/lib/blog-utils";
 import type { BlogWithAuthor } from "@/types/admin";
+import { BlogImageUpload } from "./BlogImageUpload";
 import { BlogPreviewModal } from "./BlogPreviewModal";
 import { JoditBlogEditor } from "./JoditBlogEditor";
 
@@ -487,12 +488,10 @@ export function ManageBlogs() {
                   />
                 </label>
                 <label className="admin-field admin-field-full">
-                  <span>Featured Image URL</span>
-                  <input
-                    className="admin-input"
+                  <span>Featured Image</span>
+                  <BlogImageUpload
                     value={form.cover_image}
-                    onChange={(e) => setForm({ ...form, cover_image: e.target.value })}
-                    placeholder="https://..."
+                    onChange={(cover_image) => setForm({ ...form, cover_image })}
                   />
                 </label>
               </div>

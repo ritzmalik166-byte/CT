@@ -8,6 +8,7 @@ import {
   useMemo,
   useRef,
 } from "react";
+import { usePathname } from "next/navigation";
 import gsap from "gsap";
 import Lenis from "lenis";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -53,6 +54,8 @@ export function SmoothScrollProvider({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const pathname = usePathname();
+  const isAdminRoute = pathname?.startsWith("/admin") ?? false;
   const lenisRef = useRef<Lenis | null>(null);
 
   const getLenis = useCallback(() => lenisRef.current, []);
@@ -60,7 +63,7 @@ export function SmoothScrollProvider({
   const contextValue = useMemo(() => ({ getLenis }), [getLenis]);
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
+    if (typeof window === "undefined" || isAdminRoute) return;
 
     const reducedMotionMq = window.matchMedia("(prefers-reduced-motion: reduce)");
     const narrowMq = window.matchMedia("(max-width: 1024px)");
@@ -181,7 +184,7 @@ export function SmoothScrollProvider({
       coarsePointerMq.removeEventListener("change", apply);
       tearDownLenis();
     };
-  }, []);
+  }, [isAdminRoute]);
 
   return (
     <LenisContext.Provider value={contextValue}>

@@ -1,3 +1,29 @@
+/* Native scroll on admin — overrides Lenis / public-site scroll hiding */
+html.admin-native-scroll,
+html.admin-native-scroll body {
+  scroll-behavior: auto !important;
+  height: auto !important;
+  overflow-y: auto !important;
+}
+
+html.admin-native-scroll {
+  scrollbar-width: thin;
+  -ms-overflow-style: auto;
+}
+
+html.admin-native-scroll::-webkit-scrollbar,
+html.admin-native-scroll body::-webkit-scrollbar {
+  display: block;
+  width: 8px;
+  height: 8px;
+}
+
+html.admin-native-scroll::-webkit-scrollbar-thumb,
+html.admin-native-scroll body::-webkit-scrollbar-thumb {
+  background: rgba(156, 163, 175, 0.45);
+  border-radius: 999px;
+}
+
 .admin-root {
   --admin-bg: #070707;
   --admin-panel: #111111;
@@ -515,6 +541,74 @@
   overflow: hidden;
 }
 
+.admin-image-upload {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.admin-image-upload-input {
+  display: none;
+}
+
+.admin-image-upload-dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  min-height: 140px;
+  padding: 1.25rem;
+  border: 1px dashed var(--admin-border);
+  border-radius: 12px;
+  background: var(--admin-input-bg);
+  color: var(--admin-text);
+  text-align: center;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.admin-image-upload-dropzone:hover:not(:disabled) {
+  border-color: var(--admin-accent, #6366f1);
+  background: var(--admin-panel-elevated);
+}
+
+.admin-image-upload-dropzone:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.admin-image-upload-dropzone small {
+  color: var(--admin-muted);
+  font-size: 0.75rem;
+}
+
+.admin-image-upload-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.admin-image-upload-preview img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 12px;
+  border: 1px solid var(--admin-border);
+}
+
+.admin-image-upload-preview-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.admin-image-upload-url {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  font-size: 0.8125rem;
+  color: var(--admin-muted);
+}
+
 .admin-editor-loading {
   padding: 1rem;
   color: var(--admin-muted);
@@ -543,9 +637,9 @@
 }
 
 .admin-preview-hero {
+  display: block;
   width: 100%;
-  max-height: 320px;
-  object-fit: cover;
+  height: auto;
   border-radius: 14px;
   margin-bottom: 1rem;
 }

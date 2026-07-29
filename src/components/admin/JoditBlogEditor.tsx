@@ -49,6 +49,24 @@ export function JoditBlogEditor({ value, onChange }: JoditBlogEditorProps) {
       fillEmptyParagraph: false,
       removeEmptyElements: false,
     },
+    uploader: {
+      url: "/api/blogs/upload-image",
+      format: "json" as const,
+      filesVariableName: () => "file",
+      isSuccess: (response: { success?: boolean }) => Boolean(response.success),
+      getMessage: (response: { error?: string }) => response.error || "Upload failed",
+      process: (response: { data?: { url?: string; files?: string[] } }) => ({
+        files: response.data?.files?.length
+          ? response.data.files
+          : response.data?.url
+            ? [response.data.url]
+            : [],
+        path: "",
+        baseurl: "",
+        error: response.data?.url || response.data?.files?.length ? 0 : 1,
+        msg: "",
+      }),
+    },
   };
 
   return (

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { apiSend } from "@/lib/admin-client";
 import type { BlogStatus, BlogWithAuthor } from "@/types/admin";
+import { BlogImageUpload } from "./BlogImageUpload";
 
 interface BlogEditorProps {
   blog?: BlogWithAuthor;
@@ -83,14 +84,9 @@ export function BlogEditor({ blog }: BlogEditorProps) {
           />
         </label>
 
-        <label className="block space-y-2">
-          <span className="text-sm text-[var(--admin-muted)]">Cover image URL</span>
-          <input
-            className="admin-input"
-            value={coverImage}
-            onChange={(event) => setCoverImage(event.target.value)}
-            placeholder="https://..."
-          />
+        <label className="block space-y-2 md:col-span-2">
+          <span className="text-sm text-[var(--admin-muted)]">Cover image</span>
+          <BlogImageUpload value={coverImage} onChange={setCoverImage} />
         </label>
 
         <label className="block space-y-2">
