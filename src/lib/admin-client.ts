@@ -29,6 +29,18 @@ export async function apiSend<T>(
   return parseResponse<T>(response);
 }
 
+export async function apiUpload<T>(url: string, file: File, fieldName = "file"): Promise<T> {
+  const formData = new FormData();
+  formData.append(fieldName, file);
+
+  const response = await fetch(url, {
+    method: "POST",
+    body: formData,
+  });
+
+  return parseResponse<T>(response);
+}
+
 export async function getSessionClient(): Promise<SessionUser | null> {
   try {
     return await apiGet<SessionUser>("/api/auth/me");

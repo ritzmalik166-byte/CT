@@ -1,6 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import { AdminNativeScroll } from "@/components/admin/AdminNativeScroll";
 import { CustomCursor } from "@/components/CustomCursor";
 import { GsapRouteSync } from "@/components/GsapRouteSync";
 import { NoiseOverlay } from "@/components/NoiseOverlay";
@@ -17,7 +18,7 @@ export function ConditionalSiteShell({
   const isBlog = pathname?.startsWith("/blog");
 
   if (isAdmin) {
-    return <>{children}</>;
+    return <AdminNativeScroll>{children}</AdminNativeScroll>;
   }
 
   const publicShell = (

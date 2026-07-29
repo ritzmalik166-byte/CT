@@ -68,14 +68,43 @@ export function getBlogRowClassName(status: BlogStatus): string {
   }
 }
 
+const MONTHS_SHORT = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+] as const;
+
+function pad2(value: number) {
+  return String(value).padStart(2, "0");
+}
+
+/** Fixed-format dates — avoids SSR/client locale mismatches from toLocaleDateString. */
+export function formatBlogListDate(value: Date | string | null) {
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  return `${date.getDate()} ${MONTHS_SHORT[date.getMonth()]} ${date.getFullYear()}`;
+}
+
 export function formatBlogDate(value: Date | string | null) {
   if (!value) return "—";
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "—";
-  return date.toLocaleString(undefined, {
-    dateStyle: "medium",
-    timeStyle: "short",
-  });
+
+  const hours24 = date.getHours();
+  const hours12 = hours24 % 12 || 12;
+  const ampm = hours24 >= 12 ? "PM" : "AM";
+
+  return `${date.getDate()} ${MONTHS_SHORT[date.getMonth()]} ${date.getFullYear()}, ${hours12}:${pad2(date.getMinutes())} ${ampm}`;
 }
 
 export function buildScheduledIso(
@@ -226,13 +255,6 @@ export function excerptFromHtml(html: string, wordLimit = 35) {
   const words = text.split(" ");
   if (words.length <= wordLimit) return text;
   return `${words.slice(0, wordLimit).join(" ")}…`;
-}
-
-export function formatBlogListDate(value: Date | string | null) {
-  if (!value) return "";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "";
-  return date.toLocaleDateString(undefined, { dateStyle: "medium" });
 }
 
 export function normalizeBlogHtml(html: string) {
