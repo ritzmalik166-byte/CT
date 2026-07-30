@@ -227,7 +227,7 @@ export function CTAFooter({ showBrandHeading = true }: CTAFooterProps) {
                     onChange={(e) => {
                       setEmail(e.target.value);
                       if (status !== "idle") setStatus("idle");
-                      if (errorMsg) setErrorMsg("");
+                      if (errorMsg) setErrorMsg(""); 
                     }}
                     placeholder="Enter Your Email..."
                     disabled={status === "loading"}

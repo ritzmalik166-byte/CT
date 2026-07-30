@@ -1,8 +1,11 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Clock3 } from "lucide-react";
+import { ArrowLeft, Clock3 } from "lucide-react";
+import { CTAFooter } from "@/components/home/CTAFooter";
+import { HamburgerMenu } from "@/components/home/HamburgerMenu";
 import { formatBlogListDate, readingTime } from "@/lib/blog-utils";
 import { BlogSidebar } from "./BlogSidebar";
 import { prepareBlogHtml } from "./BlogContentBody";
@@ -28,6 +31,7 @@ export function BlogDetailView({
   recentPosts: BlogDetailData[];
 }) {
   const [activeTocId, setActiveTocId] = useState("");
+  const [menuOpen, setMenuOpen] = useState(false);
   const tocNavRef = useRef<HTMLElement>(null);
 
   const { html: bodyHtml, toc } = useMemo(
@@ -43,6 +47,9 @@ export function BlogDetailView({
   const minutes = readingTime(blog.content);
   const author = blog.author_name || "Contenaissance Team";
   const published = formatBlogListDate(blog.published_at);
+  const relatedPosts = recentPosts
+    .filter((post) => post.slug !== blog.slug)
+    .slice(0, 5);
 
   useEffect(() => {
     if (!toc.length) return undefined;
@@ -75,111 +82,144 @@ export function BlogDetailView({
 
   return (
     <div className="ct-blog-page ct-blog-detail-wrap">
-      <header className="ct-blog-banner">
-        <div className="ct-blog-banner-inner">
+      <HamburgerMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
+
+      <Link
+        href="/"
+        title="Home"
+        onClick={() => setMenuOpen(false)}
+        className="fixed left-4 top-4 z-[var(--z-chrome)] sm:left-5 sm:top-5 md:left-9 md:top-6"
+      >
+        <Image
+          src="/assets/favicon.png"
+          alt="Contenaissance"
+          title="Contenaissance"
+          width={220}
+          height={66}
+          className="h-10 w-auto sm:h-12 md:h-16"
+          priority
+        />
+      </Link>
+
+      <button
+        type="button"
+        aria-label={menuOpen ? "Close menu" : "Open menu"}
+        onClick={() => setMenuOpen((value) => !value)}
+        className="group fixed right-4 top-4 z-[var(--z-chrome)] flex h-10 w-10 items-center justify-center rounded-full border border-zinc-300 bg-white/90 text-zinc-900 shadow-[0_12px_30px_rgba(0,0,0,0.12)] backdrop-blur-md transition-all duration-300 hover:border-[#AE8C20]/50 hover:bg-[#AE8C20] hover:text-white sm:right-5 sm:top-5 sm:h-12 sm:w-12 md:right-9 md:top-6 md:h-14 md:w-14"
+      >
+        {menuOpen ? (
+          <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 6l12 12M18 6L6 18" />
+          </svg>
+        ) : (
+          <span className="flex h-5 items-end gap-[3px]">
+            <span className="h-4 w-[2.5px] rounded-full bg-current transition-all duration-300 group-hover:h-5" />
+            <span className="h-5 w-[2.5px] rounded-full bg-current transition-all duration-300 group-hover:h-3" />
+            <span className="h-3 w-[2.5px] rounded-full bg-current transition-all duration-300 group-hover:h-5" />
+            <span className="h-4 w-[2.5px] rounded-full bg-current transition-all duration-300 group-hover:h-3" />
+          </span>
+        )}
+      </button>
+
+      <header className="ct-blog-banner ct-blog-detail-banner">
+        <div className="ct-blog-banner-glow" aria-hidden />
+        <div className="ct-blog-banner-inner ct-blog-detail-banner-inner">
           <nav className="ct-blog-breadcrumb" aria-label="Breadcrumb">
             <Link href="/">Home</Link>
             <span aria-hidden>/</span>
             <Link href="/blog">Blog</Link>
             <span aria-hidden>/</span>
-            <span>{blog.title}</span>
+            <span>Article</span>
           </nav>
+
+          <Link href="/blog" className="ct-blog-back-link">
+            <ArrowLeft className="size-4" />
+            Back to Journal
+          </Link>
+
           <h1 className="ct-blog-banner-title">{blog.title}</h1>
+
           {blog.blog_meta_description || blog.excerpt ? (
-            <p className="ct-blog-banner-sub">
+            <p className="ct-blog-banner-sub ct-blog-detail-lede">
               {blog.blog_meta_description || blog.excerpt}
             </p>
           ) : null}
+
+          <div className="ct-blog-detail-meta">
+            <div className="ct-blog-detail-meta-item">
+              <span className="ct-blog-detail-meta-label">Author</span>
+              <strong>{author}</strong>
+            </div>
+            {published ? (
+              <div className="ct-blog-detail-meta-item">
+                <span className="ct-blog-detail-meta-label">Published</span>
+                <time dateTime={new Date(blog.published_at || "").toISOString()}>
+                  {published}
+                </time>
+              </div>
+            ) : null}
+            <div className="ct-blog-detail-meta-item">
+              <span className="ct-blog-detail-meta-label">Reading time</span>
+              <span className="inline-flex items-center gap-1.5">
+                <Clock3 className="size-3.5" />
+                {minutes} min
+              </span>
+            </div>
+          </div>
         </div>
       </header>
 
       <div className="ct-blog-shell ct-blog-detail-shell">
         <div className="ct-blog-detail-grid">
-          <aside className="ct-blog-detail-rail ct-blog-detail-rail-left">
-            <div className="ct-blog-detail-sticky">
-              <BlogSidebar
-                showSearch={false}
-                title="Related Articles"
-                recentPosts={recentPosts
-                  .filter((post) => post.slug !== blog.slug)
-                  .slice(0, 5)
-                  .map((post) => ({
-                    slug: post.slug,
-                    title: post.title,
-                    published_at: post.published_at,
-                  }))}
-              />
-            </div>
-          </aside>
-
           <article className="ct-blog-article-panel">
             <div className="ct-blog-article-card">
-            {blog.cover_image ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={blog.cover_image}
-                alt={blog.title}
-                className="ct-blog-article-image"
-              />
-            ) : null}
-
-            <p className="ct-blog-article-byline">
-              By <strong>{author}</strong>
-              {published ? (
-                <>
-                  {" · "}
-                  <time dateTime={new Date(blog.published_at || "").toISOString()}>
-                    {published}
-                  </time>
-                </>
+              {blog.cover_image ? (
+                <div className="ct-blog-article-image-wrap">
+                  {/* eslint-disable-next-line @next/next/no-img-element -- cover URLs may be any CMS host */}
+                  <img
+                    src={blog.cover_image}
+                    alt={blog.title}
+                    className="ct-blog-article-image"
+                    loading="eager"
+                    decoding="async"
+                  />
+                </div>
               ) : null}
-            </p>
 
-            <div className="ct-blog-reading-meta">
-              <span className="inline-flex items-center gap-1">
-                <Clock3 className="size-3.5" />
-                {minutes} min read
-              </span>
-            </div>
+              {toc.length > 0 ? (
+                <nav
+                  ref={tocNavRef}
+                  className="ct-blog-toc ct-blog-toc-inline"
+                  aria-label="Table of contents"
+                >
+                  <p className="ct-blog-toc-title">In this article</p>
+                  <ol className="ct-blog-toc-list ct-blog-toc-list-grid">
+                    {toc.map((item, index) => (
+                      <li key={item.id} className="ct-blog-toc-item">
+                        <a
+                          href={`#${item.id}`}
+                          className={`ct-blog-toc-link ${activeTocId === item.id ? "active" : ""}`}
+                          onClick={(event) => handleTocClick(event, item.id)}
+                        >
+                          <span className="ct-blog-toc-index">{String(index + 1).padStart(2, "0")}</span>
+                          <span>{item.text}</span>
+                        </a>
+                      </li>
+                    ))}
+                  </ol>
+                </nav>
+              ) : null}
 
-            {toc.length > 0 ? (
-              <nav
-                ref={tocNavRef}
-                className="ct-blog-toc"
-                aria-label="Table of contents"
-              >
-                <p className="ct-blog-toc-title">Table of Contents</p>
-                <ol className="ct-blog-toc-list">
-                  {toc.map((item, index) => (
-                    <li key={item.id} className="ct-blog-toc-item">
-                      <a
-                        href={`#${item.id}`}
-                        className={`ct-blog-toc-link ${activeTocId === item.id ? "active" : ""}`}
-                        onClick={(event) => handleTocClick(event, item.id)}
-                      >
-                        <span>{index + 1}.</span>
-                        <span>{item.text}</span>
-                      </a>
-                    </li>
-                  ))}
-                </ol>
-              </nav>
-            ) : null}
+              <div className="ct-blog-content-wrap">
+                <div
+                  className="ct-blog-content-body"
+                  dangerouslySetInnerHTML={{ __html: bodyHtml }}
+                />
+              </div>
 
-            <div className="ct-blog-content-wrap">
-              <div
-                className="ct-blog-content-body"
-                dangerouslySetInnerHTML={{ __html: bodyHtml }}
-              />
-            </div>
-            </div>
-          </article>
-
-          <aside className="ct-blog-detail-rail ct-blog-detail-rail-right">
-            <div className="ct-blog-detail-sticky">
               {keywords.length > 0 ? (
-                <div className="ct-blog-sidebar">
-                  <h3 className="ct-blog-sidebar-title">Keywords</h3>
+                <div className="ct-blog-article-footer-tags">
+                  <p className="ct-blog-toc-title">Topics</p>
                   <div className="ct-blog-keywords">
                     {keywords.map((keyword) => (
                       <span key={keyword} className="ct-blog-keyword">
@@ -189,10 +229,45 @@ export function BlogDetailView({
                   </div>
                 </div>
               ) : null}
+            </div>
+          </article>
+
+          <aside className="ct-blog-detail-rail ct-blog-detail-rail-right">
+            <div className="ct-blog-detail-sticky">
+              {toc.length > 0 ? (
+                <nav className="ct-blog-sidebar ct-blog-toc-rail" aria-label="On this page">
+                  <h3 className="ct-blog-sidebar-title">On this page</h3>
+                  <ol className="ct-blog-toc-list">
+                    {toc.map((item) => (
+                      <li key={item.id} className="ct-blog-toc-item">
+                        <a
+                          href={`#${item.id}`}
+                          className={`ct-blog-toc-link ${activeTocId === item.id ? "active" : ""}`}
+                          onClick={(event) => handleTocClick(event, item.id)}
+                        >
+                          <span>{item.text}</span>
+                        </a>
+                      </li>
+                    ))}
+                  </ol>
+                </nav>
+              ) : null}
+
+              <div className={toc.length > 0 ? "mt-4" : undefined}>
+                <BlogSidebar
+                  showSearch={false}
+                  title="Related Articles"
+                  recentPosts={relatedPosts.map((post) => ({
+                    slug: post.slug,
+                    title: post.title,
+                    published_at: post.published_at,
+                  }))}
+                />
+              </div>
 
               <div className="ct-blog-sidebar mt-4">
                 <h3 className="ct-blog-sidebar-title">Explore More</h3>
-                <p className="text-sm leading-relaxed text-[var(--blog-muted)]">
+                <p className="ct-blog-explore-copy">
                   Discover more insights on AI storytelling, product updates, and
                   industry trends from the Contenaissance team.
                 </p>
@@ -204,6 +279,8 @@ export function BlogDetailView({
           </aside>
         </div>
       </div>
+
+      <CTAFooter showBrandHeading={false} />
     </div>
   );
 }
