@@ -32,7 +32,7 @@ export default function FloatingCTA() {
 
     return (
         <div
-            className={`fixed bottom-4 left-4 z-[9999] transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform ${show
+            className={`fixed bottom-0 left-4 z-[9999] transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform ${show
                 ? "translate-x-0 opacity-100 scale-100"
                 : "-translate-x-32 opacity-0 scale-95 pointer-events-none"
                 }`}
@@ -51,7 +51,7 @@ export default function FloatingCTA() {
                     href="https://ritzmediaworld.com/portfolio"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group absolute left-[90px] top-2 sm:left-[110px] lg:left-[125px] xl:left-[150px]"
+                    className="group absolute left-[90px] top-8 sm:left-[110px] lg:left-[125px] xl:left-[150px]"
                 >
                     <div
                         className="
