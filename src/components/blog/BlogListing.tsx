@@ -1,8 +1,11 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
+import { CTAFooter } from "@/components/home/CTAFooter";
+import { HamburgerMenu } from "@/components/home/HamburgerMenu";
 import { BlogListItem, type BlogListItemData } from "./BlogListItem";
 import { BlogSidebar } from "./BlogSidebar";
 import "./blog.css";
@@ -19,6 +22,7 @@ export function BlogListing({
   const router = useRouter();
   const searchParams = useSearchParams();
   const [searchQuery, setSearchQuery] = useState("");
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const page = Math.max(1, Number(searchParams.get("page") || "1") || 1);
 
@@ -48,26 +52,73 @@ export function BlogListing({
 
   return (
     <div className="ct-blog-page">
+      <HamburgerMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
+
+      <Link
+        href="/"
+        title="Home"
+        onClick={() => setMenuOpen(false)}
+        className="fixed left-4 top-4 z-[var(--z-chrome)] sm:left-5 sm:top-5 md:left-9 md:top-6"
+      >
+        <Image
+          src="/assets/favicon.png"
+          alt="Contenaissance"
+          title="Contenaissance"
+          width={220}
+          height={66}
+          className="h-10 w-auto sm:h-12 md:h-16"
+          priority
+        />
+      </Link>
+
+      <button
+        type="button"
+        aria-label={menuOpen ? "Close menu" : "Open menu"}
+        onClick={() => setMenuOpen((value) => !value)}
+        className="group fixed right-4 top-4 z-[var(--z-chrome)] flex h-10 w-10 items-center justify-center rounded-full border border-zinc-300 bg-white/90 text-zinc-900 shadow-[0_12px_30px_rgba(0,0,0,0.12)] backdrop-blur-md transition-all duration-300 hover:border-[#AE8C20]/50 hover:bg-[#AE8C20] hover:text-white sm:right-5 sm:top-5 sm:h-12 sm:w-12 md:right-9 md:top-6 md:h-14 md:w-14"
+      >
+        {menuOpen ? (
+          <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 6l12 12M18 6L6 18" />
+          </svg>
+        ) : (
+          <span className="flex h-5 items-end gap-[3px]">
+            <span className="h-4 w-[2.5px] rounded-full bg-current transition-all duration-300 group-hover:h-5" />
+            <span className="h-5 w-[2.5px] rounded-full bg-current transition-all duration-300 group-hover:h-3" />
+            <span className="h-3 w-[2.5px] rounded-full bg-current transition-all duration-300 group-hover:h-5" />
+            <span className="h-4 w-[2.5px] rounded-full bg-current transition-all duration-300 group-hover:h-3" />
+          </span>
+        )}
+      </button>
+
       <header className="ct-blog-banner">
+        <div className="ct-blog-banner-glow" aria-hidden />
+        <div className="ct-blog-banner-grid" aria-hidden />
+        <div className="ct-blog-banner-fade" aria-hidden />
         <div className="ct-blog-banner-inner">
-          <nav className="ct-blog-breadcrumb" aria-label="Breadcrumb">
-            <Link href="/">Home</Link>
-            <span aria-hidden>/</span>
-            <span>Blog</span>
-          </nav>
-          <h1 className="ct-blog-banner-title">Contenaissance Blog</h1>
-          {/* <p className="ct-blog-banner-sub">
-            Insights, product updates, and AI storytelling — curated for builders
-            and teams exploring the future of intelligent content.
-          </p> */}
+          <p className="ct-blog-eyebrow">Insights &amp; Stories</p>
+          <h1 className="ct-blog-banner-title">
+            Contenaissance
+            <span>Journal</span>
+          </h1>
+          <p className="ct-blog-banner-sub">
+            Where AI, creativity, and cinematic storytelling shape the future of
+            digital innovation.
+          </p>
         </div>
       </header>
 
       <div className="ct-blog-shell">
-        <h2 className="ct-blog-section-title">Latest Articles</h2>
+        <div className="ct-blog-section-head">
+          <h2 className="ct-blog-section-title">Latest Articles</h2>
+          <p className="ct-blog-section-copy">
+            {filtered.length} {filtered.length === 1 ? "article" : "articles"}
+            {searchQuery.trim() ? " matching your search" : ""}
+          </p>
+        </div>
 
         <div className="ct-blog-layout">
-          <div>
+          <div className="ct-blog-feed">
             {pageItems.length === 0 ? (
               <div className="ct-blog-empty">
                 {searchQuery
@@ -80,6 +131,15 @@ export function BlogListing({
 
             {totalPages > 1 ? (
               <nav className="ct-blog-pagination" aria-label="Blog pagination">
+                <button
+                  type="button"
+                  className="ct-blog-page-btn ct-blog-page-nav"
+                  disabled={currentPage <= 1}
+                  onClick={() => goToPage(currentPage - 1)}
+                  aria-label="Previous page"
+                >
+                  Prev
+                </button>
                 {Array.from({ length: totalPages }, (_, index) => index + 1).map(
                   (pageNumber) => (
                     <button
@@ -87,11 +147,21 @@ export function BlogListing({
                       type="button"
                       className={`ct-blog-page-btn ${pageNumber === currentPage ? "active" : ""}`}
                       onClick={() => goToPage(pageNumber)}
+                      aria-current={pageNumber === currentPage ? "page" : undefined}
                     >
                       {pageNumber}
                     </button>
                   ),
                 )}
+                <button
+                  type="button"
+                  className="ct-blog-page-btn ct-blog-page-nav"
+                  disabled={currentPage >= totalPages}
+                  onClick={() => goToPage(currentPage + 1)}
+                  aria-label="Next page"
+                >
+                  Next
+                </button>
               </nav>
             ) : null}
           </div>
@@ -109,6 +179,8 @@ export function BlogListing({
           </div>
         </div>
       </div>
+
+      <CTAFooter showBrandHeading={false} />
     </div>
   );
 }

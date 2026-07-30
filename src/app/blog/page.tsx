@@ -25,7 +25,7 @@ export default async function BlogListingPage() {
   const recentPosts = blogs.slice(0, 5);
 
   return (
-    <Suspense fallback={<div className="p-10 text-center text-gray-500">Loading blog…</div>}>
+    <Suspense fallback={<div className="min-h-[50vh] bg-zinc-50 p-10 text-center text-zinc-500">Loading blog…</div>}>
       <BlogListing blogs={blogs} recentPosts={recentPosts} />
     </Suspense>
   );
