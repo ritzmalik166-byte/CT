@@ -41,7 +41,7 @@ export function BlogSidebar({
       <h3 className="ct-blog-sidebar-title">{title}</h3>
       <ul className="ct-blog-recent-list">
         {recentPosts.length === 0 ? (
-          <li className="ct-blog-recent-item text-sm text-[var(--blog-muted)]">
+          <li className="ct-blog-recent-item" style={{ color: "var(--blog-muted)", fontSize: "0.875rem" }}>
             No posts yet.
           </li>
         ) : (

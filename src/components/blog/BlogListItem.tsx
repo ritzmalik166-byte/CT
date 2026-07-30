@@ -26,31 +26,42 @@ export function BlogListItem({ blog }: { blog: BlogListItemData }) {
 
   return (
     <article className="ct-blog-card">
-      <Link href={`/blog/${blog.slug}`} className="ct-blog-card-image-link">
+      <Link
+        href={`/blog/${blog.slug}`}
+        className="ct-blog-card-media"
+        aria-label={`Read ${blog.title}`}
+      >
         {blog.cover_image ? (
-          // eslint-disable-next-line @next/next/no-img-element
+          // eslint-disable-next-line @next/next/no-img-element -- cover URLs may be any CMS host
           <img
             src={blog.cover_image}
             alt={blog.title}
             className="ct-blog-card-image"
+            loading="lazy"
+            decoding="async"
           />
         ) : (
-          <div className="ct-blog-card-image-placeholder">Contenaissance</div>
+          <div className="ct-blog-card-image-placeholder">
+            <span>Contenaissance</span>
+          </div>
         )}
       </Link>
 
       <div className="ct-blog-card-body">
+        {date ? (
+          <time className="ct-blog-card-date" dateTime={new Date(blog.published_at || "").toISOString()}>
+            {date}
+          </time>
+        ) : null}
         <h2 className="ct-blog-card-title">
-          <Link href={`/blog/${blog.slug}`}>{blog.title}</Link>
+          <Link href={`/blog/${blog.slug}`} target="_blank">{blog.title}</Link>
         </h2>
         <p className="ct-blog-card-meta">
           By <strong>{author}</strong>
-          {date ? `, ${date}` : ""}
         </p>
-        <div className="ct-blog-card-divider" />
         <p className="ct-blog-card-excerpt">{excerpt}</p>
-        <Link href={`/blog/${blog.slug}`} className="ct-blog-read-more">
-          Read more <ArrowRight className="size-4" />
+        <Link href={`/blog/${blog.slug}`} target="_blank" className="ct-blog-read-more">
+          Read article <ArrowRight className="size-4" />
         </Link>
       </div>
     </article>
