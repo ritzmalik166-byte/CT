@@ -12,6 +12,7 @@ import { TransitionSection } from "@/components/home/TransitionSection";
 import { CatchTheLogoSection } from "@/components/home/CatchTheLogoSection";
 import { CTAFooter } from "@/components/home/CTAFooter";
 import { HiddenHeadings } from "@/components/home/HiddenHeadings";
+import FloatingCTA from "@/components/FloatingCTA";
 
 export const metadata: Metadata = {
   title: "Contenaissance | AI Creative Agency, Branding & Digital Marketing Company",
@@ -37,6 +38,7 @@ export const metadata: Metadata = {
 export default function Home() {
   return (
     <main className="relative">
+      <FloatingCTA />
       <CinematicHero />
       <TrustedByMarquee />
       <AIFeaturesGrid />
