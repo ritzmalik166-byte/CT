@@ -365,7 +365,7 @@ export function CinematicHero() {
             className="pointer-events-none relative z-10 mx-auto !h-24 !w-24 sm:!h-28 sm:!w-28 md:absolute md:left-4 md:top-10 md:z-auto md:mx-0 md:!h-36 md:!w-36 lg:left-8 lg:top-10 lg:!h-40 lg:!w-40"
           />
           <h1 className="reveal-page-title max-w-4xl text-[clamp(1.125rem,3.2vw,2rem)] font-semibold leading-snug tracking-tight text-zinc-900 max-md:[text-wrap:balance] md:max-w-5xl md:text-[clamp(1.25rem,2.8vw,2.25rem)]">
-            AI-Powered Creative Agency for Branding, Content & Digital Innovation
+            AI Story Telling Agency & AI Creative Studio
           </h1>
           {prefersReducedMotion ? (
             <p className="reveal-tagline w-full max-w-md px-1 text-base font-medium leading-snug tracking-tight text-zinc-600 max-md:[text-wrap:balance] sm:text-xl md:text-3xl">
