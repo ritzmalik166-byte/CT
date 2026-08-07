@@ -9,6 +9,7 @@ import { AuthError, requirePermission, requireSession } from "@/lib/auth-guard";
 import { slugifyTitle } from "@/lib/auth";
 import { auditFromSession } from "@/lib/audit-log";
 import { query, queryOne } from "@/lib/db";
+import { revalidatePublicBlogPages } from "@/lib/revalidate-blogs";
 import type { BlogFormPayload, BlogStatus, BlogWithAuthor } from "@/types/admin";
 
 const BLOG_SELECT = `
@@ -157,6 +158,11 @@ export async function PUT(request: Request, context: RouteContext) {
       request,
     });
 
+    revalidatePublicBlogPages(slug);
+    if (existing.slug !== slug) {
+      revalidatePublicBlogPages(existing.slug);
+    }
+
     return jsonSuccess(updated);
   } catch (error) {
     if (error instanceof AuthError) {
@@ -173,8 +179,8 @@ export async function DELETE(request: Request, context: RouteContext) {
     const { id } = await context.params;
     const blogId = Number(id);
 
-    const existing = await queryOne<{ id: number; title: string }>(
-      "SELECT id, title FROM blogs WHERE id = ? LIMIT 1",
+    const existing = await queryOne<{ id: number; title: string; slug: string }>(
+      "SELECT id, title, slug FROM blogs WHERE id = ? LIMIT 1",
       [blogId],
     );
 
@@ -191,6 +197,8 @@ export async function DELETE(request: Request, context: RouteContext) {
       resourceLabel: existing.title,
       request,
     });
+
+    revalidatePublicBlogPages(existing.slug);
 
     return jsonSuccess({ deleted: true });
   } catch (error) {

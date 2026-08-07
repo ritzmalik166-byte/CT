@@ -8,6 +8,7 @@ import {
 import { AuthError, requirePermission } from "@/lib/auth-guard";
 import { auditFromSession } from "@/lib/audit-log";
 import { query, queryOne } from "@/lib/db";
+import { revalidatePublicBlogPages } from "@/lib/revalidate-blogs";
 import type { BlogStatus, BlogWithAuthor } from "@/types/admin";
 
 const BLOG_SELECT = `
@@ -35,10 +36,12 @@ export async function POST(request: Request, context: RouteContext) {
       return jsonError("Status must be published or inactive");
     }
 
-    const existing = await queryOne<{ id: number; title: string; status: BlogStatus }>(
-      "SELECT id, title, status FROM blogs WHERE id = ? LIMIT 1",
-      [blogId],
-    );
+    const existing = await queryOne<{
+      id: number;
+      title: string;
+      status: BlogStatus;
+      slug: string;
+    }>("SELECT id, title, status, slug FROM blogs WHERE id = ? LIMIT 1", [blogId]);
 
     if (!existing) {
       return jsonNotFound("Blog not found");
@@ -74,6 +77,8 @@ export async function POST(request: Request, context: RouteContext) {
       },
       request,
     });
+
+    revalidatePublicBlogPages(existing.slug);
 
     return jsonSuccess(updated);
   } catch (error) {

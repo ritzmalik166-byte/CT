@@ -52,7 +52,7 @@ export function BlogListing({
 
   return (
     <div className="ct-blog-page">
-      <HamburgerMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
+      <HamburgerMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} currentPage="blog" />
 
       <Link
         href="/"
@@ -180,7 +180,7 @@ export function BlogListing({
         </div>
       </div>
 
-      <CTAFooter showBrandHeading={false} />
+      <CTAFooter />
     </div>
   );
 }

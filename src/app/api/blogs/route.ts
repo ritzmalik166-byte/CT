@@ -9,6 +9,7 @@ import { slugifyTitle } from "@/lib/auth";
 import { auditFromSession } from "@/lib/audit-log";
 import { promoteScheduledBlogs } from "@/lib/blog-db";
 import { query, queryOne } from "@/lib/db";
+import { revalidatePublicBlogPages } from "@/lib/revalidate-blogs";
 import { getSessionUser } from "@/lib/session";
 import type { BlogFormPayload, BlogStatus, BlogWithAuthor } from "@/types/admin";
 
@@ -157,6 +158,10 @@ export async function POST(request: Request) {
       details: { status, slug },
       request,
     });
+
+    if (status === "published") {
+      revalidatePublicBlogPages(slug);
+    }
 
     return jsonSuccess(created, 201);
   } catch (error) {

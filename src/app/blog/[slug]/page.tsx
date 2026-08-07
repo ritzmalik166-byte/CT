@@ -5,6 +5,9 @@ import { query, queryOne } from "@/lib/db";
 import { BlogDetailView } from "@/components/blog/BlogDetailView";
 import type { BlogWithAuthor } from "@/types/admin";
 
+/** Always read the post from the DB — no redeploy needed for new/updated posts. */
+export const dynamic = "force-dynamic";
+
 interface PageProps {
   params: Promise<{ slug: string }>;
 }

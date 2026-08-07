@@ -82,7 +82,7 @@ export function BlogDetailView({
 
   return (
     <div className="ct-blog-page ct-blog-detail-wrap">
-      <HamburgerMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
+      <HamburgerMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} currentPage="blog" />
 
       <Link
         href="/"
@@ -280,7 +280,7 @@ export function BlogDetailView({
         </div>
       </div>
 
-      <CTAFooter showBrandHeading={false} />
+      <CTAFooter />
     </div>
   );
 }

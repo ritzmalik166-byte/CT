@@ -5,6 +5,9 @@ import { query } from "@/lib/db";
 import { BlogListing } from "@/components/blog/BlogListing";
 import type { BlogWithAuthor } from "@/types/admin";
 
+/** Always read published blogs from the DB — no redeploy needed for new posts. */
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Blog | Contenaissance",
   description: "Insights, updates, and stories from Contenaissance.",

@@ -10,6 +10,7 @@ const NAV_LINKS = [
   { label: "Studio", href: "/" },
   { label: "Services", href: "/services" },
   { label: "Portfolio", href: "/portfolio" },
+  { label: "Blog", href: "/blog" },
   { label: "Contact", href: "/contact" },
 ];
 
@@ -23,7 +24,7 @@ const LANGUAGES = [
 interface HamburgerMenuProps {
   isOpen: boolean;
   onClose: () => void;
-  currentPage?: "studio" | "services" | "portfolio" | "contact";
+  currentPage?: "studio" | "services" | "portfolio" | "blog" | "contact";
 }
 
 const curtainEase = [0.22, 1, 0.36, 1] as const;
