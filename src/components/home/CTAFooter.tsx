@@ -14,10 +14,9 @@ import {
   submitToGoogleAppsScript,
 } from "@/lib/googleSheets";
 import { IMAGE_TITLES, LINK_TITLES } from "@/lib/seo-accessibility";
+import { EMAIL_INVALID_MESSAGE, EMAIL_PATTERN, isValidEmail } from "@/lib/validation";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
-
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 type SubmitStatus = "idle" | "loading" | "success" | "error";
 
@@ -89,9 +88,9 @@ export function CTAFooter({ showBrandHeading = true }: CTAFooterProps) {
       setErrorMsg("Please enter your email.");
       return;
     }
-    if (!EMAIL_REGEX.test(trimmed)) {
+    if (!isValidEmail(trimmed)) {
       setStatus("error");
-      setErrorMsg("Enter a valid email address.");
+      setErrorMsg(EMAIL_INVALID_MESSAGE);
       return;
     }
 
@@ -227,12 +226,22 @@ export function CTAFooter({ showBrandHeading = true }: CTAFooterProps) {
                     onChange={(e) => {
                       setEmail(e.target.value);
                       if (status !== "idle") setStatus("idle");
-                      if (errorMsg) setErrorMsg(""); 
+                      if (errorMsg) setErrorMsg("");
+                    }}
+                    onBlur={() => {
+                      const trimmed = email.trim();
+                      if (!trimmed) return;
+                      if (!isValidEmail(trimmed)) {
+                        setStatus("error");
+                        setErrorMsg(EMAIL_INVALID_MESSAGE);
+                      }
                     }}
                     placeholder="Enter Your Email..."
                     disabled={status === "loading"}
                     required
                     autoComplete="email"
+                    pattern={EMAIL_PATTERN}
+                    title={EMAIL_INVALID_MESSAGE}
                     aria-invalid={status === "error"}
                     aria-describedby={errorMsg || status === "success" ? "footer-email-status" : undefined}
                     className="h-12 w-full flex-1 rounded-full border-2 border-white bg-white px-5 py-3 text-center text-sm text-zinc-900 placeholder:text-zinc-400 outline-none transition-all duration-300 focus:border-[#AE8C20] focus:ring-2 focus:ring-[#AE8C20]/30 disabled:cursor-not-allowed disabled:opacity-60 sm:h-[48px] sm:px-6 sm:text-left md:h-[52px] md:px-7"

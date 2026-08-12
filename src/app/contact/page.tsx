@@ -9,6 +9,14 @@ import Link from "next/link";
 import { useRef, useState } from "react";
 import { CTAFooter } from "@/components/home/CTAFooter";
 import { HamburgerMenu } from "@/components/home/HamburgerMenu";
+import {
+  EMAIL_INVALID_MESSAGE,
+  EMAIL_PATTERN,
+  getEmailValidationError,
+  getNameValidationError,
+  NAME_INVALID_MESSAGE,
+  NAME_PATTERN,
+} from "@/lib/validation";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger, SplitText);
 
@@ -72,9 +80,6 @@ const COUNTRY_PHONE_RULES: Record<
 const REPEATED_PATTERN_MESSAGE =
   "Please enter a valid phone number. Repeated patterns like 9999999999, 8888888888, 0000000000, or 9898989898 are not allowed.";
 
-const EMAIL_INVALID_MESSAGE =
-  "Please enter a valid email address (e.g. name@example.com).";
-
 type Status = "idle" | "loading" | "success" | "error";
 
 interface FormData {
@@ -87,8 +92,6 @@ interface FormData {
 }
 
 type FormErrors = Partial<Record<keyof FormData, string>>;
-
-const NAME_REGEX = /^[A-Za-z][A-Za-z\s.'-]{1,49}$/;
 
 function hasInvalidRepeatedPattern(digits: string) {
   if (!digits) return false;
@@ -150,54 +153,6 @@ function validatePhoneForCountry(phone: string, country: CountryOption | "") {
   return null;
 }
 
-function validateEmail(email: string) {
-  const value = String(email || "").trim();
-  if (!value) {
-    return "Please enter your email address.";
-  }
-
-  const atIndex = value.indexOf("@");
-  if (atIndex <= 0 || atIndex !== value.lastIndexOf("@")) {
-    return EMAIL_INVALID_MESSAGE;
-  }
-
-  const local = value.slice(0, atIndex);
-  const domain = value.slice(atIndex + 1);
-
-  if (!local || local.startsWith(".") || local.endsWith(".") || local.includes("..")) {
-    return EMAIL_INVALID_MESSAGE;
-  }
-
-  if (!/^[A-Za-z0-9!#$%&'*+/=?^_`{|}~.-]+$/.test(local)) {
-    return EMAIL_INVALID_MESSAGE;
-  }
-
-  if (!domain || !domain.includes(".")) {
-    return EMAIL_INVALID_MESSAGE;
-  }
-
-  const labels = domain.split(".");
-  if (labels.length < 2) {
-    return EMAIL_INVALID_MESSAGE;
-  }
-
-  const tld = labels[labels.length - 1];
-  if (!/^[A-Za-z]{2,}$/.test(tld)) {
-    return EMAIL_INVALID_MESSAGE;
-  }
-
-  for (const label of labels) {
-    if (!label || label.startsWith("-") || label.endsWith("-")) {
-      return EMAIL_INVALID_MESSAGE;
-    }
-    if (!/^[A-Za-z0-9-]+$/.test(label)) {
-      return EMAIL_INVALID_MESSAGE;
-    }
-  }
-
-  return null;
-}
-
 function getPhoneMaxLength(country: CountryOption) {
   const rule = COUNTRY_PHONE_RULES[country];
   if (!rule) return 15;
@@ -209,12 +164,9 @@ const validateField = (name: keyof FormData, value: string, form: FormData): str
   const v = value.trim();
   switch (name) {
     case "fullName":
-      if (!v) return "Full name is required.";
-      if (v.length < 2) return "Name must be at least 2 characters.";
-      if (!NAME_REGEX.test(v)) return "Use letters, spaces, hyphens or apostrophes only.";
-      return "";
+      return getNameValidationError(value);
     case "email":
-      return validateEmail(value) || "";
+      return getEmailValidationError(value);
     case "phone":
       return validatePhoneForCountry(value, form.country) || "";
     case "service":
@@ -801,7 +753,9 @@ export default function ContactPage() {
                     onBlur={handleBlur}
                     required
                     autoComplete="name"
-                    maxLength={60}
+                    maxLength={50}
+                    pattern={NAME_PATTERN}
+                    title={NAME_INVALID_MESSAGE}
                     aria-invalid={!!errors.fullName}
                     aria-describedby={errors.fullName ? "fullName-error" : undefined}
                     placeholder="Your full name"
@@ -826,8 +780,11 @@ export default function ContactPage() {
                       required
                       autoComplete="email"
                       inputMode="email"
-                      maxLength={100}
+                      maxLength={254}
+                      pattern={EMAIL_PATTERN}
+                      title={EMAIL_INVALID_MESSAGE}
                       aria-invalid={!!errors.email}
+                      aria-describedby={errors.email ? "email-error" : undefined}
                       placeholder="you@example.com"
                       className={fieldClass("email")}
                     />
