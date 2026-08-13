@@ -273,23 +273,48 @@ export function CTAFooter({ showBrandHeading = true }: CTAFooterProps) {
               </div>
             </div>
 
-            {showBrandHeading && (
-              <h2
-                ref={brandTextRef}
-                className="mt-10 overflow-hidden text-center font-bold leading-none tracking-tight text-white sm:mt-14 md:mt-16 lg:mt-20"
-                style={{ fontSize: "clamp(1.75rem, 9vw, 8rem)" }}
-              >
-                {BRAND_TEXT.split("").map((letter, index) => (
-                  <span
-                    key={index}
-                    className="brand-letter inline-block"
-                    style={{ willChange: "transform, opacity" }}
-                  >
-                    {letter}
-                  </span>
-                ))}
-              </h2>
-            )}
+{showBrandHeading && (
+  <h2
+    ref={brandTextRef}
+    className="
+      mt-10
+      overflow-hidden
+      text-center
+      font-bold
+      leading-none
+      tracking-tight
+      sm:mt-14
+      md:mt-16
+      lg:mt-20
+    "
+    style={{
+      fontSize: "clamp(1.75rem, 9vw, 8rem)",
+    }}
+  >
+    {BRAND_TEXT.split("").map((letter, index) => (
+      <span
+        key={index}
+        className="
+          brand-letter
+          inline-block
+          bg-cover
+          bg-center
+          bg-no-repeat
+          bg-clip-text
+          text-transparent
+          [-webkit-background-clip:text]
+          [-webkit-text-fill-color:transparent]
+        "
+        style={{
+          willChange: "transform, opacity",
+          backgroundImage: "url('/independence/tricolor.jpg')",
+        }}
+      >
+        {letter}
+      </span>
+    ))}
+  </h2>
+)}
 
             {/* Bottom bar */}
             <div
