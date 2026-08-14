@@ -450,9 +450,9 @@ useEffect(() => {
           </div>
 
           {/* One single tricolor underline */}
-          <div className="mt-1.5 h-[2px] w-20 overflow-hidden rounded-full sm:w-24 md:w-28 lg:w-40">
+          {/* <div className="mt-1.5 h-[2px] w-20 overflow-hidden rounded-full sm:w-24 md:w-28 lg:w-40">
             <span className="block h-full w-full bg-gradient-to-r from-[#FF9933] via-white to-[#138808]" />
-          </div>
+          </div> */}
         </div>
       )}
 
