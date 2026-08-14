@@ -11,6 +11,7 @@ import { FloatingParticles } from "@/components/ui/FloatingParticles";
 import { RotatingCircleText } from "@/components/ui/RotatingCircleText";
 import { HamburgerMenu } from "./HamburgerMenu";
 import { HERO_VIDEO_URL } from "@/lib/critical-assets";
+import { SHOW_INDEPENDENCE_DAY } from "../../../site-config";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
@@ -21,6 +22,12 @@ const REVEAL_HEADLINE_WORDS = [
 ] as const;
 
 const TAGLINE_TEXT = "AI is changing so fast in 2026";
+const independenceWords = [
+  "80th",
+  "Independence",
+  "Day",
+  "15 August",
+];
 
 export function CinematicHero() {
   const rootRef = useRef<HTMLDivElement>(null);
@@ -29,10 +36,47 @@ export function CinematicHero() {
   const ctaButtonRef = useRef<HTMLAnchorElement>(null);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [menuOpen, setMenuOpen] = useState(false);
-  const [showNavBg, setShowNavBg] = useState(false);
-  const lastScrollY = useRef(0);
+  const [showNavBg, setShowNavBg] = useState(true);
+  const [independenceWord, setIndependenceWord] = useState("");
+  const [isTyping, setIsTyping] = useState(true);
+  const [wordIndex, setWordIndex] = useState(0);
+  const [charIndex, setCharIndex] = useState(0);
 
   const prefersReducedMotion = useReducedMotion();
+
+  useEffect(() => {
+    if (!SHOW_INDEPENDENCE_DAY) return;
+
+    const currentWord = independenceWords[wordIndex];
+
+    const timer = setTimeout(
+      () => {
+        if (isTyping) {
+          if (charIndex < currentWord.length) {
+            setIndependenceWord(currentWord.slice(0, charIndex + 1));
+            setCharIndex((prev) => prev + 1);
+          } else {
+            setIsTyping(false);
+          }
+        } else {
+          if (charIndex > 0) {
+            setIndependenceWord(currentWord.slice(0, charIndex - 1));
+            setCharIndex((prev) => prev - 1);
+          } else {
+            setWordIndex((prev) => (prev + 1) % independenceWords.length);
+            setIsTyping(true);
+          }
+        }
+      },
+      isTyping
+        ? 90
+        : charIndex === currentWord.length
+          ? 1100
+          : 45
+    );
+
+    return () => clearTimeout(timer);
+  }, [wordIndex, charIndex, isTyping]);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -42,31 +86,7 @@ export function CinematicHero() {
     return () => window.removeEventListener("mousemove", handleMouseMove);
   }, []);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
 
-      // Hide only when we're at the very top
-      if (currentScrollY <= 20) {
-        setShowNavBg(false);
-      } else {
-        // Keep navbar background visible after scrolling
-        setShowNavBg(true);
-      }
-
-      lastScrollY.current = currentScrollY;
-    };
-
-    handleScroll();
-
-    window.addEventListener("scroll", handleScroll, {
-      passive: true,
-    });
-
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
-  }, []);
 
   useGSAP(
     (context, contextSafe) => {
@@ -161,16 +181,33 @@ export function CinematicHero() {
         };
       }) => {
         const scrollTl = gsap.timeline({
-          scrollTrigger: {
-            trigger: heroSectionRef.current,
-            start: "top top",
-            end,
-            scrub,
-            pin: true,
-            pinSpacing: true,
-            anticipatePin: 1,
-          },
-        });
+  scrollTrigger: {
+    trigger: heroSectionRef.current,
+    start: "top top",
+    end,
+    scrub,
+    pin: true,
+    pinSpacing: true,
+    anticipatePin: 1,
+
+    onUpdate: (self) => {
+      // Keep the Independence header while
+      // the hero video is transitioning.
+      //
+      // Hide it only when the revealed hero
+      // content starts appearing.
+      const shouldShow = self.progress < 0.60;
+
+      setShowNavBg((previous) =>
+        previous === shouldShow ? previous : shouldShow
+      );
+    },
+
+    onLeaveBack: () => {
+      setShowNavBg(true);
+    },
+  },
+});
 
         if (!videoContainerRef.current) return;
 
@@ -272,33 +309,44 @@ export function CinematicHero() {
 
   return (
     <>
-      <AnimatePresence>
-        {showNavBg && (
-          <motion.div
-            initial={{ y: -100, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: -100, opacity: 0 }}
-            transition={{
-              duration: 0.4,
-              ease: [0.22, 1, 0.36, 1],
-            }}
-            className="pointer-events-none fixed inset-x-0 top-0 z-40 h-[80px] overflow-hidden"
-          >
-            <Image
-              src="/independence/independence-header.png"
-              alt=""
-              fill
-              priority
-              sizes="100vw"
-              className="object-cover object-center"
-            />
+<AnimatePresence>
+  {SHOW_INDEPENDENCE_DAY && showNavBg && (
+    <motion.div
+      initial={{ y: -100, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      exit={{ y: -100, opacity: 0 }}
+      transition={{
+        duration: 0.35,
+        ease: [0.22, 1, 0.36, 1],
+      }}
+      className="
+        pointer-events-none
+        fixed
+        inset-x-0
+        top-0
+        z-40
+        h-[60px]
+        overflow-hidden
+        sm:h-[70px]
+        md:h-[80px]
+      "
+    >
+      <Image
+        src="/independence/independence-header.png"
+        alt=""
+        fill
+        priority
+        sizes="100vw"
+        className="object-cover object-center"
+      />
 
-            <div className="absolute inset-0 bg-white/10" />
+      <div className="absolute inset-0 bg-white/10" />
 
-            <div className="absolute inset-x-0 bottom-0 h-px bg-black/10" />
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <div className="absolute inset-x-0 bottom-0 h-px bg-black/10" />
+    </motion.div>
+  )}
+</AnimatePresence>
+
       {/* Fixed chrome lives outside overflow-hidden so it cannot be clipped */}
       <Link
         href="/"
@@ -316,6 +364,83 @@ export function CinematicHero() {
           priority
         />
       </Link>
+      {SHOW_INDEPENDENCE_DAY && (
+        <div
+          className="
+      pointer-events-none
+      fixed
+      top-0
+      left-[105px]
+      right-[52px]
+      z-50
+      flex
+      h-[60px]
+      flex-col
+      items-center
+      justify-center
+
+      sm:left-[180px]
+      sm:right-[70px]
+      sm:h-[70px]
+
+      md:left-[220px]
+      md:right-[100px]
+      md:h-[72px]
+
+      lg:left-1/2
+      lg:right-auto
+      lg:h-[80px]
+      lg:-translate-x-1/2
+    "
+        >
+          {/* Mobile + Tablet */}
+          <div className="flex items-center justify-center gap-1.5 lg:hidden">
+            <span className="shrink-0 text-[10px] sm:text-xs md:text-sm">
+              🇮🇳
+            </span>
+
+            <span
+              className="
+          whitespace-nowrap
+          text-[9px]
+          font-bold
+          uppercase
+          tracking-[0.08em]
+          text-[#138808]
+          sm:text-[10px]
+          md:text-[11px]
+        "
+            >
+              {independenceWord}
+              <span className="ml-[2px] animate-pulse text-[#FF9933]">|</span>
+            </span>
+          </div>
+
+          {/* Desktop */}
+          <div className="hidden items-center gap-3 whitespace-nowrap lg:flex">
+            <span className="text-lg">🇮🇳</span>
+
+            <span className="text-sm font-semibold uppercase tracking-[0.18em] text-zinc-800">
+              Celebrating
+            </span>
+
+            <span className="text-base font-bold tracking-[0.06em] text-[#138808]">
+              80 Years of Independence
+            </span>
+
+            <span className="text-zinc-400">•</span>
+
+            <span className="text-xs font-medium tracking-[0.16em] text-zinc-600">
+              15 AUGUST 2026
+            </span>
+          </div>
+
+          {/* One single tricolor underline */}
+          <div className="mt-1.5 h-[2px] w-20 overflow-hidden rounded-full sm:w-24 md:w-28 lg:w-40">
+            <span className="block h-full w-full bg-gradient-to-r from-[#FF9933] via-white to-[#138808]" />
+          </div>
+        </div>
+      )}
 
       <button
         type="button"
@@ -498,29 +623,36 @@ export function CinematicHero() {
               className="reveal-headline relative flex w-full justify-center px-1 max-md:mt-0 md:mt-8"
             >
               <motion.p
-                className="
-      relative z-10
-      max-w-5xl
-      cursor-default
-      text-center
-      text-[clamp(2rem,8.5vw,7.25rem)]
-      font-bold
-      leading-[0.92]
-      tracking-[-0.06em]
-      max-md:max-w-[min(100%,18rem)]
-      md:leading-[0.88]
-      md:max-w-5xl
+                className={`
+    relative z-10
+    max-w-5xl
+    cursor-default
+    text-center
+    text-[clamp(2rem,8.5vw,7.25rem)]
+    font-bold
+    leading-[0.92]
+    tracking-[-0.06em]
+    max-md:max-w-[min(100%,18rem)]
+    md:leading-[0.88]
+    md:max-w-5xl
+    py-5
 
-      bg-[url('/independence/tricolor.jpg')]
-      bg-cover
-      bg-center
-      bg-no-repeat
-      bg-clip-text
-      text-transparent
-      [-webkit-background-clip:text]
-      [-webkit-text-fill-color:transparent]
-      py-5
-    "
+    ${SHOW_INDEPENDENCE_DAY
+                    ? `
+          bg-[url('/independence/tricolor.jpg')]
+          bg-cover
+          bg-center
+          bg-no-repeat
+          bg-clip-text
+          text-transparent
+          [-webkit-background-clip:text]
+          [-webkit-text-fill-color:transparent]
+        `
+                    : `
+          text-zinc-950
+        `
+                  }
+  `}
                 initial={{ scale: 1 }}
                 whileHover={{
                   scale: 1.02,

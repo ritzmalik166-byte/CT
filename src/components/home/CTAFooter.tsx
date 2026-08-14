@@ -15,6 +15,7 @@ import {
 } from "@/lib/googleSheets";
 import { IMAGE_TITLES, LINK_TITLES } from "@/lib/seo-accessibility";
 import { EMAIL_INVALID_MESSAGE, EMAIL_PATTERN, isValidEmail } from "@/lib/validation";
+import { SHOW_INDEPENDENCE_DAY } from "../../../site-config";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
@@ -294,20 +295,28 @@ export function CTAFooter({ showBrandHeading = true }: CTAFooterProps) {
     {BRAND_TEXT.split("").map((letter, index) => (
       <span
         key={index}
-        className="
+        className={`
           brand-letter
           inline-block
-          bg-cover
-          bg-center
-          bg-no-repeat
-          bg-clip-text
-          text-transparent
-          [-webkit-background-clip:text]
-          [-webkit-text-fill-color:transparent]
-        "
+          ${
+            SHOW_INDEPENDENCE_DAY
+              ? `
+                bg-cover
+                bg-center
+                bg-no-repeat
+                bg-clip-text
+                text-transparent
+                [-webkit-background-clip:text]
+                [-webkit-text-fill-color:transparent]
+              `
+              : "text-white"
+          }
+        `}
         style={{
           willChange: "transform, opacity",
-          backgroundImage: "url('/independence/tricolor.jpg')",
+          backgroundImage: SHOW_INDEPENDENCE_DAY
+            ? "url('/independence/tricolor.jpg')"
+            : "none",
         }}
       >
         {letter}
