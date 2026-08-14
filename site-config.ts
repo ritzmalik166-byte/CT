@@ -1,0 +1,1 @@
+export const SHOW_INDEPENDENCE_DAY = true;

@@ -15,6 +15,7 @@ import {
 } from "@/lib/googleSheets";
 import { IMAGE_TITLES, LINK_TITLES } from "@/lib/seo-accessibility";
 import { EMAIL_INVALID_MESSAGE, EMAIL_PATTERN, isValidEmail } from "@/lib/validation";
+import { SHOW_INDEPENDENCE_DAY } from "../../../site-config";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
@@ -273,23 +274,56 @@ export function CTAFooter({ showBrandHeading = true }: CTAFooterProps) {
               </div>
             </div>
 
-            {showBrandHeading && (
-              <h2
-                ref={brandTextRef}
-                className="mt-10 overflow-hidden text-center font-bold leading-none tracking-tight text-white sm:mt-14 md:mt-16 lg:mt-20"
-                style={{ fontSize: "clamp(1.75rem, 9vw, 8rem)" }}
-              >
-                {BRAND_TEXT.split("").map((letter, index) => (
-                  <span
-                    key={index}
-                    className="brand-letter inline-block"
-                    style={{ willChange: "transform, opacity" }}
-                  >
-                    {letter}
-                  </span>
-                ))}
-              </h2>
-            )}
+{showBrandHeading && (
+  <h2
+    ref={brandTextRef}
+    className="
+      mt-10
+      overflow-hidden
+      text-center
+      font-bold
+      leading-none
+      tracking-tight
+      sm:mt-14
+      md:mt-16
+      lg:mt-20
+    "
+    style={{
+      fontSize: "clamp(1.75rem, 9vw, 8rem)",
+    }}
+  >
+    {BRAND_TEXT.split("").map((letter, index) => (
+      <span
+        key={index}
+        className={`
+          brand-letter
+          inline-block
+          ${
+            SHOW_INDEPENDENCE_DAY
+              ? `
+                bg-cover
+                bg-center
+                bg-no-repeat
+                bg-clip-text
+                text-transparent
+                [-webkit-background-clip:text]
+                [-webkit-text-fill-color:transparent]
+              `
+              : "text-white"
+          }
+        `}
+        style={{
+          willChange: "transform, opacity",
+          backgroundImage: SHOW_INDEPENDENCE_DAY
+            ? "url('/independence/tricolor.jpg')"
+            : "none",
+        }}
+      >
+        {letter}
+      </span>
+    ))}
+  </h2>
+)}
 
             {/* Bottom bar */}
             <div
