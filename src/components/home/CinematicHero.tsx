@@ -37,6 +37,7 @@ export function CinematicHero() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [menuOpen, setMenuOpen] = useState(false);
   const [showNavBg, setShowNavBg] = useState(true);
+  const lastScrollY = useRef(0);
   const [independenceWord, setIndependenceWord] = useState("");
   const [isTyping, setIsTyping] = useState(true);
   const [wordIndex, setWordIndex] = useState(0);
@@ -86,7 +87,37 @@ export function CinematicHero() {
     return () => window.removeEventListener("mousemove", handleMouseMove);
   }, []);
 
+useEffect(() => {
+  const handleScroll = () => {
+    const currentScrollY = window.scrollY;
+    const previousScrollY = lastScrollY.current;
 
+    // At the very top, always show the Independence navbar
+    if (currentScrollY <= 10) {
+      setShowNavBg(true);
+    }
+    // Scrolling DOWN
+    else if (currentScrollY > previousScrollY) {
+      setShowNavBg(false);
+    }
+    // Scrolling UP
+    else if (currentScrollY < previousScrollY) {
+      setShowNavBg(true);
+    }
+
+    lastScrollY.current = currentScrollY;
+  };
+
+  window.addEventListener("scroll", handleScroll, {
+    passive: true,
+  });
+
+  handleScroll();
+
+  return () => {
+    window.removeEventListener("scroll", handleScroll);
+  };
+}, []);
 
   useGSAP(
     (context, contextSafe) => {
@@ -181,33 +212,16 @@ export function CinematicHero() {
         };
       }) => {
         const scrollTl = gsap.timeline({
-  scrollTrigger: {
-    trigger: heroSectionRef.current,
-    start: "top top",
-    end,
-    scrub,
-    pin: true,
-    pinSpacing: true,
-    anticipatePin: 1,
-
-    onUpdate: (self) => {
-      // Keep the Independence header while
-      // the hero video is transitioning.
-      //
-      // Hide it only when the revealed hero
-      // content starts appearing.
-      const shouldShow = self.progress < 0.60;
-
-      setShowNavBg((previous) =>
-        previous === shouldShow ? previous : shouldShow
-      );
-    },
-
-    onLeaveBack: () => {
-      setShowNavBg(true);
-    },
-  },
-});
+          scrollTrigger: {
+            trigger: heroSectionRef.current,
+            start: "top top",
+            end,
+            scrub,
+            pin: true,
+            pinSpacing: true,
+            anticipatePin: 1,
+          },
+        });
 
         if (!videoContainerRef.current) return;
 
