@@ -1,1 +1,1 @@
-export const SHOW_INDEPENDENCE_DAY = true;
+export const SHOW_INDEPENDENCE_DAY = false;

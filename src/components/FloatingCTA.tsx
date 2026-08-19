@@ -32,7 +32,7 @@ export default function FloatingCTA() {
 
     return (
         <div
-            className={`fixed bottom-40 md:bottom-4 left-4 z-[9999] transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform ${show
+            className={`fixed bottom-4 md:bottom-4 left-4 z-[9999] transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform ${show
                 ? "translate-x-0 opacity-100 scale-100"
                 : "-translate-x-32 opacity-0 scale-95 pointer-events-none"
                 }`}

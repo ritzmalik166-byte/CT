@@ -7,6 +7,7 @@ import { AIFeaturesGrid } from "@/components/home/AIFeaturesGrid";
 import { AnimatedStats } from "@/components/home/AnimatedStats";
 import { CaseStudies } from "@/components/home/CaseStudies";
 import { ExpertiseSection } from "@/components/home/ExpertiseSection";
+import { ClientReviews } from "@/components/home/ClientReviews";
 import { Testimonials } from "@/components/home/Testimonials";
 import { TransitionSection } from "@/components/home/TransitionSection";
 import { CatchTheLogoSection } from "@/components/home/CatchTheLogoSection";
@@ -50,7 +51,8 @@ export default function Home() {
       {/* <CaseStudies /> */}
       <ExpertiseSection />
       <Testimonials />
-      <TransitionSection />
+      <ClientReviews />
+      {/* <TransitionSection /> */}
       <CatchTheLogoSection />
       <HiddenHeadings />
       <CTAFooter />
