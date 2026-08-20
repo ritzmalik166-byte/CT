@@ -7,17 +7,32 @@ export function CatchTheLogoSection() {
   const [open, setOpen] = useState(false);
 
   return (
-    <section className="relative z-10 mx-auto w-full max-w-6xl px-4 py-12 sm:px-6 sm:py-16">
-      <div className="flex flex-col items-center justify-center gap-4 text-center">
+    <section
+      className="relative z-10 w-full overflow-hidden py-12 sm:py-16"
+      style={{
+        backgroundImage: "url('/game-bg.png')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+      }}
+    >
+      {/* Background overlay */}
+      <div className="absolute inset-0 bg-white/70 backdrop-blur-[2px]" />
+
+      {/* Content */}
+      <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-col items-center justify-center gap-4 px-4 text-center sm:px-6">
         <p className="text-xs font-semibold uppercase tracking-[0.22em] text-cyan-600/90">
           Mini game
         </p>
+
         <h2 className="font-serif text-2xl text-stone-900 sm:text-3xl">
           Catch the Logo
         </h2>
+
         <p className="max-w-md text-sm text-stone-600">
           Catch falling Contenaissance logos before time runs out.
         </p>
+
         <button
           type="button"
           onClick={() => setOpen(true)}

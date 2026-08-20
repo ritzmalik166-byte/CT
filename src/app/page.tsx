@@ -7,7 +7,6 @@ import { AIFeaturesGrid } from "@/components/home/AIFeaturesGrid";
 import { AnimatedStats } from "@/components/home/AnimatedStats";
 import { CaseStudies } from "@/components/home/CaseStudies";
 import { ExpertiseSection } from "@/components/home/ExpertiseSection";
-import { ClientReviews } from "@/components/home/ClientReviews";
 import { Testimonials } from "@/components/home/Testimonials";
 import { TransitionSection } from "@/components/home/TransitionSection";
 import { CatchTheLogoSection } from "@/components/home/CatchTheLogoSection";
@@ -16,6 +15,7 @@ import { HiddenHeadings } from "@/components/home/HiddenHeadings";
 import FloatingCTA from "@/components/FloatingCTA";
 import IndependenceCorner from "@/components/independence/IndependenceCorner";
 import { SHOW_INDEPENDENCE_DAY } from "../../site-config";
+import ClientReviewsSection from "@/components/home/ClientReviews";
 export const metadata: Metadata = {
   title: "Contenaissance | AI Creative Agency, Branding & Digital Marketing Company",
   description:
@@ -41,7 +41,7 @@ export default function Home() {
   return (
     <main className="relative">
       {SHOW_INDEPENDENCE_DAY && <IndependenceCorner />}
-      <FloatingCTA />
+      {/* <FloatingCTA /> */}
       <CinematicHero />
       <TrustedByMarquee />
       <AIFeaturesGrid />
@@ -51,7 +51,7 @@ export default function Home() {
       {/* <CaseStudies /> */}
       <ExpertiseSection />
       <Testimonials />
-      <ClientReviews />
+      <ClientReviewsSection />
       {/* <TransitionSection /> */}
       <CatchTheLogoSection />
       <HiddenHeadings />
