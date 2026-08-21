@@ -1,7 +1,12 @@
 "use client";
 
-import { animate, motion, useAnimationFrame, useMotionValue } from "framer-motion";
-import { ChevronLeft, ChevronRight, Star } from "lucide-react";
+import {
+  animate,
+  motion,
+  useAnimationFrame,
+  useMotionValue,
+} from "framer-motion";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 interface ReviewCard {
@@ -67,10 +72,48 @@ const reviewsData: ReviewCard[] = [
   },
 ];
 
+const cardStyles = {
+  beige: {
+    card:
+      "w-[calc(100vw-80px)] max-w-[330px] sm:w-[310px] h-[230px] sm:h-auto flex flex-col justify-between bg-[#eae7df] text-[#333333] p-6 text-[13px] leading-relaxed font-sans opacity-95",
+    position:
+      "translate-y-0 rotate-0 mx-0 sm:mx-0 sm:-rotate-[6deg] sm:translate-y-6 sm:-ml-10",
+  },
+
+  gold: {
+    card:
+      "w-[calc(100vw-80px)] max-w-[330px] sm:w-[340px] h-[230px] sm:h-auto flex flex-col justify-between bg-gradient-to-b from-[#a6741b] via-[#7d530e] to-[#452d06] text-white p-7 text-sm font-sans leading-relaxed tracking-wide",
+    position:
+      "translate-y-0 rotate-0 mx-0 sm:mx-0 sm:rotate-[3deg] sm:translate-y-[120px] sm:-ml-20",
+  },
+
+  white: {
+    card:
+      "w-[calc(100vw-80px)] max-w-[330px] sm:w-[330px] h-[230px] sm:h-auto flex flex-col justify-between bg-[#fafafa] border border-gray-100 text-[#1a1a1a] p-7 text-sm font-sans leading-relaxed tracking-wide",
+    position:
+      "translate-y-0 rotate-0 mx-0 sm:mx-0 sm:rotate-[5deg] sm:-translate-y-6 sm:-ml-14",
+  },
+
+  gold2: {
+    card:
+      "w-[calc(100vw-80px)] max-w-[330px] sm:w-[340px] h-[230px] sm:h-auto flex flex-col justify-between bg-gradient-to-b from-[#b87d18] via-[#875508] to-[#4c3003] text-white p-7 text-sm font-sans leading-relaxed tracking-wide",
+    position:
+      "translate-y-0 rotate-0 mx-0 sm:mx-0 sm:-rotate-[3deg] sm:translate-y-12 sm:-ml-12",
+  },
+
+  dark: {
+    card:
+      "w-[calc(100vw-80px)] max-w-[330px] sm:w-[340px] h-[230px] sm:h-auto flex flex-col justify-between bg-[#1d2127] text-white p-7 sm:p-8 text-xs sm:text-sm font-sans tracking-wide leading-relaxed",
+    position:
+      "translate-y-0 rotate-0 mx-0 sm:mx-0 sm:rotate-[3deg] sm:-translate-y-12 sm:-ml-10",
+  },
+};
+
 export default function ClientReviewsSection() {
   const x = useMotionValue(0);
   const [isPaused, setIsPaused] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(0);
   const singleSetRef = useRef<HTMLDivElement>(null);
   const singleSetWidthRef = useRef<number>(0);
   const marqueeRef = useRef<HTMLDivElement>(null);
@@ -78,53 +121,22 @@ export default function ClientReviewsSection() {
   const [marqueeHeight, setMarqueeHeight] = useState<number>(0);
   const isAnimatingRef = useRef(false);
 
-  /*
-   * Speed of marquee.
-   * Smaller number = faster.
-   */
-
-  const centerMobileCard = () => {
-    if (!isMobile || !cardsRef.current || !marqueeRef.current) return;
-
-    const firstCard = cardsRef.current.querySelector<HTMLElement>(
-      "[data-review-card]"
-    );
-
-    if (!firstCard) return;
-
-    const containerWidth = marqueeRef.current.clientWidth;
-    const cardWidth = firstCard.getBoundingClientRect().width;
-
-    const currentCardOffset = firstCard.offsetLeft;
-
-    const centeredX =
-      containerWidth / 2 -
-      cardWidth / 2 -
-      currentCardOffset;
-
-    x.set(centeredX);
-  };
-
   const SPEED = 45;
+  const reviewCount = reviewsData.length;
+  const activeCard = reviewsData[activeIndex];
 
   useEffect(() => {
-    const checkMobile = () => {
-      const mobile = window.innerWidth < 768;
-      setIsMobile(mobile);
+    const mediaQuery = window.matchMedia("(max-width: 767px)");
 
-      if (mobile) {
-        requestAnimationFrame(() => {
-          centerMobileCard();
-        });
-      }
+    const syncViewport = () => {
+      setIsMobile(mediaQuery.matches);
     };
 
-    checkMobile();
-
-    window.addEventListener("resize", checkMobile);
+    syncViewport();
+    mediaQuery.addEventListener("change", syncViewport);
 
     return () => {
-      window.removeEventListener("resize", checkMobile);
+      mediaQuery.removeEventListener("change", syncViewport);
     };
   }, []);
 
@@ -153,38 +165,6 @@ export default function ClientReviewsSection() {
       observer.disconnect();
       window.removeEventListener("resize", updateWidth);
     };
-  }, []);
-
-  useEffect(() => {
-    if (!isMobile) return;
-
-    const centerCard = () => {
-      if (!cardsRef.current || !marqueeRef.current) return;
-
-      const firstCard = cardsRef.current.querySelector<HTMLElement>(
-        "[data-review-card]"
-      );
-
-      if (!firstCard) return;
-
-      const containerWidth = marqueeRef.current.clientWidth;
-      const cardWidth = firstCard.getBoundingClientRect().width;
-
-      const cardCenter = firstCard.offsetLeft + cardWidth / 2;
-
-      const targetX = containerWidth / 2 - cardCenter;
-
-      x.set(targetX);
-    };
-
-    const timer = requestAnimationFrame(centerCard);
-
-    window.addEventListener("resize", centerCard);
-
-    return () => {
-      cancelAnimationFrame(timer);
-      window.removeEventListener("resize", centerCard);
-    };
   }, [isMobile]);
 
   useEffect(() => {
@@ -211,8 +191,7 @@ export default function ClientReviewsSection() {
       const topOffset = Math.max(0, viewportRect.top - minTop);
       const bottomOffset = Math.max(0, maxBottom - viewportRect.bottom);
 
-      const requiredHeight =
-        viewportRect.height + topOffset + bottomOffset;
+      const requiredHeight = viewportRect.height + topOffset + bottomOffset;
 
       if (requiredHeight > 0) {
         setMarqueeHeight(requiredHeight);
@@ -241,12 +220,8 @@ export default function ClientReviewsSection() {
       resizeObserver.disconnect();
       window.removeEventListener("resize", updateHeight);
     };
-  }, []);
+  }, [isMobile]);
 
-  /*
-   * Move by pixels based on exact width of one complete card set.
-   * On mobile, auto-scroll is disabled so users can manually swipe/navigate.
-   */
   useAnimationFrame((_, delta) => {
     if (isPaused || isMobile || isAnimatingRef.current) return;
 
@@ -309,37 +284,48 @@ export default function ClientReviewsSection() {
     });
   };
 
-  const cardStyles = {
-    beige: {
-      card:
-        "w-[280px] sm:w-[310px] h-[230px] sm:h-auto flex flex-col justify-between bg-[#eae7df] text-[#333333] p-6 text-[13px] leading-relaxed font-sans opacity-95",
-      position: "translate-y-0 rotate-0 mx-3 sm:mx-0 sm:-rotate-[6deg] sm:translate-y-6 sm:-ml-10",
-    },
+  const handleMobileNav = (direction: "left" | "right") => {
+    const delta = direction === "right" ? 1 : -1;
 
-    gold: {
-      card:
-        "w-[280px] sm:w-[340px] h-[230px] sm:h-auto flex flex-col justify-between bg-gradient-to-b from-[#a6741b] via-[#7d530e] to-[#452d06] text-white p-7 text-sm font-sans leading-relaxed tracking-wide",
-      position: "translate-y-0 rotate-0 mx-3 sm:mx-0 sm:rotate-[3deg] sm:translate-y-[120px] sm:-ml-20",
-    },
-
-    white: {
-      card:
-        "w-[280px] sm:w-[330px] h-[230px] sm:h-auto flex flex-col justify-between bg-[#fafafa] border border-gray-100 text-[#1a1a1a] p-7 text-sm font-sans leading-relaxed tracking-wide",
-      position: "translate-y-0 rotate-0 mx-3 sm:mx-0 sm:rotate-[5deg] sm:-translate-y-6 sm:-ml-14",
-    },
-
-    gold2: {
-      card:
-        "w-[280px] sm:w-[340px] h-[230px] sm:h-auto flex flex-col justify-between bg-gradient-to-b from-[#b87d18] via-[#875508] to-[#4c3003] text-white p-7 text-sm font-sans leading-relaxed tracking-wide",
-      position: "translate-y-0 rotate-0 mx-3 sm:mx-0 sm:-rotate-[3deg] sm:translate-y-12 sm:-ml-12",
-    },
-
-    dark: {
-      card:
-        "w-[280px] sm:w-[340px] h-[230px] sm:h-auto flex flex-col justify-between bg-[#1d2127] text-white p-7 sm:p-8 text-xs sm:text-sm font-sans tracking-wide leading-relaxed",
-      position: "translate-y-0 rotate-0 mx-3 sm:mx-0 sm:rotate-[3deg] sm:-translate-y-12 sm:-ml-10",
-    },
+    setActiveIndex(
+      (current) =>
+        (current + delta + reviewCount) % reviewCount
+    );
   };
+
+  const renderCardContent = (card: ReviewCard) => (
+    <>
+      <p className="font-normal leading-relaxed">{card.quote}</p>
+
+      {card.author && (
+        <div className="mt-6 sm:mt-8 flex items-center gap-3.5">
+          <div
+            className={`
+              flex h-10 w-10 shrink-0
+              items-center justify-center
+              rounded-full text-[12px] font-bold
+              ${card.type === "white" || card.type === "beige"
+                ? "border border-gray-300 bg-gray-200 text-gray-700"
+                : "border border-white/20 bg-white/20 text-white/90"
+              }
+            `}
+          >
+            {card.avatarText}
+          </div>
+
+          <div>
+            <h4 className="text-sm font-bold uppercase leading-snug tracking-wide">
+              {card.author}
+            </h4>
+
+            <p className="mt-0.5 text-[11px] font-medium opacity-75">
+              {card.role}
+            </p>
+          </div>
+        </div>
+      )}
+    </>
+  );
 
   const renderCardSet = (setIndex: number) => (
     <div
@@ -378,40 +364,7 @@ export default function ClientReviewsSection() {
               ${style.position}
             `}
           >
-            <p className="font-normal leading-relaxed">
-              {card.quote}
-            </p>
-
-            {card.author && (
-              <div className="mt-6 sm:mt-8 flex items-center gap-3.5">
-                {/* Avatar */}
-                <div
-                  className={`
-                    flex h-10 w-10 shrink-0
-                    items-center justify-center
-                    rounded-full text-[12px] font-bold
-                    ${card.type === "white" ||
-                      card.type === "beige"
-                      ? "border border-gray-300 bg-gray-200 text-gray-700"
-                      : "border border-white/20 bg-white/20 text-white/90"
-                    }
-                  `}
-                >
-                  {card.avatarText}
-                </div>
-
-                {/* Author */}
-                <div>
-                  <h4 className="text-sm font-bold uppercase leading-snug tracking-wide">
-                    {card.author}
-                  </h4>
-
-                  <p className="mt-0.5 text-[11px] font-medium opacity-75">
-                    {card.role}
-                  </p>
-                </div>
-              </div>
-            )}
+            {renderCardContent(card)}
           </motion.div>
         );
       })}
@@ -420,18 +373,15 @@ export default function ClientReviewsSection() {
 
   return (
     <section className="relative overflow-x-clip overflow-y-visible bg-white py-10 md:py-15 text-gray-900">
-      {/* Background Dot Pattern */}
       <div
         className="pointer-events-none absolute inset-0 opacity-30"
         style={{
-          backgroundImage:
-            "radial-gradient(#666 1.5px, transparent 1.5px)",
+          backgroundImage: "radial-gradient(#666 1.5px, transparent 1.5px)",
           backgroundSize: "32px 32px",
         }}
       />
 
       <div className="relative mx-auto max-w-[1600px] px-4 sm:px-6 lg:px-8">
-        {/* Title & Controls */}
         <div className="flex flex-col items-center justify-between gap-4 sm:flex-row sm:items-end">
           <div className="w-full text-center sm:text-left">
             <div className="flex items-center justify-center gap-3 sm:justify-start">
@@ -448,7 +398,6 @@ export default function ClientReviewsSection() {
             </h2>
           </div>
 
-          {/* Marquee Control Buttons (Desktop Header Only) */}
           <div className="hidden items-center gap-3 md:flex">
             <button
               onClick={() => handleScroll("left")}
@@ -468,57 +417,87 @@ export default function ClientReviewsSection() {
           </div>
         </div>
 
-        {/* Reviews Marquee */}
-        <div
-          ref={marqueeRef}
-          className="relative mt-4 w-full overflow-x-clip overflow-y-visible sm:mt-8"
-          style={{
-            height: marqueeHeight > 0 ? `${marqueeHeight}px` : "auto",
-          }}
-        >
-          {/* Floating Left Button beside cards (Mobile only) */}
+        {/* Mobile: exactly ONE card at a time */}
+        <div className="relative mt-4 w-full md:hidden">
+          {/* Left Arrow */}
           <button
-            onClick={() => handleScroll("left")}
-            className="absolute left-2 top-1/2 z-50 flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 bg-white/95 text-gray-800 shadow-lg backdrop-blur-md transition-all duration-200 -translate-y-1/2 hover:scale-105 hover:border-[#AE8C20] hover:text-[#AE8C20] active:scale-95 md:hidden"
-            aria-label="Scroll left"
+            onClick={() => handleMobileNav("left")}
+            className="absolute left-2 top-1/2 z-[60] flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-800 shadow-lg"
+            aria-label="Previous review"
           >
             <ChevronLeft className="h-5 w-5" />
           </button>
 
-          {/* Floating Right Button beside cards (Mobile only) */}
+          {/* Right Arrow */}
           <button
-            onClick={() => handleScroll("right")}
-            className="absolute right-2 top-1/2 z-50 flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 bg-white/95 text-gray-800 shadow-lg backdrop-blur-md transition-all duration-200 -translate-y-1/2 hover:scale-105 hover:border-[#AE8C20] hover:text-[#AE8C20] active:scale-95 md:hidden"
-            aria-label="Scroll right"
+            onClick={() => handleMobileNav("right")}
+            className="absolute right-2 top-1/2 z-[60] flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-800 shadow-lg"
+            aria-label="Next review"
           >
             <ChevronRight className="h-5 w-5" />
           </button>
 
-          {/* Left Fade */}
-          <div className="pointer-events-none absolute bottom-0 left-0 top-0 z-40 w-4 md:w-12 bg-gradient-to-r from-white to-transparent sm:w-16" />
-
-          {/* Right Fade */}
-          <div className="pointer-events-none absolute bottom-0 right-0 top-0 z-40 w-4 md:w-12 bg-gradient-to-l from-white to-transparent sm:w-16" />
-
-          {/* Marquee Track */}
-          <motion.div
-            ref={cardsRef}
-            drag="x"
-            dragConstraints={{ left: -10000, right: 10000 }}
-            dragElastic={0.05}
-            onDrag={() => {
-              x.set(wrapXPosition(x.get()));
-            }}
-            className="flex w-max items-start px-[calc(50vw-140px)] pt-8 pb-8 sm:px-8 sm:pt-20 sm:pb-20 cursor-grab active:cursor-grabbing" style={{ x }}
-            onMouseEnter={() => setIsPaused(true)}
-            onMouseLeave={() => setIsPaused(false)}
-          >
-            {renderCardSet(0)}
-            {renderCardSet(1)}
-            {renderCardSet(2)}
-            {renderCardSet(3)}
-          </motion.div>
+          {/* Mobile Card Viewport */}
+          <div className="relative flex w-full items-center justify-center overflow-hidden px-0 py-8">
+            <motion.div
+              key={activeCard.id}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{
+                duration: 0.25,
+                ease: "easeOut",
+              }}
+              className={`
+        relative
+        mx-auto
+        flex
+        w-[calc(100vw-80px)]
+        max-w-[330px]
+        shrink-0
+        rounded-sm
+        shadow-[0_20px_40px_rgba(0,0,0,0.18)]
+        select-none
+        ${cardStyles[activeCard.type].card}
+      `}
+            >
+              {renderCardContent(activeCard)}
+            </motion.div>
+          </div>
         </div>
+
+        {/* Desktop/tablet: existing overlapping marquee (≥768px) */}
+        {!isMobile && (
+          <div
+            ref={marqueeRef}
+            className="relative mt-4 w-full overflow-x-clip overflow-y-visible sm:mt-8 hidden md:block"
+            style={{
+              height: marqueeHeight > 0 ? `${marqueeHeight}px` : "auto",
+            }}
+          >
+            <div className="pointer-events-none absolute bottom-0 left-0 top-0 z-40 w-4 md:w-12 bg-gradient-to-r from-white to-transparent sm:w-16" />
+
+            <div className="pointer-events-none absolute bottom-0 right-0 top-0 z-40 w-4 md:w-12 bg-gradient-to-l from-white to-transparent sm:w-16" />
+
+            <motion.div
+              ref={cardsRef}
+              drag="x"
+              dragConstraints={{ left: -10000, right: 10000 }}
+              dragElastic={0.05}
+              onDrag={() => {
+                x.set(wrapXPosition(x.get()));
+              }}
+              className="flex w-max items-start px-[calc(50vw-140px)] pt-8 pb-8 sm:px-8 sm:pt-20 sm:pb-20 cursor-grab active:cursor-grabbing"
+              style={{ x }}
+              onMouseEnter={() => setIsPaused(true)}
+              onMouseLeave={() => setIsPaused(false)}
+            >
+              {renderCardSet(0)}
+              {renderCardSet(1)}
+              {renderCardSet(2)}
+              {renderCardSet(3)}
+            </motion.div>
+          </div>
+        )}
       </div>
     </section>
   );
