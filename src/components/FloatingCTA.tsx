@@ -37,21 +37,21 @@ export default function FloatingCTA() {
                 : "-translate-x-32 opacity-0 scale-95 pointer-events-none"
                 }`}
         >
-            <div className="relative h-[180px] w-[250px] sm:h-[220px] sm:w-[300px] lg:h-[260px] lg:w-[360px] xl:h-[300px] xl:w-[420px]">
+            <div className="relative h-[130px] w-[168px] sm:h-[220px] sm:w-[300px] lg:h-[260px] lg:w-[360px] xl:h-[300px] xl:w-[420px]">
                 <Image
                     src="/boy.png"
                     alt="AI Guide"
                     width={180}
                     height={290}
                     priority
-                    className="boy absolute bottom-0 left-0 h-[150px] w-auto sm:h-[180px] lg:h-[220px] xl:h-[290px] select-none"
+                    className="boy absolute bottom-0 left-0 h-[118px] w-auto sm:h-[180px] lg:h-[220px] xl:h-[290px] select-none"
                 />
 
                 <Link
                     href="https://ritzmediaworld.com/portfolio"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group absolute left-[90px] top-2 sm:left-[110px] lg:left-[125px] xl:left-[150px]"
+                    className="group absolute left-[58px] top-1 sm:left-[110px] sm:top-2 lg:left-[125px] xl:left-[150px]"
                 >
                     <div
                         className="
@@ -87,14 +87,14 @@ export default function FloatingCTA() {
                         {/* Inner Glow */}
                         <span
                             className="
-      absolute
-      inset-0
-      rounded-full
-      bg-gradient-to-b
-      from-white/[0.04]
-      to-transparent
-      pointer-events-none
-    "
+    absolute
+    inset-0
+    rounded-full
+    bg-gradient-to-b
+    from-white/[0.04]
+    to-transparent
+    pointer-events-none
+  "
                         />
 
                         <div
@@ -103,20 +103,25 @@ export default function FloatingCTA() {
       inline-flex
       items-center
       justify-center
-      gap-[10px]
-      px-[36px]
-      py-[16px]
+      gap-1.5
+      px-2.5
+      py-1.5
+      sm:gap-[10px]
+      sm:px-[36px]
+      sm:py-[16px]
     "
                         >
                             <h3
                                 className="
-        text-[16px]
+        whitespace-nowrap
+        text-[10px]
         font-semibold
         leading-none
         text-white
         transition-colors
         duration-300
         group-hover:text-[#FFF7DA]
+        sm:text-[16px]
       "
                             >
                                 Explore Our Work
