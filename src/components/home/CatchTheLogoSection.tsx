@@ -21,7 +21,7 @@ export function CatchTheLogoSection() {
 
       {/* Content */}
       <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-col items-center justify-center gap-4 px-4 text-center sm:px-6">
-        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-cyan-600/90">
+        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#AE8C20]">
           Mini game
         </p>
 
