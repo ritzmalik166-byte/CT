@@ -82,19 +82,16 @@ export default function LogosSection({
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Responsive item count to manage clean logo gaps specifically on mobile and tablet
+  // Exact item counts so tablet can pack tighter without changing mobile or desktop
   const displayLogos = useMemo(() => {
     if (!logos || logos.length === 0) return [];
-    let minItems = 12;
-    if (windowWidth < 1024) {
-      minItems = 6; // 6 items for mobile and tablet guarantees zero logo overlap
+    let count = 12; // desktop
+    if (windowWidth < 640) {
+      count = 6; // even gaps at the front; orbit still spans the viewport
+    } else if (windowWidth < 1024) {
+      count = 8; // tablet: smaller gaps, same orbit width
     }
-    const repeatCount = Math.max(1, Math.ceil(minItems / logos.length));
-    const items: LogoItem[] = [];
-    for (let i = 0; i < repeatCount; i++) {
-      items.push(...logos);
-    }
-    return items;
+    return Array.from({ length: count }, (_, i) => logos[i % logos.length]);
   }, [logos, windowWidth]);
 
   // Typewriter effect when hovering over a logo
@@ -144,12 +141,12 @@ export default function LogosSection({
       const isMobile = containerWidth < 640;
       const isTablet = containerWidth >= 640 && containerWidth < 1024;
 
-      // Responsive orbital radii tailored to container width to guarantee wide span and clean logo spacing
-const radiusX = isMobile
-  ? Math.min(containerWidth * 0.34, 130)
-  : isTablet
-    ? Math.min(containerWidth * 0.44, 330)
-    : Math.min(containerWidth * 0.44, 520);
+      // Mobile: full-width orbit with 6 logos so the front pair has a small even gap.
+      const radiusX = isMobile
+        ? containerWidth * 0.45
+        : isTablet
+          ? Math.min(containerWidth * 0.44, 330)
+          : Math.min(containerWidth * 0.44, 520);
 
       const radiusZ = isMobile ? 80 : isTablet ? 130 : 190;
 
@@ -172,12 +169,12 @@ const radiusX = isMobile
         const frontProgress = (Math.cos(normAngle) + 1) / 2;
 
         // Strong 3D Y-axis rotation to wrap logos around the sides of the cylinder ring
-        const rotateYFactor = 0.9;
+        const rotateYFactor = isMobile ? 0.5 : 0.9;
         const rotateY = normAngle * (180 / Math.PI) * rotateYFactor;
 
         // Responsive scale range based on depth
-const scaleBase = isMobile ? 0.50 : isTablet ? 0.46 : 0.50;
-const scaleRange = isMobile ? 0.52 : isTablet ? 0.50 : 0.55;
+        const scaleBase = isMobile ? 0.50 : isTablet ? 0.46 : 0.50;
+        const scaleRange = isMobile ? 0.52 : isTablet ? 0.50 : 0.55;
         const scale = scaleBase + Math.pow(frontProgress, 1.2) * scaleRange;
 
         // Smooth opacity gradient: front = 1.0, back = 0.35 (keeps background logos visible)
@@ -225,8 +222,8 @@ const scaleRange = isMobile ? 0.52 : isTablet ? 0.50 : 0.55;
       )}
 
       {/* Soft gradient edge overlays for seamless fade */}
-      <div className="pointer-events-none absolute inset-y-0 left-0 z-30 w-12 sm:w-20 md:w-28 bg-gradient-to-r from-white via-white/80 to-transparent" />
-      <div className="pointer-events-none absolute inset-y-0 right-0 z-30 w-12 sm:w-20 md:w-28 bg-gradient-to-l from-white via-white/80 to-transparent" />
+      <div className="pointer-events-none absolute inset-y-0 left-0 z-30 w-6 sm:w-20 md:w-28 bg-gradient-to-r from-white via-white/80 to-transparent" />
+      <div className="pointer-events-none absolute inset-y-0 right-0 z-30 w-6 sm:w-20 md:w-28 bg-gradient-to-l from-white via-white/80 to-transparent" />
 
       {/* 3D Perspective Orbit Container */}
       <div
@@ -238,7 +235,7 @@ const scaleRange = isMobile ? 0.52 : isTablet ? 0.50 : 0.55;
           isHoveredRef.current = false;
           setHoveredKey(null);
         }}
-className="relative flex h-28 w-screen max-w-none items-center justify-center"
+        className="relative flex h-28 w-screen max-w-none items-center justify-center"
         style={{
           perspective: "1000px",
           perspectiveOrigin: "50% 50%",
@@ -251,7 +248,7 @@ className="relative flex h-28 w-screen max-w-none items-center justify-center"
           const normAngleDeg = Math.abs(currentNormAngle * (180 / Math.PI));
           const isFrontCenterLogo = normAngleDeg <= 32;
           const isHovered = hoveredKey === uniqueKey && isFrontCenterLogo;
-          const counterRotateY = -currentNormAngle * (180 / Math.PI) * 0.9;
+          const counterRotateY = -currentNormAngle * (180 / Math.PI) * (windowWidth < 640 ? 0.5 : 0.9);
 
           return (
             <div
@@ -300,15 +297,15 @@ className="relative flex h-28 w-screen max-w-none items-center justify-center"
                 </div>
               )}
 
-<div className="relative flex h-14 w-32 items-center justify-center sm:h-12 sm:w-28 md:h-20 md:w-52">
-                  {/* Color Logo */}
+              <div className="relative flex h-14 w-32 items-center justify-center md:h-20 md:w-52">
+                {/* Color Logo */}
                 <div className="logo-color absolute inset-0 flex items-center justify-center">
                   <Image
                     src={logo.colorLogo}
                     alt={logo.name}
                     width={200}
                     height={70}
-className="max-h-10 sm:max-h-9 md:max-h-16 w-auto object-contain drop-shadow-sm transition-transform duration-200 group-hover:scale-105"
+                    className="max-h-10 md:max-h-16 w-auto object-contain drop-shadow-sm transition-transform duration-200 group-hover:scale-105"
                   />
                 </div>
               </div>
