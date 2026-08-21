@@ -10,7 +10,7 @@ import { createPortal } from "react-dom";
 const COMPANIES = [
   {
     name: "Pika",
-    logo: "/assets/Pika.png",
+    logo: "https://contenaissance.blob.core.windows.net/ct-assets/pika.png",
     description: "AI-powered video generation platform that creates stunning videos from text and images.",
   },
   {
@@ -25,7 +25,7 @@ const COMPANIES = [
   },
   {
     name: "Copilot",
-    logo: "/assets/Copilot.png",
+    logo: "https://contenaissance.blob.core.windows.net/ct-assets/copilot.png",
     description: "Microsoft's AI coding assistant that helps developers write better code faster.",
   },
   {
