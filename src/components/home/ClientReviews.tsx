@@ -401,7 +401,7 @@ export default function ClientReviewsSection() {
           <div className="hidden items-center gap-3 md:flex">
             <button
               onClick={() => handleScroll("left")}
-              className="flex h-11 w-11 items-center justify-center rounded-full border border-gray-200 bg-white/90 text-gray-800 shadow-md transition-all duration-200 hover:scale-105 hover:border-[#AE8C20] hover:text-[#AE8C20] active:scale-95"
+              className="flex h-11 w-11 items-center justify-center rounded-full border border-gray-200 bg-white/90 text-gray-800 transition-all duration-200 hover:scale-105 hover:border-[#AE8C20] hover:text-[#AE8C20] active:scale-95"
               aria-label="Previous Reviews"
             >
               <ChevronLeft className="h-5 w-5" />
@@ -409,7 +409,7 @@ export default function ClientReviewsSection() {
 
             <button
               onClick={() => handleScroll("right")}
-              className="flex h-11 w-11 items-center justify-center rounded-full border border-gray-200 bg-white/90 text-gray-800 shadow-md transition-all duration-200 hover:scale-105 hover:border-[#AE8C20] hover:text-[#AE8C20] active:scale-95"
+              className="flex h-11 w-11 items-center justify-center rounded-full border border-gray-200 bg-white/90 text-gray-800  transition-all duration-200 hover:scale-105 hover:border-[#AE8C20] hover:text-[#AE8C20] active:scale-95"
               aria-label="Next Reviews"
             >
               <ChevronRight className="h-5 w-5" />
@@ -422,7 +422,7 @@ export default function ClientReviewsSection() {
           {/* Left Arrow */}
           <button
             onClick={() => handleMobileNav("left")}
-            className="absolute left-2 top-1/2 z-[60] flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-800 shadow-lg"
+            className="absolute left-2 top-1/2 z-[60] flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-800"
             aria-label="Previous review"
           >
             <ChevronLeft className="h-5 w-5" />
@@ -431,7 +431,7 @@ export default function ClientReviewsSection() {
           {/* Right Arrow */}
           <button
             onClick={() => handleMobileNav("right")}
-            className="absolute right-2 top-1/2 z-[60] flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-800 shadow-lg"
+            className="absolute right-2 top-1/2 z-[60] flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-800 "
             aria-label="Next review"
           >
             <ChevronRight className="h-5 w-5" />
@@ -455,7 +455,6 @@ export default function ClientReviewsSection() {
         max-w-[330px]
         shrink-0
         rounded-sm
-        shadow-[0_20px_40px_rgba(0,0,0,0.18)]
         select-none
         ${cardStyles[activeCard.type].card}
       `}
@@ -474,9 +473,9 @@ export default function ClientReviewsSection() {
               height: marqueeHeight > 0 ? `${marqueeHeight}px` : "auto",
             }}
           >
-            <div className="pointer-events-none absolute bottom-0 left-0 top-0 z-40 w-4 md:w-12 bg-gradient-to-r from-white to-transparent sm:w-16" />
+            <div className="pointer-events-none absolute bottom-0 left-0 top-0 z-40 w-4 md:w-4 bg-gradient-to-r from-white to-transparent sm:w-6" />
 
-            <div className="pointer-events-none absolute bottom-0 right-0 top-0 z-40 w-4 md:w-12 bg-gradient-to-l from-white to-transparent sm:w-16" />
+            <div className="pointer-events-none absolute bottom-0 right-0 top-0 z-40 w-4 md:w-4 bg-gradient-to-l from-white to-transparent sm:w-6" />
 
             <motion.div
               ref={cardsRef}

@@ -16,6 +16,7 @@ import FloatingCTA from "@/components/FloatingCTA";
 import IndependenceCorner from "@/components/independence/IndependenceCorner";
 import { SHOW_INDEPENDENCE_DAY } from "../../site-config";
 import ClientReviewsSection from "@/components/home/ClientReviews";
+import LogosSection from "@/components/home/logossection";
 export const metadata: Metadata = {
   title: "Contenaissance | AI Creative Agency, Branding & Digital Marketing Company",
   description:
@@ -41,8 +42,9 @@ export default function Home() {
   return (
     <main className="relative">
       {SHOW_INDEPENDENCE_DAY && <IndependenceCorner />}
-      {/* <FloatingCTA /> */}
+      <FloatingCTA />
       <CinematicHero />
+      {/* <LogosSection /> */}
       <TrustedByMarquee />
       <AIFeaturesGrid />
       {/* <StickyScrollShowcase /> */}
