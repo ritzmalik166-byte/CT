@@ -15,6 +15,8 @@ import { HiddenHeadings } from "@/components/home/HiddenHeadings";
 import FloatingCTA from "@/components/FloatingCTA";
 import IndependenceCorner from "@/components/independence/IndependenceCorner";
 import { SHOW_INDEPENDENCE_DAY } from "../../site-config";
+import ClientReviewsSection from "@/components/home/ClientReviews";
+import LogosSection from "@/components/home/logossection";
 export const metadata: Metadata = {
   title: "Contenaissance | AI Creative Agency, Branding & Digital Marketing Company",
   description:
@@ -42,6 +44,7 @@ export default function Home() {
       {SHOW_INDEPENDENCE_DAY && <IndependenceCorner />}
       <FloatingCTA />
       <CinematicHero />
+      {/* <LogosSection /> */}
       <TrustedByMarquee />
       <AIFeaturesGrid />
       {/* <StickyScrollShowcase /> */}
@@ -50,7 +53,8 @@ export default function Home() {
       {/* <CaseStudies /> */}
       <ExpertiseSection />
       <Testimonials />
-      <TransitionSection />
+      <ClientReviewsSection />
+      {/* <TransitionSection /> */}
       <CatchTheLogoSection />
       <HiddenHeadings />
       <CTAFooter />

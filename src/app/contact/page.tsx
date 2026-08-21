@@ -6,7 +6,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { SplitText } from "gsap/SplitText";
 import Image from "next/image";
 import Link from "next/link";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { CTAFooter } from "@/components/home/CTAFooter";
 import { HamburgerMenu } from "@/components/home/HamburgerMenu";
 import {
@@ -213,6 +213,24 @@ export default function ContactPage() {
   const [form, setForm] = useState<FormData>(EMPTY_FORM);
   const [errors, setErrors] = useState<FormErrors>({});
   const [touched, setTouched] = useState<Partial<Record<keyof FormData, boolean>>>({});
+  // OTP & Step state
+  const [step, setStep] = useState<"form" | "otp">("form");
+  const [otpCode, setOtpCode] = useState("");
+  const [otpSent, setOtpSent] = useState(false);
+  const [isPhoneVerified, setIsPhoneVerified] = useState(false);
+  const [verifiedPhone, setVerifiedPhone] = useState("");
+  const [sendingOtp, setSendingOtp] = useState(false);
+  const [verifyingOtp, setVerifyingOtp] = useState(false);
+  const [otpStatus, setOtpStatus] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [cooldown, setCooldown] = useState(0);
+
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const timer = setInterval(() => {
+      setCooldown((prev) => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [cooldown]);
 
   useGSAP(
     () => {
@@ -405,6 +423,18 @@ export default function ContactPage() {
         phone: validateField("phone", nextForm.phone, nextForm),
       }));
     }
+
+    // Reset phone verification if phone or country changes
+    if ((name === "phone" || name === "country") && isPhoneVerified) {
+      const newNormalized = normalizeLocalPhone(nextForm.phone, nextForm.country);
+      if (newNormalized !== verifiedPhone) {
+        setIsPhoneVerified(false);
+        setVerifiedPhone("");
+        setOtpSent(false);
+        setOtpCode("");
+        setOtpStatus(null);
+      }
+    }
   };
 
   const handleBlur = (
@@ -418,35 +448,51 @@ export default function ContactPage() {
     }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleResendOtp = async () => {
+    if (cooldown > 0) return;
+    setSendingOtp(true);
+    setOtpStatus(null);
 
-    const allErrors = validateAll(form);
-    setErrors(allErrors);
-    setTouched({
-      fullName: true,
-      email: true,
-      phone: true,
-      service: true,
-      country: true,
-      message: true,
-    });
+    try {
+      const res = await fetch("/api/otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "send",
+          phone: form.phone,
+          country: form.country,
+        }),
+      });
 
-    if (Object.keys(allErrors).length > 0) {
-      setStatus("error");
-      setErrorMsg("Please fix the highlighted fields and try again.");
-      const firstInvalid = (Object.keys(allErrors) as (keyof FormData)[])[0];
-      const el = document.querySelector<HTMLElement>(`[name="${firstInvalid}"]`);
-      el?.focus();
-      return;
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Failed to send OTP");
+      }
+
+      setOtpSent(true);
+      setOtpCode("");
+      setCooldown(45);
+      setOtpStatus({
+        type: "success",
+        text: "New 4-digit OTP sent to your phone number.",
+      });
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Could not resend OTP. Please try again.";
+      setOtpStatus({
+        type: "error",
+        text: msg,
+      });
+    } finally {
+      setSendingOtp(false);
     }
+  };
 
+  const submitFormLead = async (localPhone: string) => {
     setStatus("loading");
     setErrorMsg("");
 
     try {
-      const localPhone = normalizeLocalPhone(form.phone, form.country);
-      // Country is UI-only — concat into message before Google Sheets / Telegram
       const messageWithCountry = `${form.message.trim()}\n\nCountry: ${form.country}`;
 
       const payload = {
@@ -481,14 +527,134 @@ export default function ContactPage() {
 
       setStatus("success");
       setErrorMsg("");
+      setStep("form");
       setForm(EMPTY_FORM);
       setErrors({});
       setTouched({});
+      setIsPhoneVerified(false);
+      setVerifiedPhone("");
+      setOtpSent(false);
+      setOtpCode("");
+      setOtpStatus(null);
     } catch (err) {
       // eslint-disable-next-line no-console
       console.error("[contact] submission failed", err);
       setStatus("error");
       setErrorMsg("Could not reach our server. Check your network and try again.");
+      setStep("form");
+    } finally {
+      setVerifyingOtp(false);
+    }
+  };
+
+  const handleFormSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const allErrors = validateAll(form);
+    setErrors(allErrors);
+    setTouched({
+      fullName: true,
+      email: true,
+      phone: true,
+      service: true,
+      country: true,
+      message: true,
+    });
+
+    if (Object.keys(allErrors).length > 0) {
+      setStatus("error");
+      setErrorMsg("Please fix the highlighted fields and try again.");
+      const firstInvalid = (Object.keys(allErrors) as (keyof FormData)[])[0];
+      const el = document.querySelector<HTMLElement>(`[name="${firstInvalid}"]`);
+      el?.focus();
+      return;
+    }
+
+    // Trigger OTP sending and navigate to OTP screen
+    setSendingOtp(true);
+    setStatus("idle");
+    setErrorMsg("");
+    setOtpStatus(null);
+
+    try {
+      const res = await fetch("/api/otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "send",
+          phone: form.phone,
+          country: form.country,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Failed to send OTP");
+      }
+
+      setOtpSent(true);
+      setOtpCode("");
+      setCooldown(45);
+      setStep("otp");
+      setOtpStatus({
+        type: "success",
+        text: `4-digit OTP sent to your phone number.`,
+      });
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Could not send OTP. Please try again.";
+      setStatus("error");
+      setErrorMsg(msg);
+    } finally {
+      setSendingOtp(false);
+    }
+  };
+
+  const handleVerifyAndSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!/^\d{4}$/.test(otpCode.trim())) {
+      setOtpStatus({
+        type: "error",
+        text: "Please enter a valid 4-digit OTP.",
+      });
+      return;
+    }
+
+    setVerifyingOtp(true);
+    setOtpStatus(null);
+
+    try {
+      const res = await fetch("/api/otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "verify",
+          phone: form.phone,
+          country: form.country,
+          otp: otpCode.trim(),
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.success || !data.data?.verified) {
+        throw new Error(data.error || "OTP verification failed");
+      }
+
+      const localPhone = normalizeLocalPhone(form.phone, form.country);
+      setIsPhoneVerified(true);
+      setVerifiedPhone(localPhone);
+
+      // Submit lead immediately upon successful verification
+      await submitFormLead(localPhone);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Verification failed. Check the OTP and try again.";
+      setOtpStatus({
+        type: "error",
+        text: msg,
+      });
+      setVerifyingOtp(false);
     }
   };
 
@@ -731,245 +897,346 @@ export default function ContactPage() {
               </blockquote>
             </div>
 
-            {/* RIGHT — Form */}
-            <form
-              onSubmit={handleSubmit}
-              className="contact-form relative rounded-2xl border border-zinc-800/60 bg-zinc-900/30 p-5 backdrop-blur-sm sm:rounded-[2rem] sm:p-7 md:p-10"
-            >
-              {/* Glow inside form */}
-              <div className="pointer-events-none absolute right-0 top-0 h-64 w-64 translate-x-1/3 -translate-y-1/3 rounded-full bg-[#AE8C20]/6 blur-[100px]" />
+            {/* RIGHT — Form / OTP Verification */}
+            {step === "form" ? (
+              <form
+                onSubmit={handleFormSubmit}
+                className="contact-form relative rounded-2xl border border-zinc-800/60 bg-zinc-900/30 p-5 backdrop-blur-sm sm:rounded-[2rem] sm:p-7 md:p-10"
+              >
+                {/* Glow inside form */}
+                <div className="pointer-events-none absolute right-0 top-0 h-64 w-64 translate-x-1/3 -translate-y-1/3 rounded-full bg-[#AE8C20]/6 blur-[100px]" />
 
-              <div className="relative grid gap-5">
-                {/* Row 1 — Full name */}
-                <div className="form-field">
-                  <label htmlFor="fullName" className="mb-2 block text-[10px] font-bold uppercase tracking-[0.25em] text-zinc-500">
-                    Full Name <span className="text-[#AE8C20]">*</span>
-                  </label>
-                  <input
-                    id="fullName"
-                    name="fullName"
-                    value={form.fullName}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    required
-                    autoComplete="name"
-                    maxLength={50}
-                    pattern={NAME_PATTERN}
-                    title={NAME_INVALID_MESSAGE}
-                    aria-invalid={!!errors.fullName}
-                    aria-describedby={errors.fullName ? "fullName-error" : undefined}
-                    placeholder="Your full name"
-                    className={fieldClass("fullName")}
-                  />
-                  <FieldError name="fullName" />
-                </div>
-
-                {/* Row 2 — Email + Phone */}
-                <div className="form-field grid gap-5 sm:grid-cols-2">
-                  <div>
-                    <label htmlFor="email" className="mb-2 block text-[10px] font-bold uppercase tracking-[0.25em] text-zinc-500">
-                      Email Address <span className="text-[#AE8C20]">*</span>
+                <div className="relative grid gap-5">
+                  {/* Row 1 — Full name */}
+                  <div className="form-field">
+                    <label htmlFor="fullName" className="mb-2 block text-[10px] font-bold uppercase tracking-[0.25em] text-zinc-500">
+                      Full Name <span className="text-[#AE8C20]">*</span>
                     </label>
                     <input
-                      id="email"
-                      name="email"
-                      type="email"
-                      value={form.email}
+                      id="fullName"
+                      name="fullName"
+                      value={form.fullName}
                       onChange={handleChange}
                       onBlur={handleBlur}
                       required
-                      autoComplete="email"
-                      inputMode="email"
-                      maxLength={254}
-                      pattern={EMAIL_PATTERN}
-                      title={EMAIL_INVALID_MESSAGE}
-                      aria-invalid={!!errors.email}
-                      aria-describedby={errors.email ? "email-error" : undefined}
-                      placeholder="you@example.com"
-                      className={fieldClass("email")}
+                      autoComplete="name"
+                      maxLength={50}
+                      pattern={NAME_PATTERN}
+                      title={NAME_INVALID_MESSAGE}
+                      aria-invalid={!!errors.fullName}
+                      aria-describedby={errors.fullName ? "fullName-error" : undefined}
+                      placeholder="Your full name"
+                      className={fieldClass("fullName")}
                     />
-                    <FieldError name="email" />
+                    <FieldError name="fullName" />
                   </div>
-                  <div>
-                    <label htmlFor="phone" className="mb-2 block text-[10px] font-bold uppercase tracking-[0.25em] text-zinc-500">
-                      Contact Number <span className="text-[#AE8C20]">*</span>
+
+                  {/* Row 2 — Email + Phone */}
+                  <div className="form-field grid gap-5 sm:grid-cols-2">
+                    <div>
+                      <label htmlFor="email" className="mb-2 block text-[10px] font-bold uppercase tracking-[0.25em] text-zinc-500">
+                        Email Address <span className="text-[#AE8C20]">*</span>
+                      </label>
+                      <input
+                        id="email"
+                        name="email"
+                        type="email"
+                        value={form.email}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        required
+                        autoComplete="email"
+                        inputMode="email"
+                        maxLength={254}
+                        pattern={EMAIL_PATTERN}
+                        title={EMAIL_INVALID_MESSAGE}
+                        aria-invalid={!!errors.email}
+                        aria-describedby={errors.email ? "email-error" : undefined}
+                        placeholder="you@example.com"
+                        className={fieldClass("email")}
+                      />
+                      <FieldError name="email" />
+                    </div>
+                    <div>
+                      <div className="mb-2 flex items-center justify-between">
+                        <label htmlFor="phone" className="block text-[10px] font-bold uppercase tracking-[0.25em] text-zinc-500">
+                          Contact Number <span className="text-[#AE8C20]">*</span>
+                        </label>
+                      </div>
+                      <div className="relative flex items-center">
+                        <input
+                          id="phone"
+                          name="phone"
+                          type="tel"
+                          value={form.phone}
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                          required
+                          autoComplete="tel"
+                          inputMode="tel"
+                          maxLength={getPhoneMaxLength(form.country)}
+                          aria-invalid={!!errors.phone}
+                          placeholder={
+                            form.country === "India"
+                              ? "9876543210"
+                              : form.country === "UAE"
+                                ? "501234567"
+                                : form.country === "UK"
+                                  ? "7123456789"
+                                  : form.country === "Singapore"
+                                    ? "81234567"
+                                    : "2025550123"
+                          }
+                          className={fieldClass("phone")}
+                        />
+                      </div>
+                      <FieldError name="phone" />
+                    </div>
+                  </div>
+
+                  {/* Row 3 — Service + Country */}
+                  <div className="form-field grid gap-5 sm:grid-cols-2">
+                    <div>
+                      <label htmlFor="service" className="mb-2 block text-[10px] font-bold uppercase tracking-[0.25em] text-zinc-500">
+                        Service Interest <span className="text-[#AE8C20]">*</span>
+                      </label>
+                      <div className="relative">
+                        <select
+                          id="service"
+                          name="service"
+                          value={form.service}
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                          required
+                          aria-invalid={!!errors.service}
+                          className={fieldClass("service", "cursor-pointer appearance-none pr-12")}
+                        >
+                          <option value="" disabled>Select a service</option>
+                          {SERVICES.map((s) => (
+                            <option key={s} value={s} className="bg-zinc-900 text-white">
+                              {s}
+                            </option>
+                          ))}
+                        </select>
+                        <svg
+                          className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          strokeWidth={2}
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M6 9l6 6 6-6" />
+                        </svg>
+                      </div>
+                      <FieldError name="service" />
+                    </div>
+                    <div>
+                      <label htmlFor="country" className="mb-2 block text-[10px] font-bold uppercase tracking-[0.25em] text-zinc-500">
+                        Country <span className="text-[#AE8C20]">*</span>
+                      </label>
+                      <div className="relative">
+                        <select
+                          id="country"
+                          name="country"
+                          value={form.country}
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                          required
+                          aria-invalid={!!errors.country}
+                          className={fieldClass("country", "cursor-pointer appearance-none pr-12")}
+                        >
+                          {COUNTRY_OPTIONS.map((c) => (
+                            <option key={c} value={c} className="bg-zinc-900 text-white">
+                              {c}
+                            </option>
+                          ))}
+                        </select>
+                        <svg
+                          className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          strokeWidth={2}
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M6 9l6 6 6-6" />
+                        </svg>
+                      </div>
+                      <FieldError name="country" />
+                    </div>
+                  </div>
+
+                  {/* Row 4 — Message */}
+                  <div className="form-field">
+                    <label htmlFor="message" className="mb-2 block text-[10px] font-bold uppercase tracking-[0.25em] text-zinc-500">
+                      Enquiry Message <span className="text-[#AE8C20]">*</span>
                     </label>
-                    <input
-                      id="phone"
-                      name="phone"
-                      type="tel"
-                      value={form.phone}
+                    <textarea
+                      id="message"
+                      name="message"
+                      value={form.message}
                       onChange={handleChange}
                       onBlur={handleBlur}
                       required
-                      autoComplete="tel"
-                      inputMode="tel"
-                      maxLength={getPhoneMaxLength(form.country)}
-                      aria-invalid={!!errors.phone}
-                      placeholder={
-                        form.country === "India"
-                          ? "9876543210"
-                          : form.country === "UAE"
-                            ? "501234567"
-                            : form.country === "UK"
-                              ? "7123456789"
-                              : form.country === "Singapore"
-                                ? "81234567"
-                                : "2025550123"
-                      }
-                      className={fieldClass("phone")}
+                      rows={6}
+                      maxLength={1500}
+                      aria-invalid={!!errors.message}
+                      placeholder="Tell us about your project, goals, and timeline…"
+                      className={fieldClass("message", "resize-none")}
                     />
-                    <FieldError name="phone" />
+                    <div className="mt-1 flex items-center justify-between">
+                      <FieldError name="message" />
+                      <span className="ml-auto text-[10px] text-zinc-500">
+                        {form.message.length}/1500
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Submit */}
+                  <div className="form-field">
+                    <button
+                      type="submit"
+                      disabled={status === "loading" || sendingOtp}
+                      className="group relative w-full overflow-hidden rounded-2xl bg-[#AE8C20] px-8 py-4 text-sm font-bold uppercase tracking-wider text-zinc-950 shadow-[0_0_40px_rgba(174,140,32,0.3)] transition-all duration-300 hover:scale-[1.02] hover:bg-[#D4AF37] hover:shadow-[0_0_60px_rgba(174,140,32,0.5)] disabled:opacity-60 disabled:cursor-not-allowed"
+                    >
+                      <span
+                        className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 group-hover:translate-x-full"
+                      />
+                      <span className="relative flex items-center justify-center gap-2">
+                        {sendingOtp ? (
+                          <>
+                            <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                            </svg>
+                            Sending OTP…
+                          </>
+                        ) : (
+                          <>
+                            Send Message
+                            <svg className="h-4 w-4 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                            </svg>
+                          </>
+                        )}
+                      </span>
+                    </button>
+
+                    {/* Status messages */}
+                    {status === "success" && (
+                      <div className="mt-4 flex items-center gap-3 rounded-xl border border-green-500/30 bg-green-500/10 px-5 py-3 text-sm text-green-400">
+                        <svg className="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                        </svg>
+                        Message sent! We&apos;ll get back to you within 24 hours.
+                      </div>
+                    )}
+                    {status === "error" && (
+                      <div className="mt-4 flex items-center gap-3 rounded-xl border border-red-500/30 bg-red-500/10 px-5 py-3 text-sm text-red-400">
+                        <svg className="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
+                        </svg>
+                        {errorMsg || "Something went wrong. Please try again or email us directly."}
+                      </div>
+                    )}
                   </div>
                 </div>
+              </form>
+            ) : (
+              <div className="contact-form relative flex flex-col justify-between rounded-2xl border border-zinc-800/60 bg-zinc-900/30 p-5 backdrop-blur-sm sm:rounded-[2rem] sm:p-7 md:p-10">
+                {/* Glow inside OTP screen */}
+                <div className="pointer-events-none absolute right-0 top-0 h-64 w-64 translate-x-1/3 -translate-y-1/3 rounded-full bg-[#AE8C20]/6 blur-[100px]" />
 
-                {/* Row 3 — Service + Country */}
-                <div className="form-field grid gap-5 sm:grid-cols-2">
-                  <div>
-                    <label htmlFor="service" className="mb-2 block text-[10px] font-bold uppercase tracking-[0.25em] text-zinc-500">
-                      Service Interest <span className="text-[#AE8C20]">*</span>
-                    </label>
-                    <div className="relative">
-                      <select
-                        id="service"
-                        name="service"
-                        value={form.service}
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                        required
-                        aria-invalid={!!errors.service}
-                        className={fieldClass("service", "cursor-pointer appearance-none pr-12")}
-                      >
-                        <option value="" disabled>Select a service</option>
-                        {SERVICES.map((s) => (
-                          <option key={s} value={s} className="bg-zinc-900 text-white">
-                            {s}
-                          </option>
-                        ))}
-                      </select>
-                      <svg
-                        className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        strokeWidth={2}
-                      >
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 9l6 6 6-6" />
+                <div className="relative flex flex-col gap-6">
+                  {/* Header */}
+                  <div className="flex items-center gap-4">
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-[#AE8C20]/30 bg-[#AE8C20]/10 text-[#AE8C20]">
+                      <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
                       </svg>
                     </div>
-                    <FieldError name="service" />
+                    <div>
+                      <h3 className="text-lg font-bold text-white sm:text-xl">Verify Mobile Number</h3>
+                      <p className="mt-1 text-xs text-zinc-400">
+                        Enter 4-digit code sent to <span className="font-semibold text-white">{form.phone}</span> ({form.country})
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <label htmlFor="country" className="mb-2 block text-[10px] font-bold uppercase tracking-[0.25em] text-zinc-500">
-                      Country <span className="text-[#AE8C20]">*</span>
-                    </label>
-                    <div className="relative">
-                      <select
-                        id="country"
-                        name="country"
-                        value={form.country}
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                        required
-                        aria-invalid={!!errors.country}
-                        className={fieldClass("country", "cursor-pointer appearance-none pr-12")}
+
+                  {/* OTP Input form */}
+                  <form onSubmit={handleVerifyAndSubmit} className="mt-2 flex flex-col gap-5">
+                    <div>
+                      <label htmlFor="otpCode" className="mb-2 block text-[10px] font-bold uppercase tracking-[0.25em] text-zinc-400">
+                        4-Digit Verification Code
+                      </label>
+                      <input
+                        id="otpCode"
+                        name="otpCode"
+                        type="text"
+                        inputMode="numeric"
+                        autoFocus
+                        maxLength={4}
+                        value={otpCode}
+                        onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ""))}
+                        placeholder="• • • •"
+                        className="w-full rounded-2xl border border-zinc-800 bg-zinc-950/80 px-4 py-4 text-center text-2xl font-bold tracking-[0.5em] text-white placeholder-zinc-700 outline-none transition-all focus:border-[#AE8C20] focus:ring-2 focus:ring-[#AE8C20]/20"
+                      />
+                    </div>
+
+                    {/* Status Notification */}
+                    {otpStatus && (
+                      <div className={`rounded-xl border px-4 py-3 text-xs ${otpStatus.type === "success" ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400" : "border-red-500/30 bg-red-500/10 text-red-400"}`}>
+                        {otpStatus.text}
+                      </div>
+                    )}
+
+                    {/* Action buttons */}
+                    <div className="flex flex-col gap-3">
+                      <button
+                        type="submit"
+                        disabled={verifyingOtp || status === "loading" || otpCode.length !== 4}
+                        className="group relative w-full overflow-hidden rounded-2xl bg-[#AE8C20] px-8 py-4 text-sm font-bold uppercase tracking-wider text-zinc-950 shadow-[0_0_40px_rgba(174,140,32,0.3)] transition-all duration-300 hover:scale-[1.02] hover:bg-[#D4AF37] hover:shadow-[0_0_60px_rgba(174,140,32,0.5)] disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        {COUNTRY_OPTIONS.map((c) => (
-                          <option key={c} value={c} className="bg-zinc-900 text-white">
-                            {c}
-                          </option>
-                        ))}
-                      </select>
-                      <svg
-                        className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        strokeWidth={2}
-                      >
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 9l6 6 6-6" />
-                      </svg>
-                    </div>
-                    <FieldError name="country" />
-                  </div>
-                </div>
+                        <span className="relative flex items-center justify-center gap-2">
+                          {verifyingOtp || status === "loading" ? (
+                            <>
+                              <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                              </svg>
+                              Verifying & Submitting…
+                            </>
+                          ) : (
+                            "Verify & Submit"
+                          )}
+                        </span>
+                      </button>
 
-                {/* Row 4 — Message */}
-                <div className="form-field">
-                  <label htmlFor="message" className="mb-2 block text-[10px] font-bold uppercase tracking-[0.25em] text-zinc-500">
-                    Enquiry Message <span className="text-[#AE8C20]">*</span>
-                  </label>
-                  <textarea
-                    id="message"
-                    name="message"
-                    value={form.message}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    required
-                    rows={6}
-                    maxLength={1500}
-                    aria-invalid={!!errors.message}
-                    placeholder="Tell us about your project, goals, and timeline…"
-                    className={fieldClass("message", "resize-none")}
-                  />
-                  <div className="mt-1 flex items-center justify-between">
-                    <FieldError name="message" />
-                    <span className="ml-auto text-[10px] text-zinc-500">
-                      {form.message.length}/1500
-                    </span>
-                  </div>
-                </div>
+                      <div className="flex items-center justify-between text-xs">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setStep("form");
+                            setOtpStatus(null);
+                          }}
+                          className="text-zinc-400 underline underline-offset-4 transition-colors hover:text-white"
+                        >
+                          ← Change Phone / Edit
+                        </button>
 
-                {/* Submit */}
-                <div className="form-field">
-                  <button
-                    type="submit"
-                    disabled={status === "loading"}
-                    className="group relative w-full overflow-hidden rounded-2xl bg-[#AE8C20] px-8 py-4 text-sm font-bold uppercase tracking-wider text-zinc-950 shadow-[0_0_40px_rgba(174,140,32,0.3)] transition-all duration-300 hover:scale-[1.02] hover:bg-[#D4AF37] hover:shadow-[0_0_60px_rgba(174,140,32,0.5)] disabled:opacity-60 disabled:cursor-not-allowed"
-                  >
-                    <span
-                      className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 group-hover:translate-x-full"
-                    />
-                    <span className="relative flex items-center justify-center gap-2">
-                      {status === "loading" ? (
-                        <>
-                          <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                          </svg>
-                          Sending…
-                        </>
-                      ) : (
-                        <>
-                          Send Message
-                          <svg className="h-4 w-4 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-                          </svg>
-                        </>
-                      )}
-                    </span>
-                  </button>
-
-                  {/* Status messages */}
-                  {status === "success" && (
-                    <div className="mt-4 flex items-center gap-3 rounded-xl border border-green-500/30 bg-green-500/10 px-5 py-3 text-sm text-green-400">
-                      <svg className="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-                      </svg>
-                      Message sent! We&apos;ll get back to you within 24 hours.
+                        <button
+                          type="button"
+                          onClick={handleResendOtp}
+                          disabled={sendingOtp || cooldown > 0}
+                          className="font-semibold text-[#D4AF37] transition-colors hover:text-white disabled:text-zinc-500 disabled:no-underline"
+                        >
+                          {sendingOtp ? "Sending..." : cooldown > 0 ? `Resend Code (${cooldown}s)` : "Resend Code"}
+                        </button>
+                      </div>
                     </div>
-                  )}
-                  {status === "error" && (
-                    <div className="mt-4 flex items-center gap-3 rounded-xl border border-red-500/30 bg-red-500/10 px-5 py-3 text-sm text-red-400">
-                      <svg className="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
-                      </svg>
-                      {errorMsg || "Something went wrong. Please try again or email us directly."}
-                    </div>
-                  )}
+                  </form>
                 </div>
               </div>
-            </form>
+            )}
           </div>
         </div>
       </section>

@@ -13,27 +13,27 @@ const GEMINI_LOGO_URL =
 const COMPANIES = [
   { 
     name: "Pika", 
-    logo: "/assets/Pika.png",
+    logo: "/logos/Pika.png",
     description: "AI-powered video generation platform that creates stunning videos from text and images."
   },
   { 
     name: "Claude", 
-    logo: "/assets/claude.png",
+    logo: "/logos/claude.png",
     description: "Anthropic's AI assistant focused on being helpful, harmless, and honest."
   },
   { 
     name: "ChatGPT", 
-    logo: "/assets/chatgpt.png",
+    logo: "/logos/chatgpt.png",
     description: "OpenAI's conversational AI that understands context and generates human-like responses."
   },
   { 
     name: "Copilot", 
-    logo: "/assets/Copilot.png",
+    logo: "/logos/Copilot.png",
     description: "Microsoft's AI coding assistant that helps developers write better code faster."
   },
   { 
     name: "Grok", 
-    logo: "/assets/Grok.png",
+    logo: "/logos/Grok.png",
     description: "xAI's witty AI assistant with real-time knowledge and a rebellious streak."
   },
   { 
