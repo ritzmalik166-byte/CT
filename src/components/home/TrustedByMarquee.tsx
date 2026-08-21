@@ -7,39 +7,36 @@ import Image from "next/image";
 import { useRef, useState, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
 
-const GEMINI_LOGO_URL =
-  "https://contenaissance.blob.core.windows.net/ct-assets/gemini.png";
-
 const COMPANIES = [
-  { 
-    name: "Pika", 
-    logo: "/assets/Pika.png",
-    description: "AI-powered video generation platform that creates stunning videos from text and images."
+  {
+    name: "Pika",
+    logo: "https://contenaissance.blob.core.windows.net/ct-assets/pika.png",
+    description: "AI-powered video generation platform that creates stunning videos from text and images.",
   },
-  { 
-    name: "Claude", 
+  {
+    name: "Claude",
     logo: "/assets/claude.png",
-    description: "Anthropic's AI assistant focused on being helpful, harmless, and honest."
+    description: "Anthropic's AI assistant focused on being helpful, harmless, and honest.",
   },
-  { 
-    name: "ChatGPT", 
+  {
+    name: "ChatGPT",
     logo: "/assets/chatgpt.png",
-    description: "OpenAI's conversational AI that understands context and generates human-like responses."
+    description: "OpenAI's conversational AI that understands context and generates human-like responses.",
   },
-  { 
-    name: "Copilot", 
-    logo: "/assets/Copilot.png",
-    description: "Microsoft's AI coding assistant that helps developers write better code faster."
+  {
+    name: "Copilot",
+    logo: "https://contenaissance.blob.core.windows.net/ct-assets/copilot.png",
+    description: "Microsoft's AI coding assistant that helps developers write better code faster.",
   },
-  { 
-    name: "Grok", 
-    logo: "/assets/Grok.png",
-    description: "xAI's witty AI assistant with real-time knowledge and a rebellious streak."
+  {
+    name: "Grok",
+    logo: "https://contenaissance.blob.core.windows.net/ct-assets/grok.png",
+    description: "xAI's witty AI assistant with real-time knowledge and a rebellious streak.",
   },
-  { 
-    name: "Gemini", 
-    logo: GEMINI_LOGO_URL,
-    description: "Google's multimodal AI model capable of understanding text, images, and code."
+  {
+    name: "Gemini",
+    logo: "/assets/gemini.png",
+    description: "Google's multimodal AI model capable of understanding text, images, and code.",
   },
 ];
 
@@ -172,7 +169,8 @@ function LogoWithTooltip({ company }: { company: typeof COMPANIES[0] }) {
         title={`${company.name} logo`}
         width={260}
         height={90}
-        className="h-8 w-auto object-contain transition-all duration-300 sm:h-9 md:h-10 lg:h-12"
+        unoptimized
+        className="h-6 w-auto object-contain transition-all duration-300 sm:h-7 md:h-8 lg:h-10"
       />
       <TypewriterTooltip
         text={company.description}

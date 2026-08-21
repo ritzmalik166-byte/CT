@@ -120,6 +120,7 @@ export default function ClientReviewsSection() {
   const cardsRef = useRef<HTMLDivElement>(null);
   const [marqueeHeight, setMarqueeHeight] = useState<number>(0);
   const isAnimatingRef = useRef(false);
+  const cardHoverCountRef = useRef(0);
 
   const SPEED = 45;
   const reviewCount = reviewsData.length;
@@ -284,6 +285,18 @@ export default function ClientReviewsSection() {
     });
   };
 
+  const pauseOnCardHover = () => {
+    cardHoverCountRef.current += 1;
+    setIsPaused(true);
+  };
+
+  const resumeOnCardLeave = () => {
+    cardHoverCountRef.current = Math.max(0, cardHoverCountRef.current - 1);
+    if (cardHoverCountRef.current === 0) {
+      setIsPaused(false);
+    }
+  };
+
   const handleMobileNav = (direction: "left" | "right") => {
     const delta = direction === "right" ? 1 : -1;
 
@@ -339,12 +352,8 @@ export default function ClientReviewsSection() {
           <motion.div
             data-review-card
             key={`${card.id}-set-${setIndex}-${idx}`}
-            onMouseEnter={() => {
-              setIsPaused(true);
-            }}
-            onMouseLeave={() => {
-              setIsPaused(false);
-            }}
+            onMouseEnter={pauseOnCardHover}
+            onMouseLeave={resumeOnCardLeave}
             whileHover={{
               zIndex: 60,
             }}
@@ -463,41 +472,35 @@ export default function ClientReviewsSection() {
             </motion.div>
           </div>
         </div>
-
-        {/* Desktop/tablet: existing overlapping marquee (≥768px) */}
-        {!isMobile && (
-          <div
-            ref={marqueeRef}
-            className="relative mt-4 w-full overflow-x-clip overflow-y-visible sm:mt-8 hidden md:block"
-            style={{
-              height: marqueeHeight > 0 ? `${marqueeHeight}px` : "auto",
-            }}
-          >
-            <div className="pointer-events-none absolute bottom-0 left-0 top-0 z-40 w-4 md:w-4 bg-gradient-to-r from-white to-transparent sm:w-6" />
-
-            <div className="pointer-events-none absolute bottom-0 right-0 top-0 z-40 w-4 md:w-4 bg-gradient-to-l from-white to-transparent sm:w-6" />
-
-            <motion.div
-              ref={cardsRef}
-              drag="x"
-              dragConstraints={{ left: -10000, right: 10000 }}
-              dragElastic={0.05}
-              onDrag={() => {
-                x.set(wrapXPosition(x.get()));
-              }}
-              className="flex w-max items-start px-[calc(50vw-140px)] pt-8 pb-8 sm:px-8 sm:pt-20 sm:pb-20 cursor-grab active:cursor-grabbing"
-              style={{ x }}
-              onMouseEnter={() => setIsPaused(true)}
-              onMouseLeave={() => setIsPaused(false)}
-            >
-              {renderCardSet(0)}
-              {renderCardSet(1)}
-              {renderCardSet(2)}
-              {renderCardSet(3)}
-            </motion.div>
-          </div>
-        )}
       </div>
+
+      {/* Full-viewport marquee so cards leave at the screen edges, not an inner box */}
+      {!isMobile && (
+        <div
+          ref={marqueeRef}
+          className="relative mt-4 hidden w-full overflow-visible sm:mt-8 md:block"
+          style={{
+            height: marqueeHeight > 0 ? `${marqueeHeight}px` : "auto",
+          }}
+        >
+          <motion.div
+            ref={cardsRef}
+            drag="x"
+            dragConstraints={{ left: -10000, right: 10000 }}
+            dragElastic={0.05}
+            onDrag={() => {
+              x.set(wrapXPosition(x.get()));
+            }}
+            className="flex w-max cursor-grab items-start px-[calc(50vw-140px)] pt-8 pb-8 active:cursor-grabbing sm:px-8 sm:pt-20 sm:pb-20"
+            style={{ x }}
+          >
+            {renderCardSet(0)}
+            {renderCardSet(1)}
+            {renderCardSet(2)}
+            {renderCardSet(3)}
+          </motion.div>
+        </div>
+      )}
     </section>
   );
 }
