@@ -30,7 +30,7 @@ const COMPANIES = [
   },
   {
     name: "Grok",
-    logo: "/assets/Grok.png",
+    logo: "https://contenaissance.blob.core.windows.net/ct-assets/grok.png",
     description: "xAI's witty AI assistant with real-time knowledge and a rebellious streak.",
   },
   {
