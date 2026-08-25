@@ -12,6 +12,8 @@ interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
+const baseUrl = process.env.NEXT_PUBLIC_APP_URL;
+
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
 
@@ -31,12 +33,15 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 
   return {
-    title: `${blog.title} | Contenaissance Blog`,
+    title: `${blog.title}`,
     description: blog.blog_meta_description ?? blog.excerpt ?? undefined,
     openGraph: {
       title: blog.title,
       description: blog.blog_meta_description ?? blog.excerpt ?? undefined,
       images: blog.cover_image ? [{ url: blog.cover_image }] : undefined,
+    },
+    alternates: {
+      canonical: `${baseUrl}/blog/${slug}`,
     },
   };
 }
