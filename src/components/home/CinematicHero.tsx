@@ -404,21 +404,35 @@ export function CinematicHero() {
             }}
             className="fixed left-4 top-2 z-50 sm:left-5 sm:top-2 md:left-9 md:top-3"
           >
-            <Link
-              href="/"
-              title="Home"
-              onClick={() => setMenuOpen(false)}
-            >
-              <Image
-                src="/assets/favicon.png"
-                alt="Contenaissance"
-                title="Contenaissance"
-                width={220}
-                height={66}
-                className="h-10 w-auto sm:h-12 md:h-16"
-                priority
-              />
-            </Link>
+<a
+  href="/"
+  title="Home"
+  onClick={(e) => {
+    e.preventDefault();
+    setMenuOpen(false);
+
+    const hero = document.getElementById("cinematic-hero");
+
+    if (hero) {
+      hero.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    } else {
+      window.location.href = "/";
+    }
+  }}
+>
+  <Image
+    src="/assets/favicon.png"
+    alt="Contenaissance"
+    title="Contenaissance"
+    width={220}
+    height={66}
+    className="h-10 w-auto sm:h-12 md:h-16"
+    priority
+  />
+</a>
           </motion.div>
         )}
       </AnimatePresence>

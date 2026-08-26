@@ -147,7 +147,7 @@
 
 /* Base styles */
 html {
-  scroll-behavior: auto;
+  scroll-behavior: smooth;
   background: var(--background);
   scrollbar-width: none;
   -ms-overflow-style: none;
