@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useGSAP } from "@gsap/react";
@@ -9,6 +9,8 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Waves from "@/components/Waves";
 import { FooterAIEngagement } from "@/components/ai-engagement/FooterAIEngagement";
 import { AIIconsMarquee } from "@/components/ui/AIIconsMarquee";
+import { LegalPolicyModal } from "@/components/ui/LegalPolicyModal";
+import type { LegalPolicyId } from "@/content/legal-policies";
 import {
   FOOTER_NEWSLETTER_SCRIPT_URL,
   submitToGoogleAppsScript,
@@ -42,6 +44,9 @@ export function CTAFooter({ showBrandHeading = true }: CTAFooterProps) {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<SubmitStatus>("idle");
   const [errorMsg, setErrorMsg] = useState("");
+  const [openPolicy, setOpenPolicy] = useState<LegalPolicyId | null>(null);
+
+  const closePolicy = useCallback(() => setOpenPolicy(null), []);
 
   useGSAP(
     () => {
@@ -335,20 +340,26 @@ export function CTAFooter({ showBrandHeading = true }: CTAFooterProps) {
                 © {new Date().getFullYear()} Contenaissance. All rights reserved.
               </p>
               <div className="flex flex-wrap items-center justify-center gap-2.5 text-[11px] text-white/60 sm:gap-4 sm:text-xs md:gap-6 md:text-sm">
-                <Link
-                  href="#privacy"
+                <button
+                  type="button"
                   title={LINK_TITLES.privacy}
-                  className="transition-colors duration-300 hover:text-white"
+                  aria-haspopup="dialog"
+                  aria-expanded={openPolicy === "privacy"}
+                  onClick={() => setOpenPolicy("privacy")}
+                  className="cursor-pointer bg-transparent p-0 text-inherit transition-colors duration-300 hover:text-white"
                 >
                   Privacy Policy
-                </Link>
-                <Link
-                  href="#cookies"
+                </button>
+                <button
+                  type="button"
                   title={LINK_TITLES.cookies}
-                  className="transition-colors duration-300 hover:text-white"
+                  aria-haspopup="dialog"
+                  aria-expanded={openPolicy === "cookies"}
+                  onClick={() => setOpenPolicy("cookies")}
+                  className="cursor-pointer bg-transparent p-0 text-inherit transition-colors duration-300 hover:text-white"
                 >
                   Cookies Policy
-                </Link>
+                </button>
                 <span>
                   Website by{" "}
                   <a
@@ -366,6 +377,8 @@ export function CTAFooter({ showBrandHeading = true }: CTAFooterProps) {
           </div>
         </footer>
       </div>
+
+      <LegalPolicyModal policyId={openPolicy} onClose={closePolicy} />
     </section>
   );
 }
