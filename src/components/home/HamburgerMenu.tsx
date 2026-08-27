@@ -239,7 +239,7 @@ export function HamburgerMenu({ isOpen, onClose, currentPage = "studio" }: Hambu
             </nav>
 
             {/* Language selector - bottom left (hidden on mobile) */}
-            <motion.div
+            {/* <motion.div
               variants={itemVariants}
               className="absolute bottom-6 left-4 hidden sm:block sm:bottom-8 sm:left-6 md:bottom-10 md:left-10"
             >
@@ -302,7 +302,7 @@ export function HamburgerMenu({ isOpen, onClose, currentPage = "studio" }: Hambu
                   )}
                 </AnimatePresence>
               </div>
-            </motion.div>
+            </motion.div> */}
 
             {/* Social links - bottom center with icons */}
             <motion.div
