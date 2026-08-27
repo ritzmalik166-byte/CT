@@ -9,6 +9,7 @@ import {
 } from "react";
 import Image from "next/image";
 import { getBootMediaUrlsForPathname } from "@/lib/critical-assets";
+import { findPageVideoByUrl } from "@/lib/video-playback";
 import { cn } from "@/lib/utils";
 
 type Stage = "booting" | "fade" | "off";
@@ -32,31 +33,53 @@ function delay(ms: number): Promise<void> {
 }
 
 /**
- * Lightweight hero warmup — `canplay` + short timeout fires much earlier than
- * `window` load + `canplaythrough`. Full buffering continues via the hero <video preload="auto">.
+ * Wait for the in-page hero <video> to reach `canplay` instead of creating a
+ * second decoder. Falls back to a timeout so the overlay never stalls.
  */
 function preloadVideoBootSignal(url: string, timeoutMs: number): Promise<void> {
   return new Promise((resolve) => {
-    const v = document.createElement("video");
-    v.preload = "auto";
-    v.muted = true;
-    v.playsInline = true;
-
     let finished = false;
+    let raf = 0;
+    const listeners: Array<{ el: HTMLVideoElement; type: string; fn: () => void }> = [];
+
     const finish = () => {
       if (finished) return;
       finished = true;
       window.clearTimeout(t);
-      v.removeAttribute("src");
-      v.load();
+      window.cancelAnimationFrame(raf);
+      listeners.forEach(({ el, type, fn }) => el.removeEventListener(type, fn));
       resolve();
     };
 
     const t = window.setTimeout(finish, timeoutMs);
-    v.addEventListener("canplay", finish, { once: true });
-    v.addEventListener("loadeddata", finish, { once: true });
-    v.addEventListener("error", finish, { once: true });
-    v.src = url;
+
+    const bind = (video: HTMLVideoElement) => {
+      if (video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) {
+        finish();
+        return;
+      }
+      const onReady = () => finish();
+      video.addEventListener("canplay", onReady);
+      video.addEventListener("loadeddata", onReady);
+      video.addEventListener("error", onReady);
+      listeners.push(
+        { el: video, type: "canplay", fn: onReady },
+        { el: video, type: "loadeddata", fn: onReady },
+        { el: video, type: "error", fn: onReady }
+      );
+    };
+
+    const poll = () => {
+      if (finished) return;
+      const existing = findPageVideoByUrl(url);
+      if (existing) {
+        bind(existing);
+        return;
+      }
+      raf = window.requestAnimationFrame(poll);
+    };
+
+    poll();
   });
 }
 

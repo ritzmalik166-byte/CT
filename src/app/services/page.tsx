@@ -7,6 +7,7 @@ import { SplitText } from "gsap/SplitText";
 import { useRef, useState } from "react";
 import { CTAFooter } from "@/components/home/CTAFooter";
 import { InnerPageNav } from "@/components/InnerPageNav";
+import { ManagedVideo } from "@/components/ui/ManagedVideo";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger, SplitText);
 
@@ -448,15 +449,15 @@ export default function ServicesPage() {
       <section className="relative flex h-[60vh] min-h-[420px] items-end justify-center overflow-hidden bg-zinc-950 px-4 pb-12 sm:h-[70vh] sm:px-6 sm:pb-16 md:h-[80vh] md:pb-20">
         {/* Video Background */}
         <div className="absolute inset-0">
-          <video
+          <ManagedVideo
             className="h-full w-full object-cover opacity-50"
+            src={VIDEOS[0]}
             autoPlay
             loop
             muted
             playsInline
-          >
-            <source src={VIDEOS[0]} type="video/mp4" />
-          </video>
+            eager
+          />
           <div className="absolute inset-0 bg-gradient-to-b from-zinc-950/70 via-zinc-950/50 to-zinc-950" />
         </div>
 
@@ -482,17 +483,16 @@ export default function ServicesPage() {
             >
               {/* Video Background */}
               <div className="absolute inset-0 overflow-hidden">
-                <video
+                <ManagedVideo
                   className={`service-video h-full w-full object-cover ${
                     isDark ? "opacity-30" : "opacity-20"
                   }`}
+                  src={service.video}
                   autoPlay
                   loop
                   muted
                   playsInline
-                >
-                  <source src={service.video} type="video/mp4" />
-                </video>
+                />
                 <div
                   className={`absolute inset-0 ${
                     isDark
@@ -562,15 +562,14 @@ export default function ServicesPage() {
               <section className="video-showcase relative h-[55vh] min-h-[380px] overflow-hidden sm:h-[70vh] md:h-[80vh]">
                 {/* Full-screen video with zoom */}
                 <div className="absolute inset-0 overflow-hidden">
-                  <video
+                  <ManagedVideo
                     className="showcase-video h-full w-full object-cover"
+                    src={VIDEO_SHOWCASES[showcaseIndex].video}
                     autoPlay
                     loop
                     muted
                     playsInline
-                  >
-                    <source src={VIDEO_SHOWCASES[showcaseIndex].video} type="video/mp4" />
-                  </video>
+                  />
                   <div className="showcase-overlay absolute inset-0 bg-zinc-950/60" />
                 </div>
 

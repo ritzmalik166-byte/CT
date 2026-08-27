@@ -3,8 +3,14 @@
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ReelModal } from "@/components/ui/ReelModal";
+import {
+  pauseVideoSafe,
+  playVideoSafe,
+  releaseVideoSrc,
+  warmVideoSrc,
+} from "@/lib/video-playback";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
@@ -121,6 +127,22 @@ export function AIFeaturesGrid() {
 
         const transitionsCount = reels.length - 1;
 
+        const videos = reels.map(
+          (reel) => reel.querySelector("video") as HTMLVideoElement | null
+        );
+
+        const syncReelPlayback = (progress: number) => {
+          const max = Math.max(1, reels.length - 1);
+          const cursor = progress * max;
+          videos.forEach((video, i) => {
+            if (!video) return;
+            const near = Math.abs(i - cursor) <= 1.05;
+            if (near) warmVideoSrc(video);
+            if (Math.abs(i - cursor) < 0.9) playVideoSafe(video);
+            else pauseVideoSafe(video);
+          });
+        };
+
         const tl = gsap.timeline({
           defaults: { duration: 0.85, ease: "power2.out" },
           scrollTrigger: {
@@ -133,6 +155,11 @@ export function AIFeaturesGrid() {
             anticipatePin: mobile ? 0.5 : 1,
             fastScrollEnd: mobile,
             invalidateOnRefresh: true,
+            onUpdate: (self) => syncReelPlayback(self.progress),
+            onEnter: (self) => syncReelPlayback(self.progress),
+            onEnterBack: (self) => syncReelPlayback(self.progress),
+            onLeave: () => videos.forEach((video) => video && pauseVideoSafe(video)),
+            onLeaveBack: () => videos.forEach((video) => video && pauseVideoSafe(video)),
             ...(mobile ? { refreshPriority: -1 } : {}),
           },
         });
@@ -200,6 +227,58 @@ export function AIFeaturesGrid() {
     { scope: sectionRef }
   );
 
+  useEffect(() => {
+    const section = sectionRef.current;
+    const stage = stageRef.current;
+    if (!section || !stage) return;
+
+    const videosOf = () =>
+      reelRefs.current.map(
+        (reel) => reel?.querySelector("video") ?? null
+      );
+
+    const loadObs = new IntersectionObserver(
+      ([entry]) => {
+        const videos = videosOf();
+        if (entry.isIntersecting) {
+          videos.forEach((video) => video && warmVideoSrc(video));
+          return;
+        }
+        videos.forEach((video) => {
+          if (!video) return;
+          pauseVideoSafe(video);
+          releaseVideoSrc(video);
+        });
+      },
+      { root: null, rootMargin: "80% 0px", threshold: 0 }
+    );
+
+    const playObs = new IntersectionObserver(
+      ([entry]) => {
+        reelRefs.current.forEach((reel) => {
+          const video = reel?.querySelector("video");
+          if (!reel || !video) return;
+          if (!entry.isIntersecting) {
+            pauseVideoSafe(video);
+            return;
+          }
+          const opacity = Number.parseFloat(getComputedStyle(reel).opacity);
+          if (opacity > 0.2) playVideoSafe(video);
+          else pauseVideoSafe(video);
+        });
+      },
+      { root: null, rootMargin: "0px", threshold: 0 }
+    );
+
+    loadObs.observe(section);
+    playObs.observe(stage);
+    return () => {
+      loadObs.disconnect();
+      playObs.disconnect();
+      videosOf().forEach((video) => video && pauseVideoSafe(video));
+    };
+  }, []);
+
   return (
     <section
       ref={sectionRef}
@@ -250,14 +329,15 @@ export function AIFeaturesGrid() {
                 <div className="reel-ring absolute -inset-4 rounded-full border border-[#AE8C20]/20 transition-colors duration-500 group-hover:border-[#AE8C20]/45 md:-inset-6" />
 
                 {/* Video circle */}
-                <div className="relative h-[220px] w-[220px] overflow-hidden rounded-full border-[3px] border-[#AE8C20]/35 bg-zinc-900 shadow-[0_14px_40px_-18px_rgba(0,0,0,0.85),0_0_28px_-14px_rgba(174,140,32,0.55)] transition-transform duration-500 ease-out group-hover:scale-[1.02] group-hover:border-[#AE8C20]/80 sm:h-[260px] sm:w-[260px] md:h-[360px] md:w-[360px] md:shadow-[0_28px_80px_-28px_rgba(0,0,0,0.95),0_0_42px_-18px_rgba(174,140,32,0.75)] md:group-hover:scale-[1.03] md:group-hover:shadow-[0_30px_90px_-28px_rgba(0,0,0,1),0_0_70px_-12px_rgba(174,140,32,0.65)] lg:h-[420px] lg:w-[420px]">                  <video
+                <div className="relative h-[220px] w-[220px] overflow-hidden rounded-full border-[3px] border-[#AE8C20]/35 bg-zinc-900 shadow-[0_14px_40px_-18px_rgba(0,0,0,0.85),0_0_28px_-14px_rgba(174,140,32,0.55)] transition-transform duration-500 ease-out group-hover:scale-[1.02] group-hover:border-[#AE8C20]/80 sm:h-[260px] sm:w-[260px] md:h-[360px] md:w-[360px] md:shadow-[0_28px_80px_-28px_rgba(0,0,0,0.95),0_0_42px_-18px_rgba(174,140,32,0.75)] md:group-hover:scale-[1.03] md:group-hover:shadow-[0_30px_90px_-28px_rgba(0,0,0,1),0_0_70px_-12px_rgba(174,140,32,0.65)] lg:h-[420px] lg:w-[420px]">
+                  <video
                     className="pointer-events-none h-full w-full object-cover"
-                    autoPlay
+                    data-src={reel.video}
                     loop
                     muted
-                  >
-                    <source src={reel.video} type="video/mp4" />
-                  </video>
+                    playsInline
+                    preload="none"
+                  />
 
                   {/* Soft vignette */}
                   <div className="pointer-events-none absolute inset-0 rounded-full bg-gradient-to-t from-black/45 via-black/5 to-transparent" />

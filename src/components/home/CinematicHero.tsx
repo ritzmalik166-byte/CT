@@ -9,6 +9,7 @@ import { useRef, useEffect, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { FloatingParticles } from "@/components/ui/FloatingParticles";
 import { RotatingCircleText } from "@/components/ui/RotatingCircleText";
+import { ManagedVideo } from "@/components/ui/ManagedVideo";
 import { HamburgerMenu } from "./HamburgerMenu";
 import { HERO_VIDEO_URL } from "@/lib/critical-assets";
 import { SHOW_INDEPENDENCE_DAY } from "../../../site-config";
@@ -129,10 +130,27 @@ export function CinematicHero() {
   useGSAP(
     (context, contextSafe) => {
       const tl = gsap.timeline({ defaults: { ease: "power4.out" } });
+      const heroNav = gsap.utils.toArray<Element>(".hero-nav");
+      const heroNavItems = gsap.utils.toArray<Element>(".hero-nav-item");
+      const scrollIndicator = gsap.utils.toArray<Element>(".hero-scroll-indicator");
 
-      tl.from(".hero-nav", { y: -30, opacity: 0, duration: 1 })
-        .from(".hero-nav-item", { y: -15, opacity: 0, stagger: 0.08, duration: 0.6 }, "-=0.6")
-        .from(".hero-scroll-indicator", { y: -20, opacity: 0, duration: 0.6 }, "-=0.3");
+      if (heroNav.length) {
+        tl.from(heroNav, { y: -30, opacity: 0, duration: 1 });
+      }
+      if (heroNavItems.length) {
+        tl.from(
+          heroNavItems,
+          { y: -15, opacity: 0, stagger: 0.08, duration: 0.6 },
+          heroNav.length ? "-=0.6" : 0
+        );
+      }
+      if (scrollIndicator.length) {
+        tl.from(
+          scrollIndicator,
+          { y: -20, opacity: 0, duration: 0.6 },
+          heroNav.length || heroNavItems.length ? "-=0.3" : 0.7
+        );
+      }
 
       const ctaButton = ctaButtonRef.current;
       if (ctaButton && contextSafe) {
@@ -167,11 +185,14 @@ export function CinematicHero() {
             duration: 0.3,
             ease: "power2.out",
           });
-          gsap.to(ctaButton.querySelector(".cta-glow"), {
-            opacity: 1,
-            scale: 1.2,
-            duration: 0.4,
-          });
+          const ctaGlow = ctaButton.querySelector(".cta-glow");
+          if (ctaGlow) {
+            gsap.to(ctaGlow, {
+              opacity: 1,
+              scale: 1.2,
+              duration: 0.4,
+            });
+          }
         });
 
         ctaButton.addEventListener("mousemove", handleMouseMove as EventListener);
@@ -571,16 +592,15 @@ export function CinematicHero() {
             ref={videoContainerRef}
             className="pointer-events-none absolute top-0 left-0 z-10 h-[100dvh] w-full overflow-hidden"
           >
-            <video
+            <ManagedVideo
               className="absolute inset-0 h-full w-full object-cover"
+              src={HERO_VIDEO_URL}
               autoPlay
               loop
               muted
               playsInline
-              preload="auto"
-            >
-              <source src={HERO_VIDEO_URL} type="video/mp4" />
-            </video>
+              eager
+            />
 
             {/* Gradient overlays */}
             <div className="hero-overlay-gradient absolute inset-0 bg-gradient-to-b from-zinc-950/40 via-transparent to-zinc-950/60" />

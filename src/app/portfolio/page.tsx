@@ -10,6 +10,8 @@ import { useRef, useState } from "react";
 import { CTAFooter } from "@/components/home/CTAFooter";
 import { InnerPageNav } from "@/components/InnerPageNav";
 import { ReelModal } from "@/components/ui/ReelModal";
+import { ManagedVideo } from "@/components/ui/ManagedVideo";
+import { playVideoSafe, pauseVideoSafe } from "@/lib/video-playback";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger, SplitText);
 
@@ -107,9 +109,9 @@ export default function PortfolioPage() {
     if (!video) return;
     if (hover) {
       video.currentTime = 0;
-      video.play().catch(() => undefined);
+      playVideoSafe(video);
     } else {
-      video.pause();
+      pauseVideoSafe(video);
     }
   };
 
@@ -321,7 +323,7 @@ export default function PortfolioPage() {
                 type="button"
                 onClick={() => {
                   const preview = reelVideoRefs.current[index] ?? null;
-                  void preview?.play().catch(() => undefined);
+                  if (preview) playVideoSafe(preview);
                   setActiveReel({ reel, preview });
                 }}
                 onMouseEnter={() => handleReelHover(index, true)}
@@ -330,7 +332,7 @@ export default function PortfolioPage() {
                 onBlur={() => handleReelHover(index, false)}
                 className="reel-card group relative aspect-[9/16] cursor-pointer overflow-hidden rounded-xl border border-white/10 bg-zinc-900 text-left shadow-[0_24px_70px_rgba(0,0,0,0.45)] transition-all duration-500 hover:-translate-y-2 hover:border-[#AE8C20]/45 hover:shadow-[0_32px_90px_rgba(174,140,32,0.35)] sm:rounded-[1.75rem]"
               >
-                <video
+                <ManagedVideo
                   ref={(el) => {
                     reelVideoRefs.current[index] = el;
                   }}

@@ -400,7 +400,7 @@ export function ReelModal({ reel, previewVideo, onClose }: ReelModalProps) {
                   </motion.div>
                 )}
 
-                <div ref={videoHostRef} className="absolute inset-0">
+                <div ref={videoHostRef} className="absolute inset-0" data-keep-video>
                   {!usesMovedPreview &&
                     (!previewVideo || !videoMatchesUrl(previewVideo, reel.video)) && (
                       <video
@@ -412,6 +412,7 @@ export function ReelModal({ reel, previewVideo, onClose }: ReelModalProps) {
                         loop
                         muted={isMuted}
                         playsInline
+                        preload="auto"
                       />
                     )}
                 </div>

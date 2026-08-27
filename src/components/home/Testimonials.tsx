@@ -7,6 +7,8 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useRef, useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
+import { ManagedVideo } from "@/components/ui/ManagedVideo";
+import { pauseVideoSafe, playVideoSafe, warmVideoSrc } from "@/lib/video-playback";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
@@ -77,13 +79,12 @@ function ReelCard({
       className="group relative h-full w-full cursor-pointer overflow-hidden rounded-[1.75rem] border-2 border-[#AE8C20]/40 bg-zinc-900 text-left shadow-[0_40px_90px_-25px_rgba(0,0,0,0.95),0_0_70px_-12px_rgba(174,140,32,0.4)] outline-none transition-colors duration-300 hover:border-[#AE8C20]/80 focus-visible:ring-2 focus-visible:ring-[#AE8C20]"
       aria-label={`Open ${reel.title}`}
     >
-      <video
+      <ManagedVideo
         src={reel.video}
-        autoPlay
         muted
         loop
         playsInline
-        preload="metadata"
+        managePlayback={false}
         className="h-full w-full object-cover"
       />
 
@@ -124,11 +125,12 @@ function ReelSwipeCard({
       className="group relative h-full w-full cursor-pointer touch-manipulation overflow-hidden rounded-[1.75rem] border-2 border-[#AE8C20]/40 bg-zinc-900 text-left shadow-[0_40px_90px_-25px_rgba(0,0,0,0.95),0_0_70px_-12px_rgba(174,140,32,0.4)] outline-none transition-colors duration-300 hover:border-[#AE8C20]/80 focus-visible:ring-2 focus-visible:ring-[#AE8C20]"
       aria-label={`Open ${reel.title}`}
     >
-      <video
+      <ManagedVideo
         src={reel.video}
         autoPlay
         muted
         loop
+        playsInline
         className="pointer-events-none h-full w-full select-none object-cover [-webkit-touch-callout:none]"
       />
 
@@ -199,9 +201,10 @@ export function Testimonials() {
             if (!video) return;
             const opacity = Number(gsap.getProperty(card, "opacity")) || 0;
             if (opacity > 0.2) {
-              if (video.paused) void video.play().catch(() => undefined);
+              warmVideoSrc(video);
+              playVideoSafe(video);
             } else {
-              video.pause();
+              pauseVideoSafe(video);
             }
           });
         };
@@ -224,10 +227,16 @@ export function Testimonials() {
             onEnter: syncDeckVideos,
             onEnterBack: syncDeckVideos,
             onLeave: () => {
-              cards.forEach((card) => card.querySelector("video")?.pause());
+              cards.forEach((card) => {
+                const video = card.querySelector("video");
+                if (video) pauseVideoSafe(video);
+              });
             },
             onLeaveBack: () => {
-              cards.forEach((card) => card.querySelector("video")?.pause());
+              cards.forEach((card) => {
+                const video = card.querySelector("video");
+                if (video) pauseVideoSafe(video);
+              });
             },
           },
         });
@@ -282,7 +291,10 @@ export function Testimonials() {
         syncDeckVideos();
 
         return () => {
-          cards.forEach((card) => card.querySelector("video")?.pause());
+          cards.forEach((card) => {
+            const video = card.querySelector("video");
+            if (video) pauseVideoSafe(video);
+          });
           tl.scrollTrigger?.kill();
           tl.kill();
         };

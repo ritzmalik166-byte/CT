@@ -8,6 +8,7 @@ import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 import { useRef } from "react";
+import { ManagedVideo } from "@/components/ui/ManagedVideo";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger, SplitText);
 
@@ -310,16 +311,15 @@ export function HeroWithAnimation() {
           ref={videoContainerRef}
           className="pointer-events-none absolute top-0 left-0 z-10 h-full w-full overflow-hidden"
         >
-          <video
+          <ManagedVideo
             className="absolute inset-0 h-full w-full object-cover"
+            src={HERO_VIDEO_URL}
             autoPlay
             loop
             muted
             playsInline
-            preload="auto"
-          >
-            <source src={HERO_VIDEO_URL} type="video/mp4" />
-          </video>
+            eager
+          />
           <div className="absolute inset-0 bg-black/20" />
 
           {/* <div className="hero-overlay-text absolute inset-0 z-20 flex items-end px-6 pb-16 md:px-10 md:pb-20">
