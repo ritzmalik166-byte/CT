@@ -1,11 +1,34 @@
-/** Editable placeholder legal copy for footer policy modals. No dedicated routes. */
+/** Legal copy for footer policy modals. No dedicated routes. */
 
 export type LegalPolicyId = "privacy" | "cookies";
 
+export type LegalPolicyLink = {
+  label: string;
+  href: string;
+};
+
+export type LegalPolicyParagraph = string | Array<string | LegalPolicyLink>;
+
+export type LegalPolicySubsection = {
+  subheading: string;
+  paragraphs: LegalPolicyParagraph[];
+  bullets?: string[];
+  paragraphsAfterBullets?: LegalPolicyParagraph[];
+};
+
+export type LegalPolicyContactItem = {
+  label: string;
+  value: string;
+  href?: string;
+};
+
 export type LegalPolicySection = {
   heading: string;
-  paragraphs: string[];
+  paragraphs?: LegalPolicyParagraph[];
   bullets?: string[];
+  paragraphsAfterBullets?: LegalPolicyParagraph[];
+  subsections?: LegalPolicySubsection[];
+  contactItems?: LegalPolicyContactItem[];
 };
 
 export type LegalPolicy = {
@@ -13,7 +36,7 @@ export type LegalPolicy = {
   title: string;
   eyebrow: string;
   lastUpdated: string;
-  intro: string;
+  intro: LegalPolicyParagraph[];
   sections: LegalPolicySection[];
 };
 
@@ -23,98 +46,160 @@ export const LEGAL_POLICIES: Record<LegalPolicyId, LegalPolicy> = {
     title: "Privacy Policy",
     eyebrow: "Legal",
     lastUpdated: "26 August 2026",
-    intro:
-      "This Privacy Policy explains how Contenaissance (“we”, “us”, or “our”) collects, uses, stores, and shares information when you visit our website, contact us, subscribe to updates, or use our services. This is placeholder copy that can be replaced with your final legal text.",
+    intro: [
+      'Contenaissance ("the company," "we," "our," or "us") cares about the privacy of anyone who visits this website or reaches out about a project. This policy lays out what information gets collected, how it\'s used, and what choices are available. Using this website means agreeing to the practices described below.',
+      [
+        "It applies to ",
+        {
+          label: "www.contenaissance.com",
+          href: "https://www.contenaissance.com",
+        },
+        " and any related services offered under the Contenaissance name.",
+      ],
+    ],
     sections: [
       {
-        heading: "1. Who we are",
-        paragraphs: [
-          "Contenaissance is a creative and technology studio. For privacy questions related to this website, you can reach us through the contact details on our Contact page or by writing to the email address published on the site.",
-          "If we appoint a data protection officer or a local representative, those details will be added here.",
+        heading: "Information We Collect",
+        subsections: [
+          {
+            subheading: "Information Visitors Provide Directly",
+            paragraphs: [
+              "Filling out the contact form means sharing a few details:",
+            ],
+            bullets: [
+              "Full name",
+              "Email address",
+              "Contact number",
+              "Service of interest",
+              "Country",
+              "Enquiry message",
+            ],
+            paragraphsAfterBullets: [
+              "None of this gets collected unless a visitor chooses to submit the form. It's entirely voluntary, whether the reason is a project, a collaboration, or just a general question."
+            ]
+          },
+
+          {
+            subheading: "Information Collected Automatically",
+            paragraphs: [
+              "Like most websites, this one picks up some technical information in the background: browser type, device type, an approximate location based on IP address, which pages get viewed, how long a visit lasts, and how someone arrived at the site. This data is usually aggregated or anonymized. It helps us understand how people use the site and where it needs work.",
+            ],
+          },
         ],
       },
       {
-        heading: "2. Information we collect",
+        heading: "How We Use This Information",
         paragraphs: [
-          "We collect information that you provide directly and information that is generated automatically when you use the website.",
+          "The information gathered through the contact form and general site activity goes toward a few things:",
         ],
         bullets: [
-          "Contact and enquiry details, such as your name, email address, phone number, company name, and the message you send through forms.",
-          "Newsletter or update requests, including the email address you submit in the footer.",
-          "Project or briefing details you choose to share when discussing a potential engagement.",
-          "Technical data such as IP address, browser type, device type, approximate location, referring URL, pages viewed, and timestamps.",
-          "Cookie and similar technology data, described in more detail in our Cookies Policy.",
+          "Responding to enquiries and project requests",
+          "Understanding which services visitors care about most",
+          "Improving website content, design, and user experience",
+          "Sending updates related to an ongoing enquiry or project",
+          "Keeping the website secure and running properly",
+        ],
+        paragraphsAfterBullets: [
+          "We don't sell contact information to third parties. It's used to follow up on the enquiry a visitor submits, nothing more.",
         ],
       },
       {
-        heading: "3. How we use information",
+        heading: "Cookies & Tracking Technologies",
         paragraphs: [
-          "We use personal information only for the purposes described in this policy, or for closely related purposes that you would reasonably expect.",
+          "This website may use cookies and similar tracking technologies to keep things running smoothly, remember visitor preferences, and get a sense of overall traffic patterns. Cookies are small text files a website stores on a visitor's device so certain information can carry over between visits.",
+          "Visitors can control or turn off cookies through their browser settings. Doing so might affect how parts of the site function, but the core content stays accessible either way.",
+          "A separate Cookies Policy covers the specific categories of cookies this site uses, for anyone who wants the finer details.",
+        ],
+      },
+      {
+        heading: "Sharing of Information",
+        paragraphs: [
+          "Personal information doesn't get shared with outside parties, except in these situations:",
         ],
         bullets: [
-          "To respond to enquiries, schedule conversations, and deliver the services you request.",
-          "To send updates or newsletters where you have asked us to do so.",
-          "To operate, secure, and improve the website, including diagnosing technical issues.",
-          "To measure how the site is used and to understand which content is useful.",
-          "To comply with legal obligations and to protect our rights, users, and business.",
+          "With service providers who help run this website or process enquiries, such as hosting providers or email delivery services, and only to the extent they need that information to do their job",
+          "When required by law, regulation, or a valid legal process",
+          "To protect the rights, safety, or property of Contenaissance, its clients, or the public",
+          "As part of a business transition, such as a merger or acquisition, where information may transfer along with it",
+        ],
+        paragraphsAfterBullets: [
+          "Contenaissance operates as part of the Ritz Media World group of companies. Information may be shared internally within this group where it's needed to respond to an enquiry or deliver a requested service.",
         ],
       },
       {
-        heading: "4. Legal bases",
+        heading: "Data Retention",
         paragraphs: [
-          "Where applicable privacy laws require a legal basis, we typically rely on one or more of the following: your consent, the performance of a contract or steps taken at your request before entering a contract, our legitimate interests in running and improving the studio, and compliance with legal obligations.",
-          "You may withdraw consent at any time where processing is based on consent. Withdrawal does not affect the lawfulness of processing that happened before withdrawal.",
+          "Information submitted through the contact form is kept for as long as it's needed to respond to the enquiry, manage an ongoing project relationship, or meet legal and accounting obligations. Once that purpose is done, the information gets deleted or anonymized.",
         ],
       },
       {
-        heading: "5. Sharing of information",
+        heading: "Data Security",
         paragraphs: [
-          "We do not sell your personal information. We may share information with trusted service providers who help us operate the website and our business, such as hosting, email delivery, form handling, analytics, and communication tools.",
-          "Those providers are expected to use the information only to perform services for us and to protect it appropriately. We may also disclose information if required by law, to protect our rights, or in connection with a business transfer such as a merger or acquisition.",
+          "Reasonable technical and organizational measures are in place to protect personal information from unauthorized access, alteration, disclosure, or loss. That said, no method of transmission over the internet or electronic storage can offer a complete guarantee. No one can promise total security, and we won't pretend otherwise.",
         ],
       },
       {
-        heading: "6. Retention",
+        heading: "Your Rights",
         paragraphs: [
-          "We keep personal information only for as long as needed for the purposes described in this policy, including to meet legal, accounting, or reporting requirements. Enquiry records, newsletter lists, and technical logs may be retained for different periods depending on their purpose.",
-          "When information is no longer required, we will delete it or anonymise it where deletion is not immediately possible.",
+          "Depending on the data protection laws that apply, visitors may have the right to:",
+        ],
+        bullets: [
+          "Request access to the personal information held about them",
+          "Request correction of inaccurate or incomplete information",
+          "Request deletion of their personal information, where applicable",
+          "Withdraw consent for future communication at any time",
+        ],
+        paragraphsAfterBullets: [
+          [
+            "Visitors based in India are covered under the ",
+            {
+              label: "Digital Personal Data Protection Act",
+              href: "https://prsindia.org/billtrack/digital-personal-data-protection-bill-2023",
+            },
+            ", and this policy is built to align with its principles. Visitors from other regions may have additional rights under their own local laws.",
+          ],
+          "To exercise any of these rights, visitors can reach out using the contact details below.",
         ],
       },
       {
-        heading: "7. Your rights",
+        heading: "Third-Party Links & Embedded Content",
         paragraphs: [
-          "Depending on where you live, you may have rights to access, correct, delete, or restrict the use of your personal information, to object to certain processing, to withdraw consent, and to receive a copy of information you provided to us.",
-          "To exercise these rights, contact us using the details on our Contact page. We may need to verify your identity before fulfilling a request. You may also have the right to lodge a complaint with a data protection authority.",
+          "This website may include links to third-party platforms, such as social media pages, or embedded content like videos. These third parties run under their own privacy policies, and Contenaissance isn't responsible for how they collect or use information. Visitors are encouraged to check the privacy practices of any third-party site before sharing information there.",
         ],
       },
       {
-        heading: "8. International transfers",
+        heading: "Children's Privacy",
         paragraphs: [
-          "Our service providers and collaborators may process information in countries other than your own. Where we transfer personal information internationally, we will take steps designed to ensure it receives an adequate level of protection, such as contractual safeguards.",
+          "This website isn't directed at children, and personal information isn't knowingly collected from anyone under the age of 18. If we learn that a minor has submitted information without appropriate consent, it gets deleted.",
         ],
       },
       {
-        heading: "9. Children’s privacy",
+        heading: "Changes to This Policy",
         paragraphs: [
-          "This website and our services are not directed to children. We do not knowingly collect personal information from children. If you believe a child has provided information to us, please contact us and we will take appropriate steps to delete it.",
+          "This Privacy Policy may be updated from time to time to reflect changes in practices, technology, legal requirements, or other factors. Any changes will be posted on this page along with an updated effective date. Continuing to use the website after changes go live means accepting the revised policy.",
         ],
       },
       {
-        heading: "10. Security",
+        heading: "Contact Us",
         paragraphs: [
-          "We use reasonable technical and organisational measures to protect personal information against unauthorised access, loss, misuse, or alteration. No method of transmission or storage is completely secure, so we cannot guarantee absolute security.",
+          "Questions about this Privacy Policy or how personal information is handled can go here:",
         ],
-      },
-      {
-        heading: "11. Changes to this policy",
-        paragraphs: [
-          "We may update this Privacy Policy from time to time. The “Last updated” date at the top of this notice will change when we do. Continued use of the website after an update means you should review the revised policy.",
-        ],
-      },
-      {
-        heading: "12. Contact",
-        paragraphs: [
-          "If you have questions about this Privacy Policy or how we handle personal information, please contact Contenaissance through the Contact page on this website.",
+        contactItems: [
+          {
+            label: "Email:",
+            value: "info@ritzmediaworld.com",
+            href: "mailto:info@ritzmediaworld.com",
+          },
+          {
+            label: "Phone:",
+            value: "+91-9220516777",
+            href: "tel:+919220516777",
+          },
+          {
+            label: "Address:",
+            value:
+              "Unit No. 404, 4th Floor, Corporate Park Tower A1, Sector 142, Noida, Uttar Pradesh 201305, India",
+          },
         ],
       },
     ],
@@ -124,71 +209,104 @@ export const LEGAL_POLICIES: Record<LegalPolicyId, LegalPolicy> = {
     title: "Cookies Policy",
     eyebrow: "Legal",
     lastUpdated: "26 August 2026",
-    intro:
-      "This Cookies Policy explains how Contenaissance uses cookies and similar technologies on our website. It is placeholder copy that can be replaced with your final legal text and a complete cookie inventory.",
+    intro: [
+      "This site uses cookies. Not in a sneaky way, in the ordinary way most websites do, to keep things working and to get a sense of who's visiting and how. This policy walks through what cookies actually are, which kinds show up here, and how to manage them if you'd rather not have them around.",
+      [
+        "Read it alongside the Privacy Policy, which covers personal information more broadly. This one applies specifically to ",
+        {
+          label: "www.contenaissance.com",
+          href: "https://www.contenaissance.com",
+        },
+        ".",
+      ],
+    ],
     sections: [
       {
-        heading: "1. What cookies are",
+        heading: "What Are Cookies",
         paragraphs: [
-          "Cookies are small text files stored on your device when you visit a website. They help the site remember your preferences, keep the experience working, and understand how the site is used.",
-          "We may also use similar technologies such as pixels, local storage, and tags. In this policy, we refer to all of these as “cookies” for simplicity.",
+          "A cookie is a small text file. A website drops it on your device, phone, laptop, tablet, whatever you're browsing on, so it can remember things between visits: a preference, a login, that kind of thing. It also gives the site owner a rough picture of how people move through the pages.",
+          "They won't damage a device. No harmful code hiding inside. Most browsers accept them by default, but every browser gives you some way to manage or block them if you go looking in the settings.",
         ],
       },
       {
-        heading: "2. How we use cookies",
-        paragraphs: [
-          "Cookies help us operate the website, remember choices, measure performance, and improve content. Some cookies are set by us. Others may be set by third parties who provide services on our behalf, such as analytics or embedded media.",
+        heading: "Types of Cookies This Site Uses",
+        subsections: [
+          {
+            subheading: "Essential Cookies",
+            paragraphs: [
+              "These run the basic machinery: pages load, navigation works, sections connect to each other. Turn them off and parts of the site stop functioning the way they're supposed to. That's exactly why there's no toggle for these. They stay on.",
+            ],
+          },
+          {
+            subheading: "Performance & Analytics Cookies",
+            paragraphs: [
+              "Which pages get the most traffic. How long people stick around. Where things break. That's what this category tracks, and it's how site performance gets measured and improved over time. The data comes in aggregated and anonymous form, so no individual visitor gets identified through it.",
+            ],
+          },
+          {
+            subheading: "Functionality Cookies",
+            paragraphs: [
+              "Set a language preference, pick a region, and these cookies remember it next time you're back. Small thing, but it's what makes a return visit feel less like starting from scratch. Without them, some features get clunkier.",
+            ],
+          },
+          {
+            subheading: "Third-Party Cookies",
+            paragraphs: [
+              "A handful of cookies here don't come from Contenaissance at all. They arrive through embedded content, a social media widget, or a video player, and whoever runs that service sets them independently. Their own privacy and cookies policies govern that data, not this one.",
+            ],
+          },
         ],
       },
       {
-        heading: "3. Types of cookies we use",
-        paragraphs: [
-          "The categories below describe the kinds of cookies that may be used on this website. The exact list can be updated as tools change.",
-        ],
+        heading: "Why Cookies Get Used Here",
+        paragraphs: ["A few reasons, mostly practical:"],
         bullets: [
-          "Strictly necessary cookies: required for core functions such as page navigation, security, form submission, and remembering cookie choices.",
-          "Functional cookies: remember preferences such as language or interface choices so the site feels more consistent on return visits.",
-          "Analytics cookies: help us understand which pages are visited, how visitors move through the site, and where technical issues occur.",
-          "Marketing or media cookies: may be used if we embed videos, social content, or campaign tags. These can also help us understand whether our communications are useful.",
+          "Security and basic site function",
+          "Understanding how visitors actually move through the site, to fix layout and content that isn't working",
+          "Remembering preferences so browsing feels less repetitive",
+          "Making embedded videos and social features work the way they're supposed to",
         ],
       },
       {
-        heading: "4. Cookie duration",
+        heading: "How Long They Stick Around",
         paragraphs: [
-          "Session cookies last only until you close your browser. Persistent cookies remain for a set period, or until you delete them, so the site can recognise your device on a later visit.",
-          "Retention periods vary by cookie. Necessary cookies are typically kept only as long as needed for the relevant feature. Analytics and preference cookies may last from a few months up to around two years unless you clear them sooner.",
+          "Two categories, really. Session cookies disappear the moment the browser closes; they only exist for the length of one visit. Persistent cookies hang around longer, either for a set stretch of time or until someone deletes them manually, and that's what lets a site recognize a returning visitor.",
         ],
       },
       {
-        heading: "5. Third-party cookies",
+        heading: "Managing Cookie Preferences",
         paragraphs: [
-          "Some pages may load content or tools from third parties, for example analytics providers, fonts, maps, or video hosts. Those third parties may set their own cookies according to their privacy and cookie policies.",
-          "We do not control third-party cookies. You should review the relevant provider’s policy if you want details about their practices.",
+          "You're in control of this, not the website. Browser settings typically let you see what's stored, delete some or all of it, block specific sites or every site, or get a heads-up before anything new gets saved.",
+          "Every browser handles it a bit differently, so the fastest route is the browser's own help section. One thing worth knowing before switching everything off: disabling essential cookies in particular can break parts of the site outright.",
         ],
       },
       {
-        heading: "6. Managing your preferences",
+        heading: "Changes to This Policy",
         paragraphs: [
-          "You can control cookies through your browser settings. Most browsers let you block or delete cookies, or alert you before a cookie is stored. If you disable certain cookies, parts of the website may not work as expected.",
-          "Where a cookie banner or preference centre is available, you can also use it to accept, reject, or customise non-essential cookies. You can usually change that choice later.",
+          "Cookies change. Regulations change. This page gets updated when either one does, along with a new effective date. Using the site after an update goes live counts as accepting it.",
         ],
       },
       {
-        heading: "7. Do Not Track and similar signals",
+        heading: "Contact Us",
         paragraphs: [
-          "Some browsers offer a “Do Not Track” setting. There is no common standard for responding to these signals. We will describe our approach here if a specific handling process is adopted.",
+          "Questions about this policy or how cookies get used here:",
         ],
-      },
-      {
-        heading: "8. Updates to this policy",
-        paragraphs: [
-          "We may update this Cookies Policy when we change the tools we use or when the law requires it. The “Last updated” date at the top will change when we do. Please review this notice periodically.",
-        ],
-      },
-      {
-        heading: "9. Contact",
-        paragraphs: [
-          "If you have questions about our use of cookies, please contact Contenaissance through the Contact page on this website.",
+        contactItems: [
+          {
+            label: "Email:",
+            value: "info@ritzmediaworld.com",
+            href: "mailto:info@ritzmediaworld.com",
+          },
+          {
+            label: "Phone:",
+            value: "+91-9220516777",
+            href: "tel:+919220516777",
+          },
+          {
+            label: "Address:",
+            value:
+              "Unit No. 404, 4th Floor, Corporate Park Tower A1, Sector 142, Noida, Uttar Pradesh 201305, India",
+          },
         ],
       },
     ],

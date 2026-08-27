@@ -9,53 +9,182 @@ import {
   LEGAL_POLICIES,
   type LegalPolicy,
   type LegalPolicyId,
+  type LegalPolicyParagraph,
+  type LegalPolicySection,
+  type LegalPolicySubsection,
 } from "@/content/legal-policies";
 
 const FOCUSABLE_SELECTOR =
   'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])';
+
+const PARAGRAPH_CLASS =
+  "text-sm leading-relaxed text-zinc-400 sm:text-[15px] sm:leading-[1.75]";
+
+const LINK_CLASS =
+  "font-medium text-[#C9A84C] underline decoration-[#AE8C20]/50 underline-offset-[3px] transition-colors duration-200 hover:text-[#E0C068] hover:decoration-[#AE8C20] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#AE8C20]/50 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-900";
 
 type LegalPolicyModalProps = {
   policyId: LegalPolicyId | null;
   onClose: () => void;
 };
 
-function PolicyBody({ policy }: { policy: LegalPolicy }) {
-  return (
-    <div className="space-y-8 sm:space-y-10">
-      <p className="max-w-3xl text-sm leading-relaxed text-zinc-300 sm:text-base">
-        {policy.intro}
-      </p>
+function PolicyParagraph({
+  content,
+  className = PARAGRAPH_CLASS,
+}: {
+  content: LegalPolicyParagraph;
+  className?: string;
+}) {
+  if (typeof content === "string") {
+    return <p className={className}>{content}</p>;
+  }
 
-      {policy.sections.map((section) => (
-        <section key={section.heading} className="space-y-3 sm:space-y-3.5">
-          <h3 className="text-base font-semibold tracking-tight text-white sm:text-lg">
-            {section.heading}
-          </h3>
-          {section.paragraphs.map((paragraph, index) => (
+  return (
+    <p className={className}>
+      {content.map((segment, index) =>
+        typeof segment === "string" ? (
+          <span key={index}>{segment}</span>
+        ) : (
+          <a
+            key={index}
+            href={segment.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={LINK_CLASS}
+          >
+            {segment.label}
+          </a>
+        )
+      )}
+    </p>
+  );
+}
+
+function PolicyBulletList({ items, keyPrefix }: { items: string[]; keyPrefix: string }) {
+  return (
+    <ul className="space-y-0.5 pl-1 sm:pl-2">
+      {items.map((item, index) => (
+        <li
+          key={`${keyPrefix}-b-${index}`}
+          className="flex gap-3 text-sm leading-relaxed text-zinc-400 sm:text-[15px] sm:leading-[1.75]"
+        >
+          <span
+            aria-hidden
+            className="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[#AE8C20]"
+          />
+          <span>{item}</span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function PolicySubsection({
+  subsection,
+  keyPrefix,
+}: {
+  subsection: LegalPolicySubsection;
+  keyPrefix: string;
+}) {
+  return (
+    <div className="space-y-3 sm:space-y-3.5">
+      <h4 className="text-sm font-semibold tracking-tight text-zinc-200 sm:text-base">
+        {subsection.subheading}
+      </h4>
+      {subsection.paragraphs.map((paragraph, index) => (
+        <PolicyParagraph
+          key={`${keyPrefix}-sub-p-${index}`}
+          content={paragraph}
+        />
+      ))}
+      {subsection.bullets ? (
+        <PolicyBulletList items={subsection.bullets} keyPrefix={`${keyPrefix}-sub`} />
+      ) : null}
+      {subsection.paragraphsAfterBullets?.map((paragraph, index) => (
+        <PolicyParagraph
+          key={`${keyPrefix}-sub-after-p-${index}`}
+          content={paragraph}
+        />
+      ))}
+    </div>
+  );
+}
+
+function PolicySection({ section }: { section: LegalPolicySection }) {
+  return (
+    <section className="space-y-4 sm:space-y-5">
+      <h3 className="text-base font-semibold tracking-tight text-white sm:text-lg">
+        {section.heading}
+      </h3>
+
+      {section.subsections ? (
+        <div className="space-y-6 sm:space-y-7">
+          {section.subsections.map((subsection) => (
+            <PolicySubsection
+              key={`${section.heading}-${subsection.subheading}`}
+              subsection={subsection}
+              keyPrefix={`${section.heading}-${subsection.subheading}`}
+            />
+          ))}
+        </div>
+      ) : null}
+
+      {section.paragraphs?.map((paragraph, index) => (
+        <PolicyParagraph
+          key={`${section.heading}-p-${index}`}
+          content={paragraph}
+        />
+      ))}
+
+      {section.bullets ? (
+        <PolicyBulletList items={section.bullets} keyPrefix={section.heading} />
+      ) : null}
+
+      {section.paragraphsAfterBullets?.map((paragraph, index) => (
+        <PolicyParagraph
+          key={`${section.heading}-after-p-${index}`}
+          content={paragraph}
+        />
+      ))}
+
+      {section.contactItems ? (
+        <div className="space-y-2.5 rounded-xl border border-zinc-800/70 bg-zinc-950/40 px-4 py-4 sm:px-5 sm:py-5">
+          {section.contactItems.map((item) => (
             <p
-              key={`${section.heading}-p-${index}`}
-              className="text-sm leading-relaxed text-zinc-400 sm:text-[15px] sm:leading-relaxed"
+              key={`${section.heading}-${item.label}`}
+              className="text-sm leading-relaxed text-zinc-400 sm:text-[15px] sm:leading-[1.75]"
             >
-              {paragraph}
+              <span className="font-semibold text-zinc-200">{item.label}</span>{" "}
+              {item.href ? (
+                <a href={item.href} className={LINK_CLASS}>
+                  {item.value}
+                </a>
+              ) : (
+                <span>{item.value}</span>
+              )}
             </p>
           ))}
-          {section.bullets ? (
-            <ul className="space-y-2.5 pl-1 sm:pl-2">
-              {section.bullets.map((item, index) => (
-                <li
-                  key={`${section.heading}-b-${index}`}
-                  className="flex gap-3 text-sm leading-relaxed text-zinc-400 sm:text-[15px]"
-                >
-                  <span
-                    aria-hidden
-                    className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[#AE8C20]"
-                  />
-                  <span>{item}</span>
-                </li>
-              ))}
-            </ul>
-          ) : null}
-        </section>
+        </div>
+      ) : null}
+    </section>
+  );
+}
+
+function PolicyBody({ policy }: { policy: LegalPolicy }) {
+  return (
+    <div className="space-y-9 sm:space-y-11">
+      <div className="space-y-4 sm:space-y-5">
+        {policy.intro.map((paragraph, index) => (
+          <PolicyParagraph
+            key={`intro-${index}`}
+            content={paragraph}
+            className="max-w-3xl text-sm leading-relaxed text-zinc-300 sm:text-base sm:leading-[1.75]"
+          />
+        ))}
+      </div>
+
+      {policy.sections.map((section) => (
+        <PolicySection key={section.heading} section={section} />
       ))}
     </div>
   );
@@ -157,15 +286,15 @@ export function LegalPolicyModal({ policyId, onClose }: LegalPolicyModalProps) {
           aria-labelledby={titleId}
           aria-describedby={descriptionId}
         >
-<motion.div
-  className="absolute inset-0 bg-zinc-950/80 backdrop-blur-md"
-  initial={{ opacity: 0, backdropFilter: "blur(0px)" }}
-  animate={{ opacity: 1, backdropFilter: "blur(10px)" }}
-  exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
-  transition={{ duration: 0.35, ease: "easeOut" }}
-  aria-hidden="true"
-  onClick={handleBackdropClick}
-/>
+          <motion.div
+            className="absolute inset-0 bg-zinc-950/80 backdrop-blur-md"
+            initial={{ opacity: 0, backdropFilter: "blur(0px)" }}
+            animate={{ opacity: 1, backdropFilter: "blur(10px)" }}
+            exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
+            transition={{ duration: 0.35, ease: "easeOut" }}
+            aria-hidden="true"
+            onClick={handleBackdropClick}
+          />
 
           <motion.div
             ref={panelRef}
@@ -196,32 +325,32 @@ export function LegalPolicyModal({ policyId, onClose }: LegalPolicyModalProps) {
             }}
             onClick={(event) => event.stopPropagation()}
           >
-<motion.div
-  className="pointer-events-none absolute right-0 top-0 h-48 w-48 translate-x-1/3 -translate-y-1/3 rounded-full bg-[#AE8C20]/12 blur-[80px]"
-  animate={{
-    scale: [1, 1.15, 1],
-    opacity: [0.45, 0.75, 0.45],
-  }}
-  transition={{
-    duration: 5,
-    repeat: Infinity,
-    ease: "easeInOut",
-  }}
-/>
+            <motion.div
+              className="pointer-events-none absolute right-0 top-0 h-48 w-48 translate-x-1/3 -translate-y-1/3 rounded-full bg-[#AE8C20]/12 blur-[80px]"
+              animate={{
+                scale: [1, 1.15, 1],
+                opacity: [0.45, 0.75, 0.45],
+              }}
+              transition={{
+                duration: 5,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+            />
 
-<motion.div
-  className="pointer-events-none absolute bottom-0 left-0 h-40 w-40 -translate-x-1/4 translate-y-1/4 rounded-full bg-[#AE8C20]/8 blur-[70px]"
-  animate={{
-    scale: [1, 1.12, 1],
-    opacity: [0.3, 0.6, 0.3],
-  }}
-  transition={{
-    duration: 6,
-    repeat: Infinity,
-    ease: "easeInOut",
-    delay: 1,
-  }}
-/>
+            <motion.div
+              className="pointer-events-none absolute bottom-0 left-0 h-40 w-40 -translate-x-1/4 translate-y-1/4 rounded-full bg-[#AE8C20]/8 blur-[70px]"
+              animate={{
+                scale: [1, 1.12, 1],
+                opacity: [0.3, 0.6, 0.3],
+              }}
+              transition={{
+                duration: 6,
+                repeat: Infinity,
+                ease: "easeInOut",
+                delay: 1,
+              }}
+            />
             <div className="relative flex items-start justify-between gap-4 border-b border-zinc-800/70 px-5 py-4 sm:px-8 sm:py-5 lg:px-10">
               <div className="min-w-0 pr-2">
                 <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-[#AE8C20] sm:text-[11px]">
@@ -233,12 +362,12 @@ export function LegalPolicyModal({ policyId, onClose }: LegalPolicyModalProps) {
                 >
                   {policy.title}
                 </h2>
-                <p
+                {/* <p
                   id={descriptionId}
                   className="mt-1 text-xs text-zinc-500 sm:text-sm"
                 >
                   Last updated {policy.lastUpdated}
-                </p>
+                </p> */}
               </div>
 
               <button
@@ -253,23 +382,23 @@ export function LegalPolicyModal({ policyId, onClose }: LegalPolicyModalProps) {
             </div>
 
             <div
-  tabIndex={0}
-  role="region"
-  aria-label={`${policy.title} content`}
-  data-lenis-prevent
-  className="relative min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 py-6 sm:px-8 sm:py-8 lg:px-10 lg:py-9 focus-visible:outline-none [scrollbar-width:thin] [scrollbar-color:#52525b_transparent]"
->
+              tabIndex={0}
+              role="region"
+              aria-label={`${policy.title} content`}
+              data-lenis-prevent
+              className="relative min-h-0 flex-1 overflow-y-auto overscroll-contain scroll-smooth px-5 py-6 sm:px-8 sm:py-8 lg:px-10 lg:py-9 focus-visible:outline-none [scrollbar-width:thin] [scrollbar-color:#52525b_transparent]"
+            >
               <AnimatePresence mode="wait">
-              <motion.div
-  key={policy.id}
-  initial={{ opacity: 0, y: 18, filter: "blur(4px)" }}
-  animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-  exit={{ opacity: 0, y: -10, filter: "blur(3px)" }}
-  transition={{
-    duration: 0.4,
-    ease: [0.22, 1, 0.36, 1],
-  }}
->
+                <motion.div
+                  key={policy.id}
+                  initial={{ opacity: 0, y: 18, filter: "blur(4px)" }}
+                  animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                  exit={{ opacity: 0, y: -10, filter: "blur(3px)" }}
+                  transition={{
+                    duration: 0.4,
+                    ease: [0.22, 1, 0.36, 1],
+                  }}
+                >
                   <PolicyBody policy={policy} />
                 </motion.div>
               </AnimatePresence>
