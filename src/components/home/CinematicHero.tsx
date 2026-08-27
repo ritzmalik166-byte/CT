@@ -87,37 +87,44 @@ export function CinematicHero() {
     return () => window.removeEventListener("mousemove", handleMouseMove);
   }, []);
 
-useEffect(() => {
-  const handleScroll = () => {
-    const currentScrollY = window.scrollY;
-    const previousScrollY = lastScrollY.current;
+  useEffect(() => {
+    const getHeroFlowEl = () => {
+      const hero = heroSectionRef.current;
+      if (!hero) return null;
+      const parent = hero.parentElement;
+      return parent?.classList.contains("pin-spacer") ? parent : hero;
+    };
 
-    // At the very top, always show the Independence navbar
-    if (currentScrollY <= 10) {
-      setShowNavBg(true);
-    }
-    // Scrolling DOWN
-    else if (currentScrollY > previousScrollY) {
-      setShowNavBg(false);
-    }
-    // Scrolling UP
-    else if (currentScrollY < previousScrollY) {
-      setShowNavBg(true);
-    }
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      const previousScrollY = lastScrollY.current;
+      const heroFlow = getHeroFlowEl();
+      const heroBottom = heroFlow
+        ? heroFlow.getBoundingClientRect().bottom
+        : Number.POSITIVE_INFINITY;
 
-    lastScrollY.current = currentScrollY;
-  };
+      // Keep chrome visible for the full hero + pinned GSAP sequence.
+      // Hide-on-scroll only begins after the hero block has left the viewport.
+      if (heroBottom > 0 || currentScrollY <= 10) {
+        setShowNavBg(true);
+      } else if (currentScrollY > previousScrollY) {
+        setShowNavBg(false);
+      } else if (currentScrollY < previousScrollY) {
+        setShowNavBg(true);
+      }
 
-  window.addEventListener("scroll", handleScroll, {
-    passive: true,
-  });
+      lastScrollY.current = currentScrollY;
+    };
 
-  handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    ScrollTrigger.addEventListener("refresh", handleScroll);
+    handleScroll();
 
-  return () => {
-    window.removeEventListener("scroll", handleScroll);
-  };
-}, []);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      ScrollTrigger.removeEventListener("refresh", handleScroll);
+    };
+  }, []);
 
   useGSAP(
     (context, contextSafe) => {
@@ -211,6 +218,19 @@ useEffect(() => {
           borderRadius: string;
         };
       }) => {
+        const videoEl = videoContainerRef.current;
+        if (!videoEl || !heroSectionRef.current) return;
+
+        const initialVideo = {
+          width: "100%",
+          height: "100dvh",
+          top: "0px",
+          left: "0px",
+          borderRadius: "0px",
+        };
+
+        gsap.set(videoEl, initialVideo);
+
         const scrollTl = gsap.timeline({
           scrollTrigger: {
             trigger: heroSectionRef.current,
@@ -219,18 +239,27 @@ useEffect(() => {
             scrub,
             pin: true,
             pinSpacing: true,
-            anticipatePin: 1,
+            invalidateOnRefresh: true,
+            fastScrollEnd: true,
+            onRefresh(self) {
+              if (self.scroll() <= 1) {
+                self.animation?.progress(0);
+              }
+            },
           },
         });
 
-        if (!videoContainerRef.current) return;
-
         scrollTl
-          .to(videoContainerRef.current, {
-            ...video,
-            ease: "none",
-            duration: 1,
-          })
+          .fromTo(
+            videoEl,
+            { ...initialVideo },
+            {
+              ...video,
+              ease: "none",
+              duration: 1,
+            },
+            0
+          )
           .to(".hero-overlay-gradient", {
             opacity: 0.6,
             duration: 0.5,
@@ -323,17 +352,17 @@ useEffect(() => {
 
   return (
     <>
-<AnimatePresence>
-  {SHOW_INDEPENDENCE_DAY && showNavBg && (
-    <motion.div
-      initial={{ y: -100, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      exit={{ y: -100, opacity: 0 }}
-      transition={{
-        duration: 0.35,
-        ease: [0.22, 1, 0.36, 1],
-      }}
-      className="
+      <AnimatePresence>
+        {SHOW_INDEPENDENCE_DAY && showNavBg && (
+          <motion.div
+            initial={{ y: -100, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: -100, opacity: 0 }}
+            transition={{
+              duration: 0.35,
+              ease: [0.22, 1, 0.36, 1],
+            }}
+            className="
         pointer-events-none
         fixed
         inset-x-0
@@ -344,40 +373,69 @@ useEffect(() => {
         sm:h-[70px]
         md:h-[80px]
       "
-    >
-      <Image
-        src="/independence/independence-header.png"
-        alt=""
-        fill
-        priority
-        sizes="100vw"
-        className="object-cover object-center"
-      />
+          >
+            <Image
+              src="/independence/independence-header.png"
+              alt=""
+              fill
+              priority
+              sizes="100vw"
+              className="object-cover object-center"
+            />
 
-      <div className="absolute inset-0 bg-white/10" />
+            <div className="absolute inset-0 bg-white/10" />
 
-      <div className="absolute inset-x-0 bottom-0 h-px bg-black/10" />
-    </motion.div>
-  )}
-</AnimatePresence>
+            <div className="absolute inset-x-0 bottom-0 h-px bg-black/10" />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Fixed chrome lives outside overflow-hidden so it cannot be clipped */}
-      <Link
-        href="/"
-        title="Home"
-        onClick={() => setMenuOpen(false)}
-        className="fixed left-4 top-2 z-50 sm:left-5 sm:top-2 md:left-9 md:top-3"
-      >
-        <Image
-          src="/assets/favicon.png"
-          alt="Contenaissance"
-          title="Contenaissance"
-          width={220}
-          height={66}
-          className="h-10 w-auto sm:h-12 md:h-16"
-          priority
-        />
-      </Link>
+      <AnimatePresence initial={false}>
+        {(showNavBg || menuOpen) && (
+          <motion.div
+            key="site-logo"
+            initial={{ y: -100, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: -100, opacity: 0 }}
+            transition={{
+              duration: 0.35,
+              ease: [0.22, 1, 0.36, 1],
+            }}
+            className="fixed left-4 top-2 z-50 sm:left-5 sm:top-2 md:left-9 md:top-3"
+          >
+<a
+  href="/"
+  title="Home"
+  onClick={(e) => {
+    e.preventDefault();
+    setMenuOpen(false);
+
+    const hero = document.getElementById("cinematic-hero");
+
+    if (hero) {
+      hero.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    } else {
+      window.location.href = "/";
+    }
+  }}
+>
+  <Image
+    src="/assets/favicon.png"
+    alt="Contenaissance"
+    title="Contenaissance"
+    width={220}
+    height={66}
+    className="h-10 w-auto sm:h-12 md:h-16"
+    priority
+  />
+</a>
+          </motion.div>
+        )}
+      </AnimatePresence>
       {SHOW_INDEPENDENCE_DAY && (
         <div
           className="
@@ -456,25 +514,37 @@ useEffect(() => {
         </div>
       )}
 
-      <button
-        type="button"
-        aria-label={menuOpen ? "Close menu" : "Open menu"}
-        onClick={() => setMenuOpen((v) => !v)}
-        className="group fixed right-4 top-2 z-50 flex h-10 w-10 items-center justify-center rounded-full border border-zinc-700 bg-zinc-900/90 text-white shadow-[0_12px_30px_rgba(0,0,0,0.25)] backdrop-blur-md transition-all duration-300 hover:border-[#AE8C20]/50 hover:bg-[#AE8C20] hover:shadow-[0_16px_40px_rgba(174,140,32,0.35)] sm:right-5 sm:top-2 sm:h-12 sm:w-12 md:right-9 md:top-3 md:h-14 md:w-14"
-      >
-        {menuOpen ? (
-          <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M6 6l12 12M18 6L6 18" />
-          </svg>
-        ) : (
-          <span className="flex h-5 items-end gap-[3px]">
-            <span className="h-4 w-[2.5px] rounded-full bg-current transition-all duration-300 group-hover:h-5" />
-            <span className="h-5 w-[2.5px] rounded-full bg-current transition-all duration-300 group-hover:h-3" />
-            <span className="h-3 w-[2.5px] rounded-full bg-current transition-all duration-300 group-hover:h-5" />
-            <span className="h-4 w-[2.5px] rounded-full bg-current transition-all duration-300 group-hover:h-3" />
-          </span>
+      <AnimatePresence initial={false}>
+        {(showNavBg || menuOpen) && (
+          <motion.button
+            key="site-hamburger"
+            type="button"
+            aria-label={menuOpen ? "Close menu" : "Open menu"}
+            onClick={() => setMenuOpen((v) => !v)}
+            initial={{ y: -100, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: -100, opacity: 0 }}
+            transition={{
+              duration: 0.35,
+              ease: [0.22, 1, 0.36, 1],
+            }}
+            className="group fixed right-4 top-2 z-50 flex h-10 w-10 items-center justify-center rounded-full border border-zinc-700 bg-zinc-900/90 text-white shadow-[0_12px_30px_rgba(0,0,0,0.25)] backdrop-blur-md transition-all duration-300 hover:border-[#AE8C20]/50 hover:bg-[#AE8C20] hover:shadow-[0_16px_40px_rgba(174,140,32,0.35)] sm:right-5 sm:top-2 sm:h-12 sm:w-12 md:right-9 md:top-3 md:h-14 md:w-14"
+          >
+            {menuOpen ? (
+              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 6l12 12M18 6L6 18" />
+              </svg>
+            ) : (
+              <span className="flex h-5 items-end gap-[3px]">
+                <span className="h-4 w-[2.5px] rounded-full bg-current transition-all duration-300 group-hover:h-5" />
+                <span className="h-5 w-[2.5px] rounded-full bg-current transition-all duration-300 group-hover:h-3" />
+                <span className="h-3 w-[2.5px] rounded-full bg-current transition-all duration-300 group-hover:h-5" />
+                <span className="h-4 w-[2.5px] rounded-full bg-current transition-all duration-300 group-hover:h-3" />
+              </span>
+            )}
+          </motion.button>
         )}
-      </button>
+      </AnimatePresence>
 
       <HamburgerMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} currentPage="studio" />
 
@@ -490,7 +560,7 @@ useEffect(() => {
         <section
           id="cinematic-hero"
           ref={heroSectionRef}
-          className="relative isolate h-[115svh] overflow-hidden bg-white"
+          className="relative isolate h-[115svh] min-h-[100dvh] overflow-hidden bg-white"
         >
           {/* Background ambient glows */}
           <div className="ambient-glow left-0 top-0 -translate-x-1/2 -translate-y-1/2 animate-pulse-glow" />
@@ -499,7 +569,7 @@ useEffect(() => {
           {/* Video container */}
           <div
             ref={videoContainerRef}
-            className="pointer-events-none absolute top-0 left-0 z-10 h-full w-full overflow-hidden"
+            className="pointer-events-none absolute top-0 left-0 z-10 h-[100dvh] w-full overflow-hidden"
           >
             <video
               className="absolute inset-0 h-full w-full object-cover"

@@ -1,14 +1,15 @@
 "use client";
 
 import { useGSAP } from "@gsap/react";
+import { AnimatePresence, motion } from "framer-motion";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { SplitText } from "gsap/SplitText";
-import Image from "next/image";
-import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { CTAFooter } from "@/components/home/CTAFooter";
-import { HamburgerMenu } from "@/components/home/HamburgerMenu";
+import { InnerPageNav } from "@/components/InnerPageNav";
+import { useLenisScrollLock } from "@/components/SmoothScrollProvider";
 import {
   EMAIL_INVALID_MESSAGE,
   EMAIL_PATTERN,
@@ -160,6 +161,22 @@ function getPhoneMaxLength(country: CountryOption) {
   return Math.max(...lengths) + 4;
 }
 
+function maskPhoneForDisplay(phone: string, country: CountryOption) {
+  const local = normalizeLocalPhone(phone, country);
+  if (!local) return phone;
+
+  const visibleTail = local.slice(-4);
+  const maskedBody = "•".repeat(Math.max(0, local.length - 4));
+  const rule = COUNTRY_PHONE_RULES[country];
+  const code = rule?.countryCodes?.[0];
+
+  if (code) {
+    return `+${code} ${maskedBody}${visibleTail}`;
+  }
+
+  return `${maskedBody}${visibleTail}`;
+}
+
 const validateField = (name: keyof FormData, value: string, form: FormData): string => {
   const v = value.trim();
   switch (name) {
@@ -205,8 +222,12 @@ const EMPTY_FORM: FormData = {
   message: "",
 };
 
+const OTP_LENGTH = 4;
+const EMPTY_OTP_DIGITS = Array.from({ length: OTP_LENGTH }, () => "");
+
 export default function ContactPage() {
   const pageRef = useRef<HTMLDivElement>(null);
+  const otpInputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const [menuOpen, setMenuOpen] = useState(false);
   const [status, setStatus] = useState<Status>("idle");
   const [errorMsg, setErrorMsg] = useState<string>("");
@@ -215,7 +236,7 @@ export default function ContactPage() {
   const [touched, setTouched] = useState<Partial<Record<keyof FormData, boolean>>>({});
   // OTP & Step state
   const [step, setStep] = useState<"form" | "otp">("form");
-  const [otpCode, setOtpCode] = useState("");
+  const [otpDigits, setOtpDigits] = useState<string[]>(EMPTY_OTP_DIGITS);
   const [otpSent, setOtpSent] = useState(false);
   const [isPhoneVerified, setIsPhoneVerified] = useState(false);
   const [verifiedPhone, setVerifiedPhone] = useState("");
@@ -223,6 +244,103 @@ export default function ContactPage() {
   const [verifyingOtp, setVerifyingOtp] = useState(false);
   const [otpStatus, setOtpStatus] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const [cooldown, setCooldown] = useState(0);
+  const [showSuccessToast, setShowSuccessToast] = useState(false);
+
+  const otpCode = otpDigits.join("");
+  const isOtpComplete = otpDigits.every((digit) => digit.length === 1);
+  const isSubmitting = verifyingOtp || status === "loading";
+
+  const otpModalOpen = step === "otp";
+
+  const resetOtpDigits = useCallback(() => {
+    setOtpDigits(EMPTY_OTP_DIGITS);
+  }, []);
+
+  const focusOtpInput = useCallback((index: number) => {
+    const el = otpInputRefs.current[index];
+    if (el) {
+      el.focus();
+      el.select();
+    }
+  }, []);
+
+  const applyOtpString = useCallback(
+    (raw: string) => {
+      const digits = raw.replace(/\D/g, "").slice(0, OTP_LENGTH).split("");
+      const next = Array.from({ length: OTP_LENGTH }, (_, i) => digits[i] || "");
+      setOtpDigits(next);
+
+      const filledCount = next.filter(Boolean).length;
+      const focusIndex = filledCount >= OTP_LENGTH ? OTP_LENGTH - 1 : filledCount;
+      window.setTimeout(() => focusOtpInput(focusIndex), 0);
+
+      return next;
+    },
+    [focusOtpInput]
+  );
+
+  const handleOtpDigitChange = (index: number, value: string) => {
+    const digit = value.replace(/\D/g, "").slice(-1);
+    const next = [...otpDigits];
+    next[index] = digit;
+    setOtpDigits(next);
+
+    if (digit && index < OTP_LENGTH - 1) {
+      focusOtpInput(index + 1);
+    }
+  };
+
+  const handleOtpKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Backspace" && !otpDigits[index] && index > 0) {
+      e.preventDefault();
+      const next = [...otpDigits];
+      next[index - 1] = "";
+      setOtpDigits(next);
+      focusOtpInput(index - 1);
+    }
+  };
+
+  const handleOtpPaste = (e: React.ClipboardEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    applyOtpString(e.clipboardData.getData("text"));
+  };
+
+  useLenisScrollLock(otpModalOpen);
+
+  const closeOtpModal = useCallback(() => {
+    setStep("form");
+    setOtpStatus(null);
+    resetOtpDigits();
+  }, [resetOtpDigits]);
+
+  useEffect(() => {
+    if (!showSuccessToast) return;
+    const timer = window.setTimeout(() => setShowSuccessToast(false), 4500);
+    return () => window.clearTimeout(timer);
+  }, [showSuccessToast]);
+
+  useEffect(() => {
+    if (!otpModalOpen) return;
+
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && !isSubmitting) {
+        closeOtpModal();
+      }
+    };
+
+    document.addEventListener("keydown", handleKey);
+    document.body.style.overflow = "hidden";
+
+    const focusTimer = window.setTimeout(() => {
+      focusOtpInput(0);
+    }, 120);
+
+    return () => {
+      document.removeEventListener("keydown", handleKey);
+      document.body.style.overflow = "";
+      window.clearTimeout(focusTimer);
+    };
+  }, [otpModalOpen, closeOtpModal, isSubmitting, focusOtpInput]);
 
   useEffect(() => {
     if (cooldown <= 0) return;
@@ -272,39 +390,31 @@ export default function ContactPage() {
         { y: 0, opacity: 1, filter: "blur(0px)", duration: 1, delay: 0.7, ease: "power3.out" }
       );
 
-      // Contact info items - staggered fade in with blur
-      gsap.utils.toArray<HTMLElement>(".contact-info-item").forEach((item, index) => {
-        gsap.fromTo(
-          item,
-          { 
-            y: 40, 
-            opacity: 0, 
-            filter: "blur(10px)",
-            scale: 0.95,
-          },
-          {
-            y: 0,
-            opacity: 1,
-            filter: "blur(0px)",
-            scale: 1,
-            duration: 0.8,
-            delay: index * 0.15,
-            ease: "power3.out",
-            scrollTrigger: {
-              trigger: item,
-              start: "top 90%",
-              toggleActions: "play none none reverse",
-            },
-          }
-        );
-      });
+      // Contact info — stagger on load (visible in left column above the fold)
+      gsap.fromTo(
+        ".contact-info-item",
+        {
+          y: 28,
+          opacity: 0,
+          filter: "blur(8px)",
+        },
+        {
+          y: 0,
+          opacity: 1,
+          filter: "blur(0px)",
+          duration: 0.75,
+          stagger: 0.08,
+          delay: 0.85,
+          ease: "power3.out",
+        }
+      );
 
       // Social link buttons - pop in with stagger
       gsap.fromTo(
         ".social-link-btn",
-        { 
-          scale: 0, 
-          opacity: 0, 
+        {
+          scale: 0,
+          opacity: 0,
           rotate: -10,
         },
         {
@@ -312,13 +422,9 @@ export default function ContactPage() {
           opacity: 1,
           rotate: 0,
           duration: 0.5,
-          stagger: 0.08,
+          stagger: 0.06,
+          delay: 1.1,
           ease: "back.out(1.8)",
-          scrollTrigger: {
-            trigger: ".social-links-container",
-            start: "top 85%",
-            toggleActions: "play none none reverse",
-          },
         }
       );
 
@@ -327,22 +433,18 @@ export default function ContactPage() {
       if (quoteText) {
         gsap.fromTo(
           quoteText,
-          { 
-            y: 30, 
-            opacity: 0, 
+          {
+            y: 24,
+            opacity: 0,
             filter: "blur(8px)",
           },
           {
             y: 0,
             opacity: 1,
             filter: "blur(0px)",
-            duration: 1,
+            duration: 0.9,
+            delay: 1.2,
             ease: "power2.out",
-            scrollTrigger: {
-              trigger: quoteText,
-              start: "top 90%",
-              toggleActions: "play none none reverse",
-            },
           }
         );
       }
@@ -350,54 +452,42 @@ export default function ContactPage() {
       // Quote cite slide in
       gsap.fromTo(
         ".contact-quote-cite",
-        { 
-          x: -20, 
+        {
+          x: -16,
           opacity: 0,
         },
         {
           x: 0,
           opacity: 1,
-          duration: 0.7,
-          delay: 0.3,
+          duration: 0.65,
+          delay: 1.35,
           ease: "power3.out",
-          scrollTrigger: {
-            trigger: ".contact-quote-cite",
-            start: "top 90%",
-            toggleActions: "play none none reverse",
-          },
         }
       );
 
+      // Form — animate on load so it is visible above the fold immediately
       gsap.fromTo(
         ".contact-form",
-        { y: 60, opacity: 0 },
+        { y: 36, opacity: 0 },
         {
           y: 0,
           opacity: 1,
-          duration: 1,
+          duration: 0.95,
+          delay: 0.45,
           ease: "power3.out",
-          scrollTrigger: {
-            trigger: ".contact-form",
-            start: "top 85%",
-            toggleActions: "play none none reverse",
-          },
         }
       );
 
       gsap.fromTo(
         ".form-field",
-        { y: 30, opacity: 0 },
+        { y: 20, opacity: 0 },
         {
           y: 0,
           opacity: 1,
-          duration: 0.6,
-          stagger: 0.08,
+          duration: 0.55,
+          stagger: 0.05,
+          delay: 0.55,
           ease: "power2.out",
-          scrollTrigger: {
-            trigger: ".contact-form",
-            start: "top 80%",
-            toggleActions: "play none none reverse",
-          },
         }
       );
     },
@@ -431,7 +521,7 @@ export default function ContactPage() {
         setIsPhoneVerified(false);
         setVerifiedPhone("");
         setOtpSent(false);
-        setOtpCode("");
+        resetOtpDigits();
         setOtpStatus(null);
       }
     }
@@ -471,7 +561,7 @@ export default function ContactPage() {
       }
 
       setOtpSent(true);
-      setOtpCode("");
+      resetOtpDigits();
       setCooldown(45);
       setOtpStatus({
         type: "success",
@@ -512,20 +602,26 @@ export default function ContactPage() {
         body: JSON.stringify(payload),
       });
 
-      const telegramRes = await fetch("/api/enquiry", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type: "contact", ...payload }),
-      });
+      try {
+        const telegramRes = await fetch("/api/enquiry", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ type: "contact", ...payload }),
+        });
 
-      if (!telegramRes.ok) {
-        throw new Error("Telegram notification failed");
+        if (!telegramRes.ok) {
+          // eslint-disable-next-line no-console
+          console.warn("[contact] Telegram notification failed (optional)");
+        }
+      } catch (telegramErr) {
+        // eslint-disable-next-line no-console
+        console.warn("[contact] Telegram notification failed (optional)", telegramErr);
       }
 
       // eslint-disable-next-line no-console
       console.info("[contact] lead submitted", payload);
 
-      setStatus("success");
+      setStatus("idle");
       setErrorMsg("");
       setStep("form");
       setForm(EMPTY_FORM);
@@ -534,8 +630,9 @@ export default function ContactPage() {
       setIsPhoneVerified(false);
       setVerifiedPhone("");
       setOtpSent(false);
-      setOtpCode("");
+      resetOtpDigits();
       setOtpStatus(null);
+      setShowSuccessToast(true);
     } catch (err) {
       // eslint-disable-next-line no-console
       console.error("[contact] submission failed", err);
@@ -594,7 +691,7 @@ export default function ContactPage() {
       }
 
       setOtpSent(true);
-      setOtpCode("");
+      resetOtpDigits();
       setCooldown(45);
       setStep("otp");
       setOtpStatus({
@@ -613,11 +710,15 @@ export default function ContactPage() {
   const handleVerifyAndSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!/^\d{4}$/.test(otpCode.trim())) {
+    if (isSubmitting) return;
+
+    if (!isOtpComplete || !/^\d{4}$/.test(otpCode)) {
       setOtpStatus({
         type: "error",
-        text: "Please enter a valid 4-digit OTP.",
+        text: "Please enter all 4 digits of the OTP.",
       });
+      const emptyIndex = otpDigits.findIndex((d) => !d);
+      focusOtpInput(emptyIndex === -1 ? 0 : emptyIndex);
       return;
     }
 
@@ -632,7 +733,7 @@ export default function ContactPage() {
           action: "verify",
           phone: form.phone,
           country: form.country,
-          otp: otpCode.trim(),
+          otp: otpCode,
         }),
       });
 
@@ -646,7 +747,6 @@ export default function ContactPage() {
       setIsPhoneVerified(true);
       setVerifiedPhone(localPhone);
 
-      // Submit lead immediately upon successful verification
       await submitFormLead(localPhone);
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Verification failed. Check the OTP and try again.";
@@ -654,12 +754,14 @@ export default function ContactPage() {
         type: "error",
         text: msg,
       });
+      resetOtpDigits();
+      focusOtpInput(0);
       setVerifyingOtp(false);
     }
   };
 
   const inputBase =
-    "w-full rounded-2xl border border-zinc-800 bg-zinc-900/60 px-5 py-4 text-sm text-white placeholder-zinc-500 backdrop-blur-sm transition-all duration-300 outline-none focus:border-[#AE8C20]/70 focus:bg-zinc-900 focus:ring-2 focus:ring-[#AE8C20]/20 hover:border-zinc-700";
+    "w-full rounded-xl border border-zinc-800 bg-zinc-900/60 px-4 py-2.5 text-sm text-white placeholder-zinc-500 backdrop-blur-sm transition-all duration-300 outline-none focus:border-[#AE8C20]/70 focus:bg-zinc-900 focus:ring-2 focus:ring-[#AE8C20]/20 hover:border-zinc-700 sm:py-3";
   const errorClasses = "border-red-500/70 focus:border-red-500 focus:ring-red-500/20";
 
   const fieldClass = (key: keyof FormData, extra = "") =>
@@ -677,52 +779,18 @@ export default function ContactPage() {
 
   return (
     <div ref={pageRef} className="relative bg-zinc-950 text-white">
-      <HamburgerMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} currentPage="contact" />
+      <InnerPageNav
+        menuOpen={menuOpen}
+        onMenuOpenChange={setMenuOpen}
+        currentPage="contact"
+      />
 
-      <Link
-        href="/"
-        title="Home"
-        onClick={() => setMenuOpen(false)}
-        className="fixed left-4 top-4 z-[var(--z-chrome)] sm:left-5 sm:top-5 md:left-9 md:top-6"
-      >
-        <Image
-          src="/assets/favicon.png"
-          alt="Contenaissance"
-          title="Contenaissance"
-          width={220}
-          height={66}
-          className="h-10 w-auto sm:h-12 md:h-16"
-          priority
-        />
-      </Link>
-
-      {/* Hamburger */}
-      <button
-        type="button"
-        aria-label={menuOpen ? "Close menu" : "Open menu"}
-        onClick={() => setMenuOpen((v) => !v)}
-        className="group fixed right-4 top-4 z-[var(--z-chrome)] flex h-10 w-10 items-center justify-center rounded-full border border-zinc-700 bg-zinc-900/90 text-white shadow-[0_12px_30px_rgba(0,0,0,0.25)] backdrop-blur-md transition-all duration-300 hover:border-[#AE8C20]/50 hover:bg-[#AE8C20] sm:right-5 sm:top-5 sm:h-12 sm:w-12 md:right-9 md:top-6 md:h-14 md:w-14"
-      >
-        {menuOpen ? (
-          <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M6 6l12 12M18 6L6 18" />
-          </svg>
-        ) : (
-          <span className="flex h-5 items-end gap-[3px]">
-            <span className="h-4 w-[2.5px] rounded-full bg-current transition-all group-hover:h-5" />
-            <span className="h-5 w-[2.5px] rounded-full bg-current transition-all group-hover:h-3" />
-            <span className="h-3 w-[2.5px] rounded-full bg-current transition-all group-hover:h-5" />
-            <span className="h-4 w-[2.5px] rounded-full bg-current transition-all group-hover:h-3" />
-          </span>
-        )}
-      </button>
-
-      {/* ── HERO ─────────────────────────────────────────────────────── */}
-      <section className="relative px-4 pb-14 pt-28 sm:px-6 sm:pb-16 sm:pt-36 md:px-10 md:pb-24 md:pt-48">
+      {/* ── HERO + FORM (two-column, above the fold) ─────────────────── */}
+      <section className="relative px-4 pb-16 pt-24 sm:px-6 sm:pb-20 sm:pt-28 lg:px-10 lg:pb-24 lg:pt-32">
         {/* Background glows */}
         <div className="pointer-events-none absolute inset-0">
-          <div className="absolute left-1/2 top-0 h-[700px] w-[700px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#AE8C20]/10 blur-[160px]" />
-          <div className="absolute bottom-0 right-0 h-[500px] w-[500px] translate-x-1/3 translate-y-1/3 rounded-full bg-[#AE8C20]/6 blur-[140px]" />
+          <div className="absolute left-1/4 top-0 h-[560px] w-[560px] -translate-x-1/2 -translate-y-1/3 rounded-full bg-[#AE8C20]/10 blur-[140px]" />
+          <div className="absolute bottom-0 right-0 h-[420px] w-[420px] translate-x-1/4 translate-y-1/4 rounded-full bg-[#AE8C20]/6 blur-[120px]" />
         </div>
 
         {/* Subtle dot grid */}
@@ -734,182 +802,51 @@ export default function ContactPage() {
           }}
         />
 
-        <div className="relative z-10 mx-auto max-w-[1400px] text-center lg:text-left">
-          <h1 className="mb-4 text-[10px] font-bold uppercase tracking-[0.35em] text-[#AE8C20] sm:mb-5 sm:text-xs">
-            Get in Touch
-          </h1>
-          <h2
-            className="overflow-visible text-[clamp(2.75rem,11vw,9.5rem)] font-bold leading-[1] tracking-[-0.07em]"
-            style={{ perspective: "800px" }}
-          >
-            <span className="contact-title-line1 block pb-1">Let&apos;s Build</span>
-            <span className="contact-title-line2 block overflow-visible bg-gradient-to-r from-[#AE8C20] via-[#D4AF37] to-[#AE8C20] bg-clip-text pb-4 text-transparent">
-              Together
-            </span>
-          </h2>
+        <div className="relative z-10 mx-auto max-w-[1400px]">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,400px)_1fr] lg:gap-x-12 lg:gap-y-8 xl:grid-cols-[minmax(0,440px)_1fr] xl:gap-x-16">
+            {/* Heading — first on mobile, left column on desktop */}
+            <header className="order-1 lg:col-start-1 lg:row-start-1">
+              <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.35em] text-[#AE8C20] sm:text-xs">
+                Get in Touch
+              </p>
+              <h1
+                className="overflow-visible text-[clamp(2.25rem,7vw,4.75rem)] font-bold leading-[1.02] tracking-[-0.06em]"
+                style={{ perspective: "800px" }}
+              >
+                <span className="contact-title-line1 block pb-0.5">Let&apos;s Build</span>
+                <span className="contact-title-line2 block overflow-visible bg-gradient-to-r from-[#AE8C20] via-[#D4AF37] to-[#AE8C20] bg-clip-text pb-1 text-transparent">
+                  Together
+                </span>
+              </h1>
+              <p className="contact-sub mt-4 max-w-md text-sm leading-relaxed text-zinc-400 sm:mt-5 md:text-[15px]">
+                Tell us about your project — we respond within 24 hours. Let&apos;s create something extraordinary.
+              </p>
+            </header>
 
-          <p className="contact-sub mx-auto mt-6 max-w-xl text-sm leading-loose text-zinc-400 sm:mt-8 md:text-base lg:mx-0">
-            Tell us about your project and we&apos;ll get back to you within 24 hours. Let&apos;s create something extraordinary.
-          </p>
-        </div>
-      </section>
-
-      {/* ── MAIN CONTENT ─────────────────────────────────────────────── */}
-      <section className="relative px-4 pb-20 sm:px-6 sm:pb-24 md:px-10 md:pb-32">
-        <div className="mx-auto max-w-[1400px]">
-          <div className="grid gap-10 lg:grid-cols-[380px_1fr] lg:gap-20 xl:grid-cols-[440px_1fr]">
-
-            {/* LEFT — Contact Info */}
-            <div className="flex flex-col gap-6 sm:gap-8">
-              {/* Info cards */}
-              {[
-                {
-                  icon: (
-                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
-                    </svg>
-                  ),
-                  label: "Email",
-                  value: "info@ritzmediaworld.com",
-                },
-                {
-                  icon: (
-                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 0 0 2.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 0 1-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 0 0-1.091-.852H4.5A2.25 2.25 0 0 0 2.25 4.5v2.25Z" />
-                    </svg>
-                  ),
-                  label: "Phone",
-                  value: "+91-9220516777",
-                },
-                {
-                  icon: (
-                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
-                    </svg>
-                  ),
-                  label: "Location",
-                  value: "Unit No. 404, 4th Floor, Corporate Park Tower A1, Sector 142, Noida, Uttar Pradesh 201305, India",
-                },
-              ].map((item) => (
-                <div
-                  key={item.label}
-                  className="contact-info-item flex items-start gap-3 rounded-2xl border border-zinc-800/60 bg-zinc-900/40 px-4 py-4 backdrop-blur-sm sm:gap-4 sm:px-6 sm:py-5"
-                >
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[#AE8C20]/30 bg-[#AE8C20]/10 text-[#AE8C20] sm:h-11 sm:w-11">
-                    {item.icon}
-                  </span>
-                  <div className="min-w-0">
-                    <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-zinc-500">
-                      {item.label}
-                    </p>
-                    <p className="mt-1 break-words text-sm font-medium text-white">{item.value}</p>
-                  </div>
-                </div>
-              ))}
-
-              {/* Socials */}
-              <div className="contact-info-item rounded-2xl border border-zinc-800/60 bg-zinc-900/40 px-6 py-5 backdrop-blur-sm">
-                <p className="mb-4 text-[10px] font-bold uppercase tracking-[0.25em] text-zinc-500">
-                  Follow Us
-                </p>
-                <div className="social-links-container flex flex-wrap gap-4">
-                  {/* Instagram */}
-                  <a
-                    href="https://www.instagram.com/contenaissance/"
-                    title="Follow Contenaissance on Instagram"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label="Instagram"
-                    className="social-link-btn flex h-11 w-11 items-center justify-center rounded-full border border-zinc-700 bg-zinc-900 text-zinc-400 transition-all duration-300 hover:border-[#AE8C20]/60 hover:bg-[#AE8C20]/10 hover:text-[#D4AF37]"
-                  >
-                    <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
-                    </svg>
-                  </a>
-
-                  {/* LinkedIn */}
-                  <a
-                    href="https://www.linkedin.com/company/108385521/"
-                    title="Follow Contenaissance on LinkedIn"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label="LinkedIn"
-                    className="social-link-btn flex h-11 w-11 items-center justify-center rounded-full border border-zinc-700 bg-zinc-900 text-zinc-400 transition-all duration-300 hover:border-[#AE8C20]/60 hover:bg-[#AE8C20]/10 hover:text-[#D4AF37]"
-                  >
-                    <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
-                    </svg>
-                  </a>
-
-                  {/* YouTube */}
-                  <a
-                    href="https://www.youtube.com/@Contenaissance"
-                    title="Subscribe to Contenaissance on YouTube"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label="YouTube"
-                    className="social-link-btn flex h-11 w-11 items-center justify-center rounded-full border border-zinc-700 bg-zinc-900 text-zinc-400 transition-all duration-300 hover:border-[#AE8C20]/60 hover:bg-[#AE8C20]/10 hover:text-[#D4AF37]"
-                  >
-                    <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
-                    </svg>
-                  </a>
-
-                  {/* Facebook */}
-                  <a
-                    href="https://www.facebook.com/profile.php?id=61579738437856"
-                    title="Follow Contenaissance on Facebook"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label="Facebook"
-                    className="social-link-btn flex h-11 w-11 items-center justify-center rounded-full border border-zinc-700 bg-zinc-900 text-zinc-400 transition-all duration-300 hover:border-[#AE8C20]/60 hover:bg-[#AE8C20]/10 hover:text-[#D4AF37]"
-                  >
-                    <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-                    </svg>
-                  </a>
-
-                  {/* X (Twitter) */}
-                  <a
-                    href="https://x.com/contenaissance"
-                    title="Follow Contenaissance on X"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label="X"
-                    className="social-link-btn flex h-11 w-11 items-center justify-center rounded-full border border-zinc-700 bg-zinc-900 text-zinc-400 transition-all duration-300 hover:border-[#AE8C20]/60 hover:bg-[#AE8C20]/10 hover:text-[#D4AF37]"
-                  >
-                    <svg className="h-4.5 w-4.5" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-                    </svg>
-                  </a>
-                </div>
-              </div>
-
-              {/* Quote */}
-              <blockquote className="contact-info-item border-l-2 border-[#AE8C20]/50 pl-6">
-                <p className="contact-quote-text text-sm italic leading-loose text-zinc-400">
-                  &ldquo;Where human creativity meets artificial precision , we craft experiences that define the future.&rdquo;
-                </p>
-                <cite className="contact-quote-cite mt-3 block text-[10px] font-bold uppercase tracking-[0.25em] text-[#AE8C20]">
-                  — Contenaissance Studio
-                </cite>
-              </blockquote>
-            </div>
-
-            {/* RIGHT — Form / OTP Verification */}
-            {step === "form" ? (
+            {/* Form — second on mobile (above the fold), right column on desktop */}
+            <div className="order-2 lg:col-start-2 lg:row-start-1 lg:row-span-3 lg:self-start">
               <form
                 onSubmit={handleFormSubmit}
-                className="contact-form relative rounded-2xl border border-zinc-800/60 bg-zinc-900/30 p-5 backdrop-blur-sm sm:rounded-[2rem] sm:p-7 md:p-10"
+                className="contact-form relative rounded-2xl border border-zinc-800/60 bg-zinc-900/40 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.35)] backdrop-blur-md sm:rounded-[1.75rem] sm:p-6 lg:sticky lg:top-28"
               >
-                {/* Glow inside form */}
-                <div className="pointer-events-none absolute right-0 top-0 h-64 w-64 translate-x-1/3 -translate-y-1/3 rounded-full bg-[#AE8C20]/6 blur-[100px]" />
+                <div className="pointer-events-none absolute right-0 top-0 h-48 w-48 translate-x-1/3 -translate-y-1/3 rounded-full bg-[#AE8C20]/8 blur-[80px]" />
 
-                <div className="relative grid gap-5">
+                <div className="relative mb-4 flex items-center justify-between gap-3 border-b border-zinc-800/60 pb-4 sm:mb-5">
+                  <div>
+                    <h2 className="text-sm font-bold uppercase text-white sm:text-base">
+                      Start Your Project
+                    </h2>
+                    <p className="mt-1 text-xs text-zinc-500">All fields required</p>
+                  </div>
+                  <span className="hidden shrink-0 rounded-full bg-[#AE8C20]/10 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-[#D4AF37] sm:inline-flex">
+                    24h Response
+                  </span>
+                </div>
+
+                <div className="relative grid gap-3.5 sm:gap-4">
                   {/* Row 1 — Full name */}
                   <div className="form-field">
-                    <label htmlFor="fullName" className="mb-2 block text-[10px] font-bold uppercase tracking-[0.25em] text-zinc-500">
+                    <label htmlFor="fullName" className="mb-1.5 block text-[10px] font-bold uppercase tracking-[0.25em] text-zinc-500">
                       Full Name <span className="text-[#AE8C20]">*</span>
                     </label>
                     <input
@@ -932,9 +869,9 @@ export default function ContactPage() {
                   </div>
 
                   {/* Row 2 — Email + Phone */}
-                  <div className="form-field grid gap-5 sm:grid-cols-2">
+                  <div className="form-field grid gap-3.5 sm:grid-cols-2 sm:gap-4">
                     <div>
-                      <label htmlFor="email" className="mb-2 block text-[10px] font-bold uppercase tracking-[0.25em] text-zinc-500">
+                      <label htmlFor="email" className="mb-1.5 block text-[10px] font-bold uppercase tracking-[0.25em] text-zinc-500">
                         Email Address <span className="text-[#AE8C20]">*</span>
                       </label>
                       <input
@@ -958,7 +895,7 @@ export default function ContactPage() {
                       <FieldError name="email" />
                     </div>
                     <div>
-                      <div className="mb-2 flex items-center justify-between">
+                      <div className="mb-1.5 flex items-center justify-between">
                         <label htmlFor="phone" className="block text-[10px] font-bold uppercase tracking-[0.25em] text-zinc-500">
                           Contact Number <span className="text-[#AE8C20]">*</span>
                         </label>
@@ -995,9 +932,9 @@ export default function ContactPage() {
                   </div>
 
                   {/* Row 3 — Service + Country */}
-                  <div className="form-field grid gap-5 sm:grid-cols-2">
+                  <div className="form-field grid gap-3.5 sm:grid-cols-2 sm:gap-4">
                     <div>
-                      <label htmlFor="service" className="mb-2 block text-[10px] font-bold uppercase tracking-[0.25em] text-zinc-500">
+                      <label htmlFor="service" className="mb-1.5 block text-[10px] font-bold uppercase tracking-[0.25em] text-zinc-500">
                         Service Interest <span className="text-[#AE8C20]">*</span>
                       </label>
                       <div className="relative">
@@ -1031,7 +968,7 @@ export default function ContactPage() {
                       <FieldError name="service" />
                     </div>
                     <div>
-                      <label htmlFor="country" className="mb-2 block text-[10px] font-bold uppercase tracking-[0.25em] text-zinc-500">
+                      <label htmlFor="country" className="mb-1.5 block text-[10px] font-bold uppercase tracking-[0.25em] text-zinc-500">
                         Country <span className="text-[#AE8C20]">*</span>
                       </label>
                       <div className="relative">
@@ -1067,7 +1004,7 @@ export default function ContactPage() {
 
                   {/* Row 4 — Message */}
                   <div className="form-field">
-                    <label htmlFor="message" className="mb-2 block text-[10px] font-bold uppercase tracking-[0.25em] text-zinc-500">
+                    <label htmlFor="message" className="mb-1.5 block text-[10px] font-bold uppercase tracking-[0.25em] text-zinc-500">
                       Enquiry Message <span className="text-[#AE8C20]">*</span>
                     </label>
                     <textarea
@@ -1077,7 +1014,7 @@ export default function ContactPage() {
                       onChange={handleChange}
                       onBlur={handleBlur}
                       required
-                      rows={6}
+                      rows={4}
                       maxLength={1500}
                       aria-invalid={!!errors.message}
                       placeholder="Tell us about your project, goals, and timeline…"
@@ -1096,7 +1033,7 @@ export default function ContactPage() {
                     <button
                       type="submit"
                       disabled={status === "loading" || sendingOtp}
-                      className="group relative w-full overflow-hidden rounded-2xl bg-[#AE8C20] px-8 py-4 text-sm font-bold uppercase tracking-wider text-zinc-950 shadow-[0_0_40px_rgba(174,140,32,0.3)] transition-all duration-300 hover:scale-[1.02] hover:bg-[#D4AF37] hover:shadow-[0_0_60px_rgba(174,140,32,0.5)] disabled:opacity-60 disabled:cursor-not-allowed"
+                      className="group relative w-full overflow-hidden rounded-xl bg-[#AE8C20] px-6 py-3.5 text-sm font-bold uppercase tracking-wider text-zinc-950 shadow-[0_0_40px_rgba(174,140,32,0.3)] transition-all duration-300 hover:scale-[1.02] hover:bg-[#D4AF37] hover:shadow-[0_0_60px_rgba(174,140,32,0.5)] disabled:cursor-not-allowed disabled:opacity-60"
                     >
                       <span
                         className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 group-hover:translate-x-full"
@@ -1122,14 +1059,6 @@ export default function ContactPage() {
                     </button>
 
                     {/* Status messages */}
-                    {status === "success" && (
-                      <div className="mt-4 flex items-center gap-3 rounded-xl border border-green-500/30 bg-green-500/10 px-5 py-3 text-sm text-green-400">
-                        <svg className="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-                        </svg>
-                        Message sent! We&apos;ll get back to you within 24 hours.
-                      </div>
-                    )}
                     {status === "error" && (
                       <div className="mt-4 flex items-center gap-3 rounded-xl border border-red-500/30 bg-red-500/10 px-5 py-3 text-sm text-red-400">
                         <svg className="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -1141,105 +1070,347 @@ export default function ContactPage() {
                   </div>
                 </div>
               </form>
-            ) : (
-              <div className="contact-form relative flex flex-col justify-between rounded-2xl border border-zinc-800/60 bg-zinc-900/30 p-5 backdrop-blur-sm sm:rounded-[2rem] sm:p-7 md:p-10">
-                {/* Glow inside OTP screen */}
-                <div className="pointer-events-none absolute right-0 top-0 h-64 w-64 translate-x-1/3 -translate-y-1/3 rounded-full bg-[#AE8C20]/6 blur-[100px]" />
+            </div>
 
-                <div className="relative flex flex-col gap-6">
-                  {/* Header */}
-                  <div className="flex items-center gap-4">
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-[#AE8C20]/30 bg-[#AE8C20]/10 text-[#AE8C20]">
-                      <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
-                      </svg>
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-bold text-white sm:text-xl">Verify Mobile Number</h3>
-                      <p className="mt-1 text-xs text-zinc-400">
-                        Enter 4-digit code sent to <span className="font-semibold text-white">{form.phone}</span> ({form.country})
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* OTP Input form */}
-                  <form onSubmit={handleVerifyAndSubmit} className="mt-2 flex flex-col gap-5">
-                    <div>
-                      <label htmlFor="otpCode" className="mb-2 block text-[10px] font-bold uppercase tracking-[0.25em] text-zinc-400">
-                        4-Digit Verification Code
-                      </label>
-                      <input
-                        id="otpCode"
-                        name="otpCode"
-                        type="text"
-                        inputMode="numeric"
-                        autoFocus
-                        maxLength={4}
-                        value={otpCode}
-                        onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ""))}
-                        placeholder="• • • •"
-                        className="w-full rounded-2xl border border-zinc-800 bg-zinc-950/80 px-4 py-4 text-center text-2xl font-bold tracking-[0.5em] text-white placeholder-zinc-700 outline-none transition-all focus:border-[#AE8C20] focus:ring-2 focus:ring-[#AE8C20]/20"
-                      />
-                    </div>
-
-                    {/* Status Notification */}
-                    {otpStatus && (
-                      <div className={`rounded-xl border px-4 py-3 text-xs ${otpStatus.type === "success" ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400" : "border-red-500/30 bg-red-500/10 text-red-400"}`}>
-                        {otpStatus.text}
-                      </div>
-                    )}
-
-                    {/* Action buttons */}
-                    <div className="flex flex-col gap-3">
-                      <button
-                        type="submit"
-                        disabled={verifyingOtp || status === "loading" || otpCode.length !== 4}
-                        className="group relative w-full overflow-hidden rounded-2xl bg-[#AE8C20] px-8 py-4 text-sm font-bold uppercase tracking-wider text-zinc-950 shadow-[0_0_40px_rgba(174,140,32,0.3)] transition-all duration-300 hover:scale-[1.02] hover:bg-[#D4AF37] hover:shadow-[0_0_60px_rgba(174,140,32,0.5)] disabled:opacity-50 disabled:cursor-not-allowed"
+            {/* Contact details — third on mobile, left column below heading on desktop */}
+            <aside className="order-3 flex flex-col gap-4 sm:gap-5 lg:col-start-1 lg:row-start-2">
+              {[
+                {
+                  icon: (
+                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
+                    </svg>
+                  ),
+                  label: "Email",
+                  value: "info@ritzmediaworld.com",
+                  href: "mailto:info@ritzmediaworld.com",
+                },
+                {
+                  icon: (
+                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 0 0 2.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 0 1-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 0 0-1.091-.852H4.5A2.25 2.25 0 0 0 2.25 4.5v2.25Z" />
+                    </svg>
+                  ),
+                  label: "Phone",
+                  value: "+91-9220516777",
+                  href: "tel:+919220516777",
+                },
+                {
+                  icon: (
+                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
+                    </svg>
+                  ),
+                  label: "Location",
+                  value: "Unit No. 404, 4th Floor, Corporate Park Tower A1, Sector 142, Noida, Uttar Pradesh 201305, India",
+                },
+              ].map((item) => (
+                <div
+                  key={item.label}
+                  className="contact-info-item flex items-start gap-3 rounded-xl border border-zinc-800/60 bg-zinc-900/40 px-4 py-3 backdrop-blur-sm"
+                >
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#AE8C20]/30 bg-[#AE8C20]/10 text-[#AE8C20]">
+                    {item.icon}
+                  </span>
+                  <div className="min-w-0">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-zinc-500">
+                      {item.label}
+                    </p>
+                    {item.href ? (
+                      <a
+                        href={item.href}
+                        className="mt-0.5 block break-words text-sm font-medium leading-snug text-white transition-colors hover:text-[#D4AF37]"
                       >
-                        <span className="relative flex items-center justify-center gap-2">
-                          {verifyingOtp || status === "loading" ? (
-                            <>
-                              <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                              </svg>
-                              Verifying & Submitting…
-                            </>
-                          ) : (
-                            "Verify & Submit"
-                          )}
-                        </span>
-                      </button>
+                        {item.value}
+                      </a>
+                    ) : (
+                      <p className="mt-0.5 break-words text-sm font-medium leading-snug text-white">
+                        {item.value}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              ))}
 
-                      <div className="flex items-center justify-between text-xs">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setStep("form");
-                            setOtpStatus(null);
-                          }}
-                          className="text-zinc-400 underline underline-offset-4 transition-colors hover:text-white"
-                        >
-                          ← Change Phone / Edit
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={handleResendOtp}
-                          disabled={sendingOtp || cooldown > 0}
-                          className="font-semibold text-[#D4AF37] transition-colors hover:text-white disabled:text-zinc-500 disabled:no-underline"
-                        >
-                          {sendingOtp ? "Sending..." : cooldown > 0 ? `Resend Code (${cooldown}s)` : "Resend Code"}
-                        </button>
-                      </div>
-                    </div>
-                  </form>
+              <div className="contact-info-item rounded-xl border border-zinc-800/60 bg-zinc-900/40 px-4 py-3 backdrop-blur-sm">
+                <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.25em] text-zinc-500">
+                  Follow Us
+                </p>
+                <div className="social-links-container flex flex-wrap gap-3">
+                  <a
+                    href="https://www.instagram.com/contenaissance/"
+                    title="Follow Contenaissance on Instagram"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Instagram"
+                    className="social-link-btn flex h-10 w-10 items-center justify-center rounded-full border border-zinc-700 bg-zinc-900 text-zinc-400 transition-all duration-300 hover:border-[#AE8C20]/60 hover:bg-[#AE8C20]/10 hover:text-[#D4AF37]"
+                  >
+                    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
+                    </svg>
+                  </a>
+                  <a
+                    href="https://www.linkedin.com/company/108385521/"
+                    title="Follow Contenaissance on LinkedIn"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="LinkedIn"
+                    className="social-link-btn flex h-10 w-10 items-center justify-center rounded-full border border-zinc-700 bg-zinc-900 text-zinc-400 transition-all duration-300 hover:border-[#AE8C20]/60 hover:bg-[#AE8C20]/10 hover:text-[#D4AF37]"
+                  >
+                    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+                    </svg>
+                  </a>
+                  <a
+                    href="https://www.youtube.com/@Contenaissance"
+                    title="Subscribe to Contenaissance on YouTube"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="YouTube"
+                    className="social-link-btn flex h-10 w-10 items-center justify-center rounded-full border border-zinc-700 bg-zinc-900 text-zinc-400 transition-all duration-300 hover:border-[#AE8C20]/60 hover:bg-[#AE8C20]/10 hover:text-[#D4AF37]"
+                  >
+                    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+                    </svg>
+                  </a>
+                  <a
+                    href="https://www.facebook.com/profile.php?id=61579738437856"
+                    title="Follow Contenaissance on Facebook"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Facebook"
+                    className="social-link-btn flex h-10 w-10 items-center justify-center rounded-full border border-zinc-700 bg-zinc-900 text-zinc-400 transition-all duration-300 hover:border-[#AE8C20]/60 hover:bg-[#AE8C20]/10 hover:text-[#D4AF37]"
+                  >
+                    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+                    </svg>
+                  </a>
+                  <a
+                    href="https://x.com/contenaissance"
+                    title="Follow Contenaissance on X"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="X"
+                    className="social-link-btn flex h-10 w-10 items-center justify-center rounded-full border border-zinc-700 bg-zinc-900 text-zinc-400 transition-all duration-300 hover:border-[#AE8C20]/60 hover:bg-[#AE8C20]/10 hover:text-[#D4AF37]"
+                  >
+                    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                    </svg>
+                  </a>
                 </div>
               </div>
-            )}
+
+              <blockquote className="contact-info-item border-l-2 border-[#AE8C20]/50 pl-4">
+                <p className="contact-quote-text text-sm italic leading-relaxed text-zinc-400">
+                  &ldquo;Where human creativity meets artificial precision , we craft experiences that define the future.&rdquo;
+                </p>
+                <cite className="contact-quote-cite mt-2 block text-[10px] font-bold uppercase tracking-[0.25em] text-[#AE8C20]">
+                  — Contenaissance Studio
+                </cite>
+              </blockquote>
+            </aside>
           </div>
         </div>
       </section>
+
+      {typeof document !== "undefined" &&
+        createPortal(
+          <AnimatePresence>
+            {otpModalOpen && (
+              <motion.div
+                className="fixed inset-0 z-[var(--z-modal)] flex items-center justify-center p-4 sm:p-6"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.28, ease: "easeOut" }}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="otp-modal-title"
+              >
+                <motion.button
+                  type="button"
+                  className="absolute inset-0 bg-zinc-950/75 backdrop-blur-md"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  aria-label="Close verification modal"
+                  onClick={() => {
+                    if (!isSubmitting) closeOtpModal();
+                  }}
+                />
+
+                <motion.div
+                  className="relative z-10 w-full max-w-md overflow-hidden rounded-2xl border border-zinc-800/80 bg-zinc-900/95 shadow-[0_32px_100px_rgba(0,0,0,0.55),0_0_60px_rgba(174,140,32,0.12)] backdrop-blur-xl sm:rounded-[1.75rem]"
+                  initial={{ opacity: 0, scale: 0.92, y: 24 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.94, y: 16 }}
+                  transition={{ type: "spring", damping: 26, stiffness: 320 }}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="pointer-events-none absolute right-0 top-0 h-40 w-40 translate-x-1/3 -translate-y-1/3 rounded-full bg-[#AE8C20]/12 blur-[70px]" />
+
+                  <div className="relative border-b border-zinc-800/70 px-5 py-4 sm:px-6 sm:py-5">
+                    <button
+                      type="button"
+                      onClick={closeOtpModal}
+                      disabled={isSubmitting}
+                      className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full border border-zinc-700 bg-zinc-900/80 text-zinc-400 transition-colors hover:border-zinc-600 hover:text-white disabled:cursor-not-allowed disabled:opacity-50 sm:right-5 sm:top-5"
+                      aria-label="Close"
+                    >
+                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+
+                    <div className="flex items-start gap-3 pr-10">
+                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-[#AE8C20]/35 bg-[#AE8C20]/10 text-[#AE8C20]">
+                        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <h2 id="otp-modal-title" className="text-lg font-bold text-white sm:text-xl">
+                          Verify Mobile Number
+                        </h2>
+                        <p className="mt-1 text-xs text-zinc-400 sm:text-sm">
+                          Enter the 4-digit code sent to
+                        </p>
+                        <p className="mt-1 font-mono text-sm font-semibold tracking-wide text-[#D4AF37] sm:text-base">
+                          {maskPhoneForDisplay(form.phone, form.country)}
+                        </p>
+                        <p className="mt-0.5 text-[10px] uppercase tracking-[0.2em] text-zinc-500">{form.country}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <form onSubmit={handleVerifyAndSubmit} className="relative space-y-4 px-5 py-5 sm:space-y-5 sm:px-6 sm:py-6">
+                    <div>
+                      <p className="mb-1.5 text-[10px] font-bold uppercase tracking-[0.25em] text-zinc-500">
+                        4-Digit Verification Code
+                      </p>
+                      <div
+                        className="flex justify-center gap-2 sm:gap-3"
+                        onPaste={handleOtpPaste}
+                      >
+                        {otpDigits.map((digit, index) => (
+                          <input
+                            key={index}
+                            ref={(el) => {
+                              otpInputRefs.current[index] = el;
+                            }}
+                            type="text"
+                            inputMode="numeric"
+                            autoComplete={index === 0 ? "one-time-code" : "off"}
+                            maxLength={1}
+                            value={digit}
+                            aria-label={`Digit ${index + 1} of verification code`}
+                            disabled={isSubmitting}
+                            onChange={(e) => handleOtpDigitChange(index, e.target.value)}
+                            onKeyDown={(e) => handleOtpKeyDown(index, e)}
+                            onFocus={(e) => e.target.select()}
+                            className="h-12 w-11 rounded-xl border border-zinc-800 bg-zinc-950/90 text-center text-xl font-bold text-white outline-none transition-all focus:border-[#AE8C20] focus:ring-2 focus:ring-[#AE8C20]/25 disabled:cursor-not-allowed disabled:opacity-50 sm:h-14 sm:w-12 sm:text-2xl"
+                          />
+                        ))}
+                      </div>
+                    </div>
+
+                    {otpStatus && (
+                      <div
+                        className={`flex items-start gap-2 rounded-xl border px-4 py-3 text-xs sm:text-sm ${otpStatus.type === "success"
+                            ? "border-emerald-500/35 bg-emerald-500/10 text-emerald-400"
+                            : "border-red-500/35 bg-red-500/10 text-red-400"
+                          }`}
+                      >
+                        {otpStatus.type === "success" ? (
+                          <svg className="mt-0.5 h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                          </svg>
+                        ) : (
+                          <svg className="mt-0.5 h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
+                          </svg>
+                        )}
+                        <span>{otpStatus.text}</span>
+                      </div>
+                    )}
+
+                    <button
+                      type="submit"
+                      disabled={isSubmitting || !isOtpComplete}
+                      className="group relative w-full overflow-hidden rounded-xl bg-[#AE8C20] px-6 py-3.5 text-sm font-bold uppercase tracking-wider text-zinc-950 shadow-[0_0_40px_rgba(174,140,32,0.3)] transition-all duration-300 hover:scale-[1.02] hover:bg-[#D4AF37] hover:shadow-[0_0_60px_rgba(174,140,32,0.5)] disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <span
+                        className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 group-hover:translate-x-full"
+                      />
+                      <span className="relative flex items-center justify-center gap-2">
+                        {isSubmitting ? (
+                          <>
+                            <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                            </svg>
+                            Verifying & Submitting…
+                          </>
+                        ) : (
+                          "Verify & Submit"
+                        )}
+                      </span>
+                    </button>
+
+                    <div className="flex flex-col gap-3 border-t border-zinc-800/70 pt-4 sm:flex-row sm:items-center sm:justify-between">
+                      <button
+                        type="button"
+                        onClick={closeOtpModal}
+                        disabled={isSubmitting}
+                        className="text-xs text-zinc-400 underline underline-offset-4 transition-colors hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        ← Change Phone / Edit
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={handleResendOtp}
+                        disabled={sendingOtp || cooldown > 0 || isSubmitting}
+                        className="text-xs font-semibold text-[#D4AF37] transition-colors hover:text-white disabled:text-zinc-500"
+                      >
+                        {sendingOtp ? "Sending..." : cooldown > 0 ? `Resend Code (${cooldown}s)` : "Resend Code"}
+                      </button>
+                    </div>
+                  </form>
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>,
+          document.body
+        )}
+
+      {typeof document !== "undefined" &&
+        createPortal(
+          <AnimatePresence>
+            {showSuccessToast && (
+              <motion.div
+                className="fixed bottom-6 left-1/2 z-[calc(var(--z-modal)+10)] w-[calc(100%-2rem)] max-w-sm -translate-x-1/2 sm:bottom-8"
+                initial={{ opacity: 0, y: 24, scale: 0.96 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 16, scale: 0.96 }}
+                transition={{ type: "spring", damping: 24, stiffness: 320 }}
+                role="status"
+                aria-live="polite"
+              >
+                <div className="flex items-center gap-3 rounded-xl border border-[#AE8C20]/35 bg-zinc-900/95 px-4 py-3.5 shadow-[0_20px_60px_rgba(0,0,0,0.45),0_0_40px_rgba(174,140,32,0.15)] backdrop-blur-md sm:px-5">
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-emerald-500/35 bg-emerald-500/15 text-emerald-400">
+                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                    </svg>
+                  </span>
+                  <p className="text-sm font-semibold text-white sm:text-base">✓ Form submitted successfully!</p>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>,
+          document.body
+        )}
 
       <CTAFooter showBrandHeading={false} />
     </div>
