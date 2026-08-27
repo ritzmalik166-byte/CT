@@ -24,6 +24,7 @@ export function AdminLogo({
           src="/assets/favicon.png"
           alt="Contenaissance logo"
           fill
+          sizes={`${size}px`}
           className="object-contain p-1"
           priority
         />

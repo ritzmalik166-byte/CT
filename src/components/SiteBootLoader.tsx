@@ -203,8 +203,10 @@ export function SiteBootLoader({
                 src="/assets/favicon.png"
                 alt="Contenaissance"
                 title="Contenaissance"
-                width={200}
-                height={200}
+                width={274}
+                height={133}
+                sizes="280px"
+                style={{ width: "auto", height: "auto" }}
                 className="max-h-[min(42vh,240px)] w-auto max-w-full object-contain"
                 priority
               />

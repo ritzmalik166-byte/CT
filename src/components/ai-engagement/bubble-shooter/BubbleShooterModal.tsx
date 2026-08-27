@@ -124,6 +124,7 @@ export function BubbleShooterModal({
             alt="Decorative dotted background pattern"
             title="Decorative dotted background pattern"
             fill
+            sizes="100vw"
             className="pointer-events-none object-cover object-center"
             priority
           />

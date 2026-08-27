@@ -339,6 +339,8 @@ export function HeroWithAnimation() {
                 title="Contenaissance"
                 width={148}
                 height={44}
+                sizes="(min-width: 768px) 44px, (min-width: 640px) 36px, 32px"
+                style={{ width: "auto" }}
                 className="h-8 w-auto sm:h-9 md:h-11"
                 priority
               />

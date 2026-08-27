@@ -169,7 +169,8 @@ function LogoWithTooltip({ company }: { company: typeof COMPANIES[0] }) {
         title={`${company.name} logo`}
         width={260}
         height={90}
-        unoptimized
+        sizes="80px"
+        style={{ width: "auto" }}
         className="h-6 w-auto object-contain transition-all duration-300 sm:h-7 md:h-8 lg:h-10"
       />
       <TypewriterTooltip

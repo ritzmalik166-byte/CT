@@ -67,12 +67,13 @@ export function RotatingCircleText({
 
       <div className="pointer-events-none absolute inset-0 z-[1] grid place-items-center">
         <Image
-          src="/assets/social-marketing.gif"
+          src="/assets/social-marketing.webp"
           alt="Social media marketing"
           title="Social media marketing"
           width={44}
           height={44}
           unoptimized
+          sizes="(min-width: 1024px) 67px, (min-width: 768px) 60px, 47px"
           className="expert-badge-gif-golden size-[42%] min-h-0 min-w-0 object-contain"
         />
       </div>

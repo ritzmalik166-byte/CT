@@ -51,6 +51,8 @@ export function InnerPageNav({
             title="Contenaissance"
             width={220}
             height={66}
+            sizes="(min-width: 768px) 64px, (min-width: 640px) 48px, 40px"
+            style={{ width: "auto" }}
             className="h-10 w-auto sm:h-12 md:h-16"
             priority
           />

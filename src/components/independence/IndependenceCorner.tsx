@@ -41,10 +41,11 @@ export default function IndependenceCorner() {
       }}
     >
       <Image
-        src="/independence/independence-corner.jpg"
+        src="/independence/independence-corner.webp"
         alt=""
         width={600}
         height={600}
+        sizes="(min-width: 1024px) 185px, (min-width: 768px) 165px, (min-width: 640px) 145px, 120px"
         priority
         className="h-auto w-full object-contain"
       />

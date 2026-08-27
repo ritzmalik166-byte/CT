@@ -165,6 +165,8 @@ function LogoWithTooltip({
         title={`${logo.alt} logo`}
         width={180}
         height={60}
+        sizes="96px"
+        style={{ width: "auto" }}
         className="h-8 w-auto object-contain grayscale transition-all duration-300 hover:grayscale-0 sm:h-10 md:h-12"
       />
       <TypewriterTooltip

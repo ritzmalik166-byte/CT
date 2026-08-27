@@ -46,22 +46,22 @@ const EXPERTISE_GIF_META: Record<
   { src: string; alt: string; title: string }
 > = {
   films: {
-    src: "/assets/film-shooting.gif",
+    src: "/assets/film-shooting.webp",
     alt: "AI brand film production",
     title: "AI brand film production",
   },
   digital: {
-    src: "/assets/content-marketing.gif",
+    src: "/assets/content-marketing.webp",
     alt: "Digital content marketing",
     title: "Digital content marketing",
   },
   campaigns: {
-    src: "/assets/copywriting.gif",
+    src: "/assets/copywriting.webp",
     alt: "AI copywriting and campaigns",
     title: "AI copywriting and campaigns",
   },
   identity: {
-    src: "/assets/visualization.gif",
+    src: "/assets/visualization.webp",
     alt: "Visual identity and data visualization",
     title: "Visual identity and data visualization",
   },
@@ -81,6 +81,8 @@ function ExpertiseGifBadge({
         width={160}
         height={76}
         unoptimized
+        sizes="(min-width: 1024px) 208px, (min-width: 640px) 176px, 144px"
+        style={{ width: "auto" }}
         className="expert-badge-gif-golden h-12 w-auto max-h-full max-w-none object-contain object-left sm:h-14 lg:h-16"
       />
     </span>

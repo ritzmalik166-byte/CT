@@ -415,6 +415,7 @@ export default function PortfolioPage() {
                   title={image.alt}
                   width={900}
                   height={700}
+                  sizes="(max-width: 767px) 50vw, (max-width: 1023px) 42vw, 40vw"
                   className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-125"
                 />
               </div>

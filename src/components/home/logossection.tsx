@@ -308,7 +308,9 @@ className="relative flex h-28 w-screen max-w-none items-center justify-center"
                     alt={logo.name}
                     width={200}
                     height={70}
-className="max-h-10 sm:max-h-9 md:max-h-16 w-auto object-contain drop-shadow-sm transition-transform duration-200 group-hover:scale-105"
+                    sizes="208px"
+                    style={{ width: "auto" }}
+                    className="max-h-10 sm:max-h-9 md:max-h-16 w-auto object-contain drop-shadow-sm transition-transform duration-200 group-hover:scale-105"
                   />
                 </div>
               </div>

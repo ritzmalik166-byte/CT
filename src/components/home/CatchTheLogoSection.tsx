@@ -1,21 +1,22 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import CatchTheLogoGame from "@/components/game/CatchTheLogoGame";
 
 export function CatchTheLogoSection() {
   const [open, setOpen] = useState(false);
 
   return (
-    <section
-      className="relative z-10 w-full overflow-hidden py-12 sm:py-16"
-      style={{
-        backgroundImage: "url('/game-bg.png')",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundRepeat: "no-repeat",
-      }}
-    >
+    <section className="relative z-10 w-full overflow-hidden py-12 sm:py-16">
+      <Image
+        src="/game-bg.png"
+        alt=""
+        fill
+        sizes="100vw"
+        className="object-cover object-center"
+        aria-hidden
+      />
       {/* Background overlay */}
       <div className="absolute inset-0 bg-white/70 backdrop-blur-[2px]" />
 

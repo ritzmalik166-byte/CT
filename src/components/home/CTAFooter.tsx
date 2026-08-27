@@ -149,8 +149,8 @@ export function CTAFooter({ showBrandHeading = true }: CTAFooterProps) {
           alt={IMAGE_TITLES.dottedBackground}
           title={IMAGE_TITLES.dottedBackground}
           fill
+          sizes="100vw"
           className="object-cover object-top"
-          priority
         />
         {/* Bottom gradient to blend into footer */}
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-zinc-950 to-transparent" />
@@ -320,7 +320,7 @@ export function CTAFooter({ showBrandHeading = true }: CTAFooterProps) {
         style={{
           willChange: "transform, opacity",
           backgroundImage: SHOW_INDEPENDENCE_DAY
-            ? "url('/independence/tricolor.jpg')"
+            ? "url('/independence/tricolor.webp')"
             : "none",
         }}
       >

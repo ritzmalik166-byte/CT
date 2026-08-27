@@ -40,7 +40,7 @@ export default function FloatingCTA() {
                         src="/boy.png"
                         alt="AI Guide"
                         fill
-                        sizes="180px"
+                        sizes="(min-width: 1280px) 180px, (min-width: 1024px) 137px, (min-width: 640px) 112px, 73px"
                         priority
                         className="select-none object-contain object-left object-bottom"
                     />
