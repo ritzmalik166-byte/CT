@@ -218,70 +218,44 @@ export function CTAFooter({ showBrandHeading = true }: CTAFooterProps) {
                   </Link>
                 ))}
               </div>
-              <div>
-                {/* Google Preferred Source Button */}
-                <a
-                  href="https://www.google.com/preferences/source?q=contenaissance.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  title="Add Contenaissance as a preferred source on Google"
-                  aria-label="Add Contenaissance as a preferred source on Google"
-                  className="
-    mt-4
-    inline-flex
-    h-[48px]
-    items-center
-    gap-3
-    rounded-[12px]
-    border
-    border-[#9aa0a6]
-    bg-white
-    px-4
-    text-[15px]
-    font-medium
-    text-[#202124]
-    transition-all
-    duration-200
-    hover:bg-[#f8f9fa]
-    hover:shadow-sm
-    focus:outline-none
-    focus:ring-2
-    focus:ring-[#4285F4]/30
-    sm:h-[50px]
-    sm:px-5
-  "
-                >
-                  {/* Google G Logo */}
-                  <svg
-                    width="28"
-                    height="28"
-                    viewBox="0 0 48 48"
-                    aria-hidden="true"
-                    className="shrink-0"
-                  >
-                    <path
-                      fill="#EA4335"
-                      d="M24 9.5c3.54 0 6.72 1.22 9.22 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.61 0 6.48 5.38 2.5 13.22l7.98 6.2C12.39 13.04 17.62 9.5 24 9.5z"
-                    />
-                    <path
-                      fill="#4285F4"
-                      d="M46.5 24.5c0-1.63-.15-3.2-.43-4.72H24v9h12.65c-.54 2.9-2.16 5.36-4.61 7.02l7.47 5.8C43.87 37.42 46.5 31.44 46.5 24.5z"
-                    />
-                    <path
-                      fill="#FBBC05"
-                      d="M10.48 28.58A14.5 14.5 0 0 1 9.5 24c0-1.59.34-3.12.98-4.58l-7.98-6.2A24 24 0 0 0 0 24c0 3.88.93 7.56 2.5 10.78l7.98-6.2z"
-                    />
-                    <path
-                      fill="#34A853"
-                      d="M24 48c6.48 0 11.92-2.14 15.89-5.8l-7.47-5.8c-2.06 1.38-4.7 2.2-8.42 2.2-6.38 0-11.61-3.54-13.52-8.42l-7.98 6.2C6.48 42.62 14.61 48 24 48z"
-                    />
-                  </svg>
+              <div className="group relative">
+  <a
+    href="https://www.google.com/preferences/source?q=contenaissance.com"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="
+      google-source-btn
+      inline-flex items-center gap-3
+      rounded-full bg-white
+      px-6 py-3.5
+      text-[18px] font-bold leading-[1.15] text-[#171717]
+      shadow-lg
+    "
+  >
+    {/* Google Logo */}
+    <div className="flex h-10 w-10 shrink-0 items-center justify-center">
+    <span
+  className="google-logo text-[36px] font-semibold leading-none"
+  style={{
+    fontFamily: "Arial, sans-serif",
+    background:
+      "conic-gradient(from -45deg, #4285F4 0deg 90deg, #34A853 90deg 180deg, #FBBC05 180deg 270deg, #EA4335 270deg 360deg)",
+    WebkitBackgroundClip: "text",
+    WebkitTextFillColor: "transparent",
+  }}
+>
+  G
+</span>
+    </div>
 
-                  <span className="whitespace-nowrap">
-                    Add as a preferred <br /> source on Google
-                  </span>
-                </a>
-              </div>
+    {/* Text */}
+    <span>
+      Add as a preferred
+      <br />
+      source on Google
+    </span>
+  </a>
+</div>
               {/* Email subscription */}
               <div className="w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg">
                 <p className="text-sm text-white sm:text-base lg:text-lg">
@@ -327,12 +301,13 @@ export function CTAFooter({ showBrandHeading = true }: CTAFooterProps) {
                   id="footer-email-status"
                   role="status"
                   aria-live="polite"
-                  className={`mt-2 min-h-[1.25rem] text-xs sm:text-sm ${status === "success"
+                  className={`mt-2 min-h-[1.25rem] text-xs sm:text-sm ${
+                    status === "success"
                       ? "text-[#D4AF37]"
                       : status === "error"
                         ? "text-red-400"
                         : "text-transparent"
-                    }`}
+                  }`}
                 >
                   {status === "success"
                     ? "Thanks! Your email was sent successfully."
@@ -341,10 +316,10 @@ export function CTAFooter({ showBrandHeading = true }: CTAFooterProps) {
               </div>
             </div>
 
-            {showBrandHeading && (
-              <h2
-                ref={brandTextRef}
-                className="
+{showBrandHeading && (
+  <h2
+    ref={brandTextRef}
+    className="
       mt-10
       overflow-hidden
       text-center
@@ -355,18 +330,19 @@ export function CTAFooter({ showBrandHeading = true }: CTAFooterProps) {
       md:mt-16
       lg:mt-20
     "
-                style={{
-                  fontSize: "clamp(1.75rem, 9vw, 8rem)",
-                }}
-              >
-                {BRAND_TEXT.split("").map((letter, index) => (
-                  <span
-                    key={index}
-                    className={`
+    style={{
+      fontSize: "clamp(1.75rem, 9vw, 8rem)",
+    }}
+  >
+    {BRAND_TEXT.split("").map((letter, index) => (
+      <span
+        key={index}
+        className={`
           brand-letter
           inline-block
-          ${SHOW_INDEPENDENCE_DAY
-                        ? `
+          ${
+            SHOW_INDEPENDENCE_DAY
+              ? `
                 bg-cover
                 bg-center
                 bg-no-repeat
@@ -375,26 +351,27 @@ export function CTAFooter({ showBrandHeading = true }: CTAFooterProps) {
                 [-webkit-background-clip:text]
                 [-webkit-text-fill-color:transparent]
               `
-                        : "text-white"
-                      }
+              : "text-white"
+          }
         `}
-                    style={{
-                      willChange: "transform, opacity",
-                      backgroundImage: SHOW_INDEPENDENCE_DAY
-                        ? "url('/independence/tricolor.jpg')"
-                        : "none",
-                    }}
-                  >
-                    {letter}
-                  </span>
-                ))}
-              </h2>
-            )}
+        style={{
+          willChange: "transform, opacity",
+          backgroundImage: SHOW_INDEPENDENCE_DAY
+            ? "url('/independence/tricolor.jpg')"
+            : "none",
+        }}
+      >
+        {letter}
+      </span>
+    ))}
+  </h2>
+)}
 
             {/* Bottom bar */}
             <div
-              className={`flex flex-col items-center justify-center gap-3 border-t border-white/10 pt-5 text-center sm:gap-4 lg:flex-row lg:justify-between lg:text-left ${showBrandHeading ? "mt-6 sm:mt-8 md:mt-10" : "mt-8 sm:mt-10 md:mt-12"
-                }`}
+              className={`flex flex-col items-center justify-center gap-3 border-t border-white/10 pt-5 text-center sm:gap-4 lg:flex-row lg:justify-between lg:text-left ${
+                showBrandHeading ? "mt-6 sm:mt-8 md:mt-10" : "mt-8 sm:mt-10 md:mt-12"
+              }`}
             >
               <p className="text-[11px] text-white/60 sm:text-xs md:text-sm">
                 © {new Date().getFullYear()} Contenaissance. All rights reserved.
@@ -420,7 +397,6 @@ export function CTAFooter({ showBrandHeading = true }: CTAFooterProps) {
                 >
                   Cookies Policy
                 </button>
-
                 <span>
                   Website by{" "}
                   <a

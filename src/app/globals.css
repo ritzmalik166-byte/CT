@@ -880,4 +880,45 @@ a, button {
   }
 }
 
+@keyframes googlePulseOpen {
+  0% {
+    transform: scale(1);
+  }
 
+  15% {
+    transform: scale(1.08);
+  }
+
+  30% {
+    transform: scale(1);
+  }
+
+  45% {
+    transform: scale(1.08);
+  }
+
+  60% {
+    transform: scale(1);
+  }
+
+  75% {
+    transform: scale(1.08);
+  }
+
+  90% {
+    transform: scale(1);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+.google-source-btn {
+  animation: googlePulseOpen 4s ease-in-out infinite;
+}
+
+.google-source-btn:hover {
+  animation: none !important;
+  transform: none !important;
+}
