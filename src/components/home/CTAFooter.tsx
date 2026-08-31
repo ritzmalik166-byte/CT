@@ -233,19 +233,12 @@ export function CTAFooter({ showBrandHeading = true }: CTAFooterProps) {
     "
   >
     {/* Google Logo */}
-    <div className="flex h-10 w-10 shrink-0 items-center justify-center">
-    <span
-  className="google-logo text-[36px] font-semibold leading-none"
-  style={{
-    fontFamily: "Arial, sans-serif",
-    background:
-      "conic-gradient(from -45deg, #4285F4 0deg 90deg, #34A853 90deg 180deg, #FBBC05 180deg 270deg, #EA4335 270deg 360deg)",
-    WebkitBackgroundClip: "text",
-    WebkitTextFillColor: "transparent",
-  }}
->
-  G
-</span>
+    <div className="flex h-8 w-8 sm:h-9 sm:w-9 md:h-10 md:w-10 shrink-0 items-center justify-center">
+      <img
+        src="/google-logo.png"
+        alt="Google"
+        className="h-8 w-8 sm:h-9 sm:w-9 md:h-10 md:w-10 object-contain"
+      />
     </div>
 
     {/* Text */}
