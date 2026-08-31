@@ -218,7 +218,44 @@ export function CTAFooter({ showBrandHeading = true }: CTAFooterProps) {
                   </Link>
                 ))}
               </div>
+              <div className="group relative">
+  <a
+    href="https://www.google.com/preferences/source?q=contenaissance.com"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="
+      google-source-btn
+      inline-flex items-center gap-3
+      rounded-full bg-white
+      px-6 py-3.5
+      text-[18px] font-bold leading-[1.15] text-[#171717]
+      shadow-lg
+    "
+  >
+    {/* Google Logo */}
+    <div className="flex h-10 w-10 shrink-0 items-center justify-center">
+    <span
+  className="google-logo text-[36px] font-semibold leading-none"
+  style={{
+    fontFamily: "Arial, sans-serif",
+    background:
+      "conic-gradient(from -45deg, #4285F4 0deg 90deg, #34A853 90deg 180deg, #FBBC05 180deg 270deg, #EA4335 270deg 360deg)",
+    WebkitBackgroundClip: "text",
+    WebkitTextFillColor: "transparent",
+  }}
+>
+  G
+</span>
+    </div>
 
+    {/* Text */}
+    <span>
+      Add as a preferred
+      <br />
+      source on Google
+    </span>
+  </a>
+</div>
               {/* Email subscription */}
               <div className="w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg">
                 <p className="text-sm text-white sm:text-base lg:text-lg">
