@@ -64,8 +64,6 @@ export default function FloatingCTA() {
     transition-all
     duration-500
     ease-out
-    group-hover:-translate-y-1
-    group-hover:scale-[1.03]
     group-hover:border-[#8A742C]
     group-hover:shadow-[0_0_25px_rgba(212,175,55,0.18)]
   "
