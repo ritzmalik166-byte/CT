@@ -1,16 +1,14 @@
 "use client";
 
-import type Lenis from "lenis";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useRef } from "react";
 import { useLenis } from "@/components/SmoothScrollProvider";
+import { useFloatingActionsVisible } from "@/hooks/useFloatingActionsVisible";
 import {
   easeOutQuint,
   scrollToTopDurationSec,
   smoothNativeScrollToTop,
 } from "@/lib/smooth-scroll-to-top";
 import { cn } from "@/lib/utils";
-
-const SHOW_AFTER_PX = 320;
 
 interface ScrollToTopProps {
   /** When true, positioning is handled by a parent cluster (e.g. FloatingActionCluster). */
@@ -19,41 +17,8 @@ interface ScrollToTopProps {
 
 export function ScrollToTop({ embedded = false }: ScrollToTopProps) {
   const { getLenis } = useLenis();
-  const [visible, setVisible] = useState(false);
+  const visible = useFloatingActionsVisible();
   const isScrollingRef = useRef(false);
-
-  useEffect(() => {
-    let lenisBound: Lenis | null = null;
-
-    const update = () => {
-      const lenis = getLenis();
-      const y = lenis ? lenis.scroll : window.scrollY;
-      setVisible(y > SHOW_AFTER_PX);
-    };
-
-    const bindLenis = () => {
-      const lenis = getLenis();
-      if (!lenis || lenis === lenisBound) return;
-      if (lenisBound) lenisBound.off("scroll", update);
-      lenisBound = lenis;
-      lenis.on("scroll", update);
-    };
-
-    update();
-    bindLenis();
-    window.addEventListener("scroll", update, { passive: true });
-
-    const attachPoll = window.setInterval(() => {
-      bindLenis();
-      update();
-    }, 400);
-
-    return () => {
-      window.clearInterval(attachPoll);
-      window.removeEventListener("scroll", update);
-      if (lenisBound) lenisBound.off("scroll", update);
-    };
-  }, [getLenis]);
 
   const scrollToTop = useCallback(() => {
     if (isScrollingRef.current) return;

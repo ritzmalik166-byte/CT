@@ -1,5 +1,6 @@
 "use client";
 
+import { LeadCapturePopup } from "@/components/LeadCapturePopup";
 import { ScrollToTop } from "@/components/ScrollToTop";
 
 export function FloatingActionCluster() {
@@ -8,7 +9,10 @@ export function FloatingActionCluster() {
       className="pointer-events-none fixed bottom-[max(1rem,env(safe-area-inset-bottom))] right-[max(1rem,env(safe-area-inset-right))] z-[var(--z-chrome)] sm:bottom-8 sm:right-8"
       aria-label="Page actions"
     >
-      <ScrollToTop embedded />
+      <div className="flex flex-col items-end gap-3">
+        <LeadCapturePopup embedded />
+        <ScrollToTop embedded />
+      </div>
     </div>
   );
 }
