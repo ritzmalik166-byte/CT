@@ -161,9 +161,9 @@ export function LeadCapturePopup({ embedded = false }: LeadCapturePopupProps) {
       exit={{ opacity: 0, y: 20, scale: 0.94, filter: "blur(4px)" }}
       transition={{ type: "spring", damping: 28, stiffness: 320 }}
       className={cn(
-        "relative z-10 flex w-[min(calc(100vw-2rem),26rem)] max-h-[min(90dvh,calc(100dvh-2rem))] flex-col overflow-hidden rounded-[1.5rem]",
+        "relative z-10 flex w-[min(calc(100vw-2rem),32rem)] max-h-[min(90dvh,calc(100dvh-2rem))] flex-col overflow-hidden rounded-[1.5rem]",
         "border border-[#AE8C20]/25 bg-white/95 shadow-[0_32px_100px_rgba(0,0,0,0.22),0_0_0_1px_rgba(174,140,32,0.1)] backdrop-blur-xl",
-        "sm:w-[28rem]"
+        "sm:w-[36rem] md:w-[40rem]"
       )}
       onClick={(e) => e.stopPropagation()}
     >
