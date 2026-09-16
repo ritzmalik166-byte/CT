@@ -875,7 +875,13 @@
   background: var(--blog-gold);
 }
 
+/* .ct-blog-content-body ol {
+  margin: 0 0 1.35rem 1.35rem !important;
+  padding: 0 !important;
+} */
+
 .ct-blog-content-body ol {
+  list-style-type: decimal;
   margin: 0 0 1.35rem 1.35rem !important;
   padding: 0 !important;
 }
