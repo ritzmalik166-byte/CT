@@ -1151,7 +1151,7 @@ export default function ContactPage() {
                     </svg>
                   </a>
                   <a
-                    href="https://www.linkedin.com/company/108385521/"
+                    href="https://www.linkedin.com/company/contenaissance/"
                     title="Follow Contenaissance on LinkedIn"
                     target="_blank"
                     rel="noopener noreferrer"
@@ -1175,7 +1175,7 @@ export default function ContactPage() {
                     </svg>
                   </a>
                   <a
-                    href="https://www.facebook.com/profile.php?id=61579738437856"
+                    href="https://www.facebook.com/people/Contenaissance/61579738437856"
                     title="Follow Contenaissance on Facebook"
                     target="_blank"
                     rel="noopener noreferrer"

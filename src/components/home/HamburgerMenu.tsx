@@ -324,7 +324,7 @@ export function HamburgerMenu({ isOpen, onClose, currentPage = "studio" }: Hambu
 
               {/* LinkedIn */}
               <a
-                href="https://www.linkedin.com/company/108385521/"
+                href="https://www.linkedin.com/company/contenaissance/"
                 target="_blank"
                 rel="noreferrer noopener"
                 aria-label="LinkedIn"
@@ -350,7 +350,7 @@ export function HamburgerMenu({ isOpen, onClose, currentPage = "studio" }: Hambu
 
               {/* Facebook */}
               <a
-                href="https://www.facebook.com/profile.php?id=61579738437856"
+                href="https://www.facebook.com/people/Contenaissance/61579738437856"
                 target="_blank"
                 rel="noreferrer noopener"
                 aria-label="Facebook"

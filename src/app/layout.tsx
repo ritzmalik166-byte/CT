@@ -54,11 +54,11 @@ const organizationSchema = {
     availableLanguage: ["en", "Hindi"],
   },
   sameAs: [
-    "https://www.facebook.com/profile.php?id=61579738437856",
+    "https://www.facebook.com/people/Contenaissance/61579738437856",
     "https://x.com/contenaissance",
     "https://www.instagram.com/contenaissance/",
     "https://www.youtube.com/@Contenaissance",
-    "https://www.linkedin.com/company/108385521/",
+    "https://www.linkedin.com/company/contenaissance/",
     "https://www.contenaissance.com/",
   ],
 };

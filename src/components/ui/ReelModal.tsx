@@ -18,7 +18,6 @@ interface ReelModalProps {
   previewVideo?: HTMLVideoElement | null;
   onClose: () => void;
 }
-
 const INSTAGRAM_URL = "https://www.instagram.com/contenaissance/";
 
 function normalizeVideoUrl(url: string) {
