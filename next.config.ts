@@ -2,11 +2,11 @@ import type { NextConfig } from "next";
 
 const contentSecurityPolicy = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com",
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com https://www.clarity.ms https://scripts.clarity.ms",
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https://contenaissance.blob.core.windows.net https://lfnxmldvqzqsgjigzibk.supabase.co https://www.google-analytics.com https://www.googletagmanager.com",
   "font-src 'self' data:",
-  "connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://region1.google-analytics.com https://www.googletagmanager.com https://contenaissance.blob.core.windows.net https://script.google.com https://script.googleusercontent.com",
+  "connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://region1.google-analytics.com https://www.googletagmanager.com https://contenaissance.blob.core.windows.net https://script.google.com https://script.googleusercontent.com https://www.clarity.ms https://*.clarity.ms",
   "media-src 'self' https://contenaissance.blob.core.windows.net",
   "frame-ancestors 'self'",
   "object-src 'none'",
