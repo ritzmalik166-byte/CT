@@ -13,6 +13,7 @@ const emptyForm = {
   password: "",
   can_manage_blogs: false,
   can_manage_assets: false,
+  can_manage_leads: false,
 };
 
 type EditForm = {
@@ -21,6 +22,7 @@ type EditForm = {
   password: string;
   can_manage_blogs: boolean;
   can_manage_assets: boolean;
+  can_manage_leads: boolean;
   is_active: boolean;
 };
 
@@ -89,6 +91,7 @@ export function UsersManager({ currentUser }: UsersManagerProps) {
       password: "",
       can_manage_blogs: user.permissions.can_manage_blogs,
       can_manage_assets: user.permissions.can_manage_assets,
+      can_manage_leads: user.permissions.can_manage_leads,
       is_active: user.is_active,
     });
     setEditError("");
@@ -114,6 +117,7 @@ export function UsersManager({ currentUser }: UsersManagerProps) {
         permissions: {
           can_manage_blogs: form.can_manage_blogs,
           can_manage_assets: form.can_manage_assets,
+          can_manage_leads: form.can_manage_leads,
         },
       });
       setForm(emptyForm);
@@ -147,6 +151,7 @@ export function UsersManager({ currentUser }: UsersManagerProps) {
         payload.permissions = {
           can_manage_blogs: editForm.can_manage_blogs,
           can_manage_assets: editForm.can_manage_assets,
+          can_manage_leads: editForm.can_manage_leads,
         };
       }
 
@@ -278,6 +283,17 @@ export function UsersManager({ currentUser }: UsersManagerProps) {
             />
             Can manage website assets
           </label>
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              className="admin-checkbox"
+              checked={form.can_manage_leads}
+              onChange={(event) =>
+                setForm({ ...form, can_manage_leads: event.target.checked })
+              }
+            />
+            Can manage leads
+          </label>
         </div>
 
         {error ? <p className="admin-error rounded-xl px-3 py-2 text-sm">{error}</p> : null}
@@ -291,6 +307,7 @@ export function UsersManager({ currentUser }: UsersManagerProps) {
               <th>Role</th>
               <th>Blog Access</th>
               <th>Asset Access</th>
+              <th>Lead Access</th>
               <th>Status</th>
               <th>Actions</th>
             </tr>
@@ -328,6 +345,17 @@ export function UsersManager({ currentUser }: UsersManagerProps) {
                     }`}
                   >
                     {accessLabel(user, "can_manage_assets")}
+                  </span>
+                </td>
+                <td>
+                  <span
+                    className={`admin-badge ${
+                      user.role === "superadmin" || user.permissions.can_manage_leads
+                        ? "admin-badge-green"
+                        : "admin-badge-gray"
+                    }`}
+                  >
+                    {accessLabel(user, "can_manage_leads")}
                   </span>
                 </td>
                 <td>
@@ -454,6 +482,20 @@ export function UsersManager({ currentUser }: UsersManagerProps) {
                         }
                       />
                       Can manage website assets
+                    </label>
+                    <label className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        className="admin-checkbox"
+                        checked={editForm.can_manage_leads}
+                        onChange={(event) =>
+                          setEditForm({
+                            ...editForm,
+                            can_manage_leads: event.target.checked,
+                          })
+                        }
+                      />
+                      Can manage leads
                     </label>
                   </div>
 

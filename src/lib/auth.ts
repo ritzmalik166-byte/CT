@@ -16,11 +16,13 @@ const TOKEN_EXPIRY = "7d";
 const SUPERADMIN_PERMISSIONS: UserPermissions = {
   can_manage_blogs: true,
   can_manage_assets: true,
+  can_manage_leads: true,
 };
 
 const DEFAULT_ADMIN_PERMISSIONS: UserPermissions = {
   can_manage_blogs: false,
   can_manage_assets: false,
+  can_manage_leads: false,
 };
 
 function getJwtSecret(): string {
@@ -86,6 +88,7 @@ export function resolvePermissions(
   return {
     can_manage_blogs: Boolean(permissions?.can_manage_blogs),
     can_manage_assets: Boolean(permissions?.can_manage_assets),
+    can_manage_leads: Boolean(permissions?.can_manage_leads),
   };
 }
 

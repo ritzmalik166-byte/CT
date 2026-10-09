@@ -24,7 +24,9 @@ export default async function DashboardPage() {
         (SELECT COUNT(*) FROM blogs WHERE status = 'scheduled') AS scheduledBlogs,
         (SELECT COUNT(*) FROM blogs WHERE status = 'inactive') AS inactiveBlogs,
         (SELECT COUNT(*) FROM users WHERE role IN ('superadmin', 'admin')) AS totalUsers,
-        (SELECT COUNT(*) FROM site_assets) AS totalAssets`,
+        (SELECT COUNT(*) FROM site_assets) AS totalAssets,
+        (SELECT COUNT(*) FROM leads) AS totalLeads,
+        (SELECT COUNT(*) FROM leads WHERE status = 'Pending') AS pendingLeads`,
     )) ?? {
       totalBlogs: 0,
       publishedBlogs: 0,
@@ -33,13 +35,15 @@ export default async function DashboardPage() {
       inactiveBlogs: 0,
       totalUsers: 0,
       totalAssets: 0,
+      totalLeads: 0,
+      pendingLeads: 0,
     };
 
   const cards = [
+    { label: "Total Leads", value: stats.totalLeads ?? 0, href: "/admin/dashboard/leads" },
+    { label: "Pending Leads", value: stats.pendingLeads ?? 0, href: "/admin/dashboard/leads" },
     { label: "Total Blogs", value: stats.totalBlogs, href: "/admin/dashboard/blogs" },
     { label: "Published", value: stats.publishedBlogs, href: "/admin/dashboard/blogs" },
-    { label: "Drafts", value: stats.draftBlogs, href: "/admin/dashboard/blogs" },
-    { label: "Scheduled", value: stats.scheduledBlogs, href: "/admin/dashboard/blogs" },
     { label: "Admin Users", value: stats.totalUsers, href: "/admin/dashboard/users" },
     { label: "Site Assets", value: stats.totalAssets, href: "/admin/dashboard/assets" },
   ];
@@ -61,6 +65,9 @@ export default async function DashboardPage() {
         <h3 className="ct-panel-title">Your Access Level</h3>
         <div className="mt-4 flex flex-wrap gap-3">
           <span className="admin-badge admin-badge-gold">{session.role}</span>
+          {(session.role === "superadmin" || session.permissions.can_manage_leads) && (
+            <span className="admin-badge admin-badge-green">Lead Management</span>
+          )}
           {(session.role === "superadmin" || session.permissions.can_manage_blogs) && (
             <span className="admin-badge admin-badge-green">Blog Management</span>
           )}

@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import {
   FileText,
   ImageIcon,
+  Inbox,
   LayoutDashboard,
   LogOut,
   PenSquare,
@@ -25,6 +26,20 @@ const mainNav = [
 ];
 
 const groups = [
+  {
+    id: "crm",
+    label: "Leads",
+    icon: Inbox,
+    items: [
+      {
+        href: "/admin/dashboard/leads",
+        label: "Lead Management",
+        icon: Inbox,
+        show: (user: SessionUser) =>
+          user.role === "superadmin" || user.permissions.can_manage_leads,
+      },
+    ],
+  },
   {
     id: "content",
     label: "Content",

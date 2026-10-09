@@ -78,7 +78,7 @@ export const EMPTY_CONTACT_LEAD_FORM: ContactLeadFormData = {
   fullName: "",
   email: "",
   phone: "",
-  service: "",
+  service: "Other",
   country: "India",
   message: "",
 };

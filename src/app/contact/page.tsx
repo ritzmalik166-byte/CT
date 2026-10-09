@@ -217,7 +217,7 @@ const EMPTY_FORM: FormData = {
   fullName: "",
   email: "",
   phone: "",
-  service: "",
+  service: "Other",
   country: "India",
   message: "",
 };
@@ -931,42 +931,8 @@ export default function ContactPage() {
                     </div>
                   </div>
 
-                  {/* Row 3 — Service + Country */}
-                  <div className="form-field grid gap-3.5 sm:grid-cols-2 sm:gap-4">
-                    <div>
-                      <label htmlFor="service" className="mb-1.5 block text-[10px] font-bold uppercase tracking-[0.25em] text-zinc-500">
-                        Service Interest <span className="text-[#AE8C20]">*</span>
-                      </label>
-                      <div className="relative">
-                        <select
-                          id="service"
-                          name="service"
-                          value={form.service}
-                          onChange={handleChange}
-                          onBlur={handleBlur}
-                          required
-                          aria-invalid={!!errors.service}
-                          className={fieldClass("service", "cursor-pointer appearance-none pr-12")}
-                        >
-                          <option value="" disabled>Select a service</option>
-                          {SERVICES.map((s) => (
-                            <option key={s} value={s} className="bg-zinc-900 text-white">
-                              {s}
-                            </option>
-                          ))}
-                        </select>
-                        <svg
-                          className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                          strokeWidth={2}
-                        >
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M6 9l6 6 6-6" />
-                        </svg>
-                      </div>
-                      <FieldError name="service" />
-                    </div>
+                  {/* Row 3 — Country */}
+                  <div className="form-field">
                     <div>
                       <label htmlFor="country" className="mb-1.5 block text-[10px] font-bold uppercase tracking-[0.25em] text-zinc-500">
                         Country <span className="text-[#AE8C20]">*</span>

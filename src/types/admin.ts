@@ -7,6 +7,7 @@ export type AssetType = "image" | "video" | "document" | "other";
 export interface UserPermissions {
   can_manage_blogs: boolean;
   can_manage_assets: boolean;
+  can_manage_leads: boolean;
 }
 
 export interface User {
@@ -85,6 +86,55 @@ export interface SessionUser extends UserWithPermissions {}
 
 export type PermissionKey = keyof UserPermissions;
 
+export type LeadStatus = "Pending" | "Contacted" | "Qualified" | "Converted" | "Lost";
+export type LeadType = "contact" | "footer";
+
+export interface Lead {
+  id: number;
+  type: LeadType;
+  full_name: string | null;
+  email: string;
+  phone: string | null;
+  service: string | null;
+  message: string | null;
+  source: string | null;
+  status: LeadStatus;
+  notes: string | null;
+  created_at: Date | string;
+  updated_at: Date | string;
+}
+
+export interface LeadNote {
+  id: number;
+  lead_id: number;
+  user_id: number | null;
+  author_name: string;
+  note: string;
+  created_at: Date | string;
+}
+
+export interface LeadStats {
+  totalLeads: number;
+  pendingLeads: number;
+  contactedLeads: number;
+  qualifiedLeads: number;
+  convertedLeads: number;
+  lostLeads: number;
+}
+
+export interface LeadsPagination {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}
+
+export interface LeadsResponse {
+  leads: Lead[];
+  pagination: LeadsPagination;
+  stats: LeadStats;
+}
+
 export interface DashboardStats {
   totalBlogs: number;
   publishedBlogs: number;
@@ -93,6 +143,8 @@ export interface DashboardStats {
   inactiveBlogs: number;
   totalUsers: number;
   totalAssets: number;
+  totalLeads: number;
+  pendingLeads: number;
 }
 
 export type AuditAction =

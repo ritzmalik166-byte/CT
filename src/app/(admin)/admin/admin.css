@@ -101,6 +101,23 @@ html.admin-native-scroll body::-webkit-scrollbar-thumb {
   transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
 
+select.admin-input option,
+select.admin-select option,
+.admin-select option,
+.admin-input option {
+  background-color: #161619;
+  color: #f3f4f6;
+  padding: 8px 12px;
+}
+
+[data-theme="light"] select.admin-input option,
+[data-theme="light"] select.admin-select option,
+[data-theme="light"] .admin-select option,
+[data-theme="light"] .admin-input option {
+  background-color: #ffffff;
+  color: #111827;
+}
+
 .admin-input::placeholder,
 .admin-textarea::placeholder {
   color: var(--admin-muted);
@@ -458,6 +475,14 @@ html.admin-native-scroll body::-webkit-scrollbar-thumb {
 
 .admin-modal-xl {
   max-width: 980px;
+}
+
+.admin-modal-lg {
+  max-width: 680px;
+}
+
+.admin-modal-md {
+  max-width: 600px;
 }
 
 .admin-modal-sm {

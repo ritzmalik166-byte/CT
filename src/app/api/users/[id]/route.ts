@@ -75,15 +75,17 @@ export async function PUT(request: Request, context: RouteContext) {
 
     if (body.permissions && target.role === "admin") {
       await query(
-        `INSERT INTO user_permissions (user_id, can_manage_blogs, can_manage_assets)
-         VALUES (?, ?, ?)
+        `INSERT INTO user_permissions (user_id, can_manage_blogs, can_manage_assets, can_manage_leads)
+         VALUES (?, ?, ?, ?)
          ON DUPLICATE KEY UPDATE
            can_manage_blogs = VALUES(can_manage_blogs),
-           can_manage_assets = VALUES(can_manage_assets)`,
+           can_manage_assets = VALUES(can_manage_assets),
+           can_manage_leads = VALUES(can_manage_leads)`,
         [
           userId,
           Boolean(body.permissions.can_manage_blogs),
           Boolean(body.permissions.can_manage_assets),
+          Boolean(body.permissions.can_manage_leads),
         ],
       );
     }

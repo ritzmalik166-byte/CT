@@ -1,5 +1,6 @@
 import { sendTelegramMessage } from "../../../../helper/telegram";
 import { jsonError, jsonServerError, jsonSuccess } from "@/lib/api-response";
+import { query, queryOne } from "@/lib/db";
 
 type EnquiryType = "contact" | "footer";
 
@@ -69,7 +70,38 @@ export async function POST(request: Request) {
       }
     }
 
-    await sendTelegramMessage(buildMessage({ ...body, type, email }));
+    const fullName = body.fullName?.trim() || null;
+    const phone = body.contactNumber?.trim() || null;
+    const service = body.subject?.trim() || null;
+    const message = body.message?.trim() || null;
+    const source = body.source?.trim() || (type === "footer" ? "footer" : "contact-page");
+
+    try {
+      const existing = await queryOne<{ id: number }>(
+        `SELECT id FROM leads
+         WHERE email = ? AND type = ? AND (message = ? OR (message IS NULL AND ? IS NULL))
+         AND created_at >= NOW() - INTERVAL 1 MINUTE
+         LIMIT 1`,
+        [email, type, message, message],
+      );
+
+      if (!existing) {
+        const now = new Date();
+        await query(
+          `INSERT INTO leads (type, full_name, email, phone, service, message, source, status, created_at, updated_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, 'Pending', ?, ?)`,
+          [type, fullName, email, phone, service, message, source, now, now],
+        );
+      }
+    } catch (dbErr) {
+      console.error("[enquiry] Failed to save lead to database", dbErr);
+    }
+
+    try {
+      await sendTelegramMessage(buildMessage({ ...body, type, email }));
+    } catch (telegramErr) {
+      console.warn("[enquiry] Telegram notification skipped or failed:", telegramErr instanceof Error ? telegramErr.message : telegramErr);
+    }
 
     return jsonSuccess({ sent: true });
   } catch (error) {
@@ -79,3 +111,4 @@ export async function POST(request: Request) {
     return jsonServerError(message);
   }
 }
+

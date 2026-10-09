@@ -79,12 +79,13 @@ export async function POST(request: Request) {
     }
 
     await query(
-      `INSERT INTO user_permissions (user_id, can_manage_blogs, can_manage_assets)
-       VALUES (?, ?, ?)`,
+      `INSERT INTO user_permissions (user_id, can_manage_blogs, can_manage_assets, can_manage_leads)
+       VALUES (?, ?, ?, ?)`,
       [
         userId,
         Boolean(body.permissions?.can_manage_blogs),
         Boolean(body.permissions?.can_manage_assets),
+        Boolean(body.permissions?.can_manage_leads),
       ],
     );
 
