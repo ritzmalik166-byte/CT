@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { promoteScheduledBlogs } from "@/lib/blog-db";
+import { createBlogSchemas, serializeJsonLd } from "@/lib/blog-schema";
 import { query, queryOne } from "@/lib/db";
 import { BlogDetailView } from "@/components/blog/BlogDetailView";
 import type { BlogWithAuthor } from "@/types/admin";
@@ -70,5 +71,21 @@ export default async function BlogDetailPage({ params }: PageProps) {
      LIMIT 8`,
   );
 
-  return <BlogDetailView blog={blog} recentPosts={recentPosts} />;
+  const { blogPosting, faqSchema } = createBlogSchemas(blog);
+
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(blogPosting) }}
+      />
+      {faqSchema ? (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: serializeJsonLd(faqSchema) }}
+        />
+      ) : null}
+      <BlogDetailView blog={blog} recentPosts={recentPosts} />
+    </>
+  );
 }
