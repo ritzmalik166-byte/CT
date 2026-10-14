@@ -1284,8 +1284,8 @@ export default function ContactPage() {
                     {otpStatus && (
                       <div
                         className={`flex items-start gap-2 rounded-xl border px-4 py-3 text-xs sm:text-sm ${otpStatus.type === "success"
-                            ? "border-emerald-500/35 bg-emerald-500/10 text-emerald-400"
-                            : "border-red-500/35 bg-red-500/10 text-red-400"
+                          ? "border-emerald-500/35 bg-emerald-500/10 text-emerald-400"
+                          : "border-red-500/35 bg-red-500/10 text-red-400"
                           }`}
                       >
                         {otpStatus.type === "success" ? (
@@ -1377,7 +1377,12 @@ export default function ContactPage() {
           </AnimatePresence>,
           document.body
         )}
-
+      <div className="sr-only">
+        <h2>Contact Contenaissance</h2>
+        <h2>Let’s Discuss Your Project</h2>
+        <h2>Our Creative & Digital Marketing Services</h2>
+        <h2>Get in Touch With Our Team</h2>
+      </div>
       <CTAFooter showBrandHeading={false} />
     </div>
   );
