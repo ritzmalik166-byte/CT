@@ -66,10 +66,10 @@ export type FaqItem = {
 };
 
 type ContentBlock = {
-  tag: string;
   headingLevel: number | null;
-  html: string;
   text: string;
+  /** Fully bold (or a heading / `<summary>`): how editors mark questions and section titles. */
+  emphasized: boolean;
 };
 
 const NAMED_ENTITIES: Record<string, string> = {
@@ -136,41 +136,86 @@ function toAbsoluteUrl(value: string | null | undefined): string | undefined {
   }
 }
 
+const BOLD_WEIGHT = /font-weight\s*:\s*(?:bold|[6-9]00)/i;
+const NORMAL_WEIGHT_SPAN = /<span\b[^>]*font-weight\s*:\s*(?:normal|[1-5]00)\b/i;
+const BOLD_TAG = /<(strong|b)\b(?![^>]*font-weight\s*:\s*(?:normal|[1-5]00))[^>]*>[\s\S]*?<\/\1\s*>/gi;
+
+/** True when every visible character is bold (CMS / Google Docs paste aware; tolerates unbalanced fragments). */
+function isFullyBold(html: string): boolean {
+  if (BOLD_WEIGHT.test(html)) return !NORMAL_WEIGHT_SPAN.test(html);
+  if (!new RegExp(BOLD_TAG.source, "i").test(html)) return false;
+  return htmlToText(html.replace(BOLD_TAG, "").replace(/<\/?(?:strong|b)\b[^>]*>/gi, "")) === "";
+}
+
+/** Visible text of a bold run at the very start of the block (`<p><strong>Q?</strong> A</p>`). */
+function leadingBoldText(html: string): string {
+  const match = /^\s*(?:<(?!\/?(?:strong|b)\b)[^>]+>\s*)*<(strong|b)\b(?![^>]*font-weight\s*:\s*normal)[^>]*>([\s\S]*?)<\/\1\s*>/i.exec(
+    html,
+  );
+  return match ? htmlToText(match[2]) : "";
+}
+
 function parseBlocks(html: string): ContentBlock[] {
-  const blockPattern = /<(h[1-6]|p|li|dt|dd)\b[^>]*>([\s\S]*?)<\/\1\s*>/gi;
+  const blockPattern = /<(h[1-6]|p|li|dt|dd|summary)\b[^>]*>([\s\S]*?)<\/\1\s*>/gi;
   const blocks: ContentBlock[] = [];
 
   for (const match of html.matchAll(blockPattern)) {
     const tag = match[1].toLowerCase();
-    const text = htmlToText(match[2]);
-    if (!text) continue;
-    blocks.push({
-      tag,
-      headingLevel: tag[0] === "h" ? Number(tag[1]) : null,
-      html: match[2],
-      text,
-    });
+    const inner = match[2];
+
+    if (tag[0] === "h" || tag === "summary") {
+      const text = htmlToText(inner);
+      if (text) {
+        blocks.push({ headingLevel: tag[0] === "h" ? Number(tag[1]) : null, text, emphasized: true });
+      }
+      continue;
+    }
+
+    // "Question?<br>Answer" pasted into a single paragraph becomes separate lines.
+    for (const line of inner.split(/<br\s*\/?>/i)) {
+      const text = htmlToText(line);
+      if (!text) continue;
+
+      if (isFullyBold(line)) {
+        blocks.push({ headingLevel: null, text, emphasized: true });
+        continue;
+      }
+
+      // "<strong>Question?</strong> Answer" in a single line.
+      const leading = leadingBoldText(line);
+      if (leading.endsWith("?") && text.startsWith(leading)) {
+        const rest = text.slice(leading.length).trim();
+        blocks.push({ headingLevel: null, text: leading, emphasized: true });
+        if (rest) blocks.push({ headingLevel: null, text: rest, emphasized: false });
+        continue;
+      }
+
+      blocks.push({ headingLevel: null, text, emphasized: false });
+    }
   }
 
   return blocks;
 }
 
-/** True when every visible character in the block is bold (CMS / Google Docs paste aware). */
-function isFullyBold(html: string): boolean {
-  if (/font-weight\s*:\s*(?:bold|[6-9]00)/i.test(html)) {
-    return !/<span\b[^>]*font-weight\s*:\s*(?:normal|[1-5]00)\b/i.test(html);
-  }
+const STRICT_FAQ_TITLE = /^(?:faqs?|f\.a\.q\.?s?|frequently asked questions)\b/i;
+const LOOSE_FAQ_TITLE = /\b(?:faqs?|frequently asked|questions|answers|q\s*&\s*a|people also ask)\b/i;
+const MAX_SECTION_TITLE_LENGTH = 80;
 
-  const boldTag = /<(strong|b)\b(?![^>]*font-weight\s*:\s*(?:normal|[1-5]00))[^>]*>[\s\S]*?<\/\1\s*>/gi;
-  if (!boldTag.test(html)) return false;
-  return htmlToText(html.replace(boldTag, "")) === "";
+/** "FAQs" anywhere; looser wording ("Questions marketing teams ask…") only when styled as a title. */
+function isFaqSectionTitle(block: ContentBlock): boolean {
+  const normalized = block.text.replace(/[\s:.\-–—]+$/, "").trim();
+  if (normalized.length > MAX_SECTION_TITLE_LENGTH || normalized.endsWith("?")) return false;
+  if (STRICT_FAQ_TITLE.test(normalized)) return true;
+  return (block.headingLevel !== null || block.emphasized) && LOOSE_FAQ_TITLE.test(normalized);
 }
 
-function isFaqSectionTitle(text: string): boolean {
-  const normalized = text.replace(/[\s:.\-–—]+$/, "").trim();
-  if (normalized.length > 80 || normalized.endsWith("?")) return false;
-  return /^(?:faqs?|f\.a\.q\.?s?|frequently asked questions)\b/i.test(normalized);
-}
+/** Closing calls to action phrased as questions ("Ready to start your project?"). */
+const CALL_TO_ACTION = /^(?:ready|want to|looking for|interested in|would you like|let'?s|shall we)\b/i;
+
+const QUESTION_START =
+  /^(?:what|how|why|when|where|who|whom|whose|which|is|are|was|were|do|does|did|can|could|should|would|will|has|have|had|may|might|must|shall)\b/i;
+/** Plain (unstyled) inline questions need more words so short rhetorical openers stay in answers. */
+const MIN_INLINE_QUESTION_WORDS = { emphasized: 4, plain: 6 };
 
 function stripQuestionPrefix(text: string): string {
   return text
@@ -182,69 +227,114 @@ function stripAnswerPrefix(text: string): string {
   return text.replace(/^(?:a|ans|answer)\s*[:.)\-–]\s*/i, "").trim();
 }
 
-function looksLikeQuestion(block: ContentBlock): boolean {
-  const question = stripQuestionPrefix(block.text);
-  return (
-    question.length > 3 &&
-    question.length <= MAX_QUESTION_LENGTH &&
-    question.endsWith("?")
-  );
+function isQuestionText(text: string): boolean {
+  const question = stripQuestionPrefix(text);
+  return question.length > 3 && question.length <= MAX_QUESTION_LENGTH && question.endsWith("?");
 }
 
 /**
- * Extracts Q&A pairs from an explicit "FAQ" / "Frequently Asked Questions" section.
- * Questions are blocks ending in "?"; answers are the text blocks that follow them.
+ * Splits "How long does it take? Usually two weeks." written as one block.
+ * The answer must not itself be a question, so "Do you…? Will you…?" checklists stay intact.
  */
-export function extractFaqs(html: string): FaqItem[] {
-  if (!html) return [];
+function splitInlineQuestion(block: ContentBlock): ContentBlock[] {
+  if (block.headingLevel !== null || isQuestionText(block.text)) return [block];
 
-  const blocks = parseBlocks(html);
-  const markerIndex = blocks.findIndex((block) => isFaqSectionTitle(block.text));
-  if (markerIndex === -1) return [];
+  const match = /^(.+?\?)\s+((?:a|ans|answer)\s*[:.)\-–]\s*)?(.+)$/i.exec(block.text);
+  if (!match) return [block];
 
-  const marker = blocks[markerIndex];
-  const section = blocks.slice(markerIndex + 1);
+  const [, question, answerLabel, answer] = match;
+  const bare = stripQuestionPrefix(question);
+  if (answer.length < MIN_ANSWER_LENGTH || answer.trim().endsWith("?")) return [block];
 
-  const candidates = section.filter(looksLikeQuestion);
-  const requireEmphasis = candidates.some(
-    (block) => block.headingLevel !== null || isFullyBold(block.html),
+  // "Q: …? A: …" labels are explicit; otherwise require a real question shape.
+  const labelled = Boolean(answerLabel) || bare !== question.trim();
+  const minWords = block.emphasized
+    ? MIN_INLINE_QUESTION_WORDS.emphasized
+    : MIN_INLINE_QUESTION_WORDS.plain;
+  if (!labelled && (!QUESTION_START.test(bare) || bare.split(/\s+/).length < minWords)) {
+    return [block];
+  }
+
+  return [
+    { headingLevel: null, text: question, emphasized: true },
+    { headingLevel: null, text: answer, emphasized: false },
+  ];
+}
+
+function extractSectionFaqs(marker: ContentBlock, rawSection: ContentBlock[]): FaqItem[] {
+  const section = rawSection.flatMap(splitInlineQuestion);
+
+  const requireEmphasis = section.some(
+    (block) => isQuestionText(block.text) && block.emphasized,
   );
   const isQuestion = (block: ContentBlock) =>
-    looksLikeQuestion(block) &&
-    (!requireEmphasis || block.headingLevel !== null || isFullyBold(block.html));
+    isQuestionText(block.text) && (!requireEmphasis || block.emphasized);
 
   const endsSection = (block: ContentBlock) => {
-    if (block.headingLevel !== null) {
-      return marker.headingLevel === null || block.headingLevel <= marker.headingLevel;
+    if (block.headingLevel !== null && marker.headingLevel !== null && block.headingLevel <= marker.headingLevel) {
+      return true;
     }
-    return requireEmphasis && isFullyBold(block.html) && block.text.length <= 80;
+    if (isQuestionText(block.text)) return CALL_TO_ACTION.test(stripQuestionPrefix(block.text));
+    if (block.headingLevel !== null) return marker.headingLevel === null;
+    return requireEmphasis && block.emphasized && block.text.length <= MAX_SECTION_TITLE_LENGTH;
   };
 
-  const faqs: FaqItem[] = [];
-  const seen = new Set<string>();
+  const pairs: { question: string; answer: string }[] = [];
   let current: { question: string; answerParts: string[] } | null = null;
 
   const flush = () => {
     if (!current) return;
-    const answer = stripAnswerPrefix(current.answerParts.join(" ").replace(/\s+/g, " "));
-    const key = current.question.toLowerCase();
-    if (answer.length >= MIN_ANSWER_LENGTH && !seen.has(key)) {
-      seen.add(key);
-      faqs.push({ question: current.question, answer });
-    }
+    pairs.push({
+      question: current.question,
+      answer: stripAnswerPrefix(current.answerParts.join(" ").replace(/\s+/g, " ")),
+    });
     current = null;
   };
 
   for (const block of section) {
+    if (endsSection(block)) break;
     if (isQuestion(block)) {
       flush();
       current = { question: stripQuestionPrefix(block.text), answerParts: [] };
       continue;
     }
-    if (endsSection(block)) break;
     current?.answerParts.push(block.text);
   }
   flush();
+
+  // A run of unanswered questions is a checklist ("Questions to ask an agency"), not an FAQ;
+  // text after its last item is commentary on the list, not that item's answer.
+  return pairs.filter(
+    (pair, index) =>
+      pair.answer.length >= MIN_ANSWER_LENGTH &&
+      (index === 0 || pairs[index - 1].answer.length >= MIN_ANSWER_LENGTH),
+  );
+}
+
+/**
+ * Extracts Q&A pairs from every FAQ-style section ("FAQs", "Frequently Asked Questions",
+ * "Questions teams ask…", "Quick answers…"). Questions are headings or emphasized blocks ending
+ * in "?" — including "Question?<br>Answer" and "**Question?** Answer" paragraphs — and answers are
+ * the text that follows them.
+ */
+export function extractFaqs(html: string): FaqItem[] {
+  if (!html) return [];
+
+  const blocks = parseBlocks(html);
+  const markerIndexes = blocks.flatMap((block, index) => (isFaqSectionTitle(block) ? [index] : []));
+
+  const faqs: FaqItem[] = [];
+  const seen = new Set<string>();
+
+  markerIndexes.forEach((markerIndex, i) => {
+    const section = blocks.slice(markerIndex + 1, markerIndexes[i + 1] ?? blocks.length);
+    for (const faq of extractSectionFaqs(blocks[markerIndex], section)) {
+      const key = faq.question.toLowerCase();
+      if (seen.has(key)) continue;
+      seen.add(key);
+      faqs.push(faq);
+    }
+  });
 
   return faqs;
 }
