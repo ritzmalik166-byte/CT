@@ -9,8 +9,8 @@ import type { BlogWithAuthor } from "@/types/admin";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Blog | Contenaissance",
-  description: "Insights, updates, and stories from Contenaissance.",
+  title: "Creative Agency Blogs, Branding & Marketing | Contenaissance",
+  description: "Read practical blogs on creative advertising, branding, AI video production and digital marketing. Discover ideas to strengthen your brand with Contenaissance.",
   alternates: { canonical: "/blog" },
 };
 

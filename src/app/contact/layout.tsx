@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Contact Contenaissance | Start Your Creative Project",
+  title: "Contact Contenaissance | Creative Agency in Noida",
   description:
-    "Contact our creative team to discuss AI-powered videos, brand campaigns, and content solutions for your business goals.",
+    "Contact Contenaissance, a creative agency in Noida, to discuss AI video production, branding, digital marketing and creative solutions for your business.",
   alternates: {
     canonical: "https://www.contenaissance.com/contact",
   },

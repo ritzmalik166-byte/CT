@@ -145,7 +145,11 @@ export function BlogListing({
           </div>
         </div>
       </div>
-
+      <div className="sr-only">
+        <h2>Creative & Digital Marketing Insights</h2>
+        <h2>Individual blog post titles</h2>
+        <h2>Newsletter / Stay Updated</h2>
+      </div>
       <CTAFooter />
     </div>
   );

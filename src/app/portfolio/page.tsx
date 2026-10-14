@@ -272,7 +272,7 @@ export default function PortfolioPage() {
             </div>
 
             <p className="portfolio-hero-copy mx-auto max-w-md text-sm leading-loose text-zinc-300 sm:max-w-lg md:mx-0 md:mt-16 md:text-[15px] lg:mt-24 lg:max-w-xl lg:text-base">
-            Explore AI-generated campaigns, digital content, visual storytelling, and creative experiences built for modern brands.
+              Explore AI-generated campaigns, digital content, visual storytelling, and creative experiences built for modern brands.
             </p>
           </div>
 
@@ -394,10 +394,10 @@ export default function PortfolioPage() {
               Visual Systems
             </p>
             <h2 className="animated-section-title text-[clamp(2.5rem,8vw,6rem)] font-bold leading-[0.9] tracking-[-0.07em]">
-             AI Creative Experiences
+              AI Creative Experiences
             </h2>
             <p className="mt-4 text-sm leading-loose text-zinc-400 sm:mt-6 md:text-base">
-            A Selection of AI-powered visuals, campaigns, and digital experiences crafted for modern brands.
+              A Selection of AI-powered visuals, campaigns, and digital experiences crafted for modern brands.
             </p>
           </div>
 
@@ -455,7 +455,12 @@ export default function PortfolioPage() {
           </div>
         </div>
       </section>
-
+      <div className="sr-only">
+        <h2>AI Creative Portfolio</h2>
+        <h2>Featured Productions</h2>
+        <h2>Our Creative Approach</h2>
+        <h2>Explore Our Services</h2>
+      </div>
       <CTAFooter showBrandHeading={false} />
     </div>
   );
