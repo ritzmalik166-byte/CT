@@ -18,9 +18,9 @@ import { SHOW_INDEPENDENCE_DAY } from "../../site-config";
 import ClientReviewsSection from "@/components/home/ClientReviews";
 import LogosSection from "@/components/home/logossection";
 export const metadata: Metadata = {
-  title: "Contenaissance | AI Creative Agency, Branding & Digital Marketing Company",
+  title: "AI Creative Agency & Digital Marketing Co. | Contenaissance",
   description:
-    "Contenaissance is an AI-powered creative agency offering branding, website development, digital marketing, content creation, UI/UX design, and business growth solutions for modern brands.",
+    "Contenaissance helps brands stand out with AI-powered brand films, creative campaigns, branding, web design, SEO and digital marketing built around your goals.",
   keywords: [
     "AI Video Production Agency",
     "AI Content Creation",

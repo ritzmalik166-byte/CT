@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "AI Content Creation & Video Production Services",
+  title: "AI Content Creation & Video Production Services India",
   description:
-    "Professional AI video production, content creation, and digital marketing services tailored to help brands grow faster.",
+    "Discover Contenaissance's AI-powered creative services, including brand films, digital content creation, marketing campaigns and visual identity design.",
   alternates: {
     canonical: "https://www.contenaissance.com/services",
   },
