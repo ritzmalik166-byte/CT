@@ -5,6 +5,7 @@ import {
   AI_SERVICES_PATH,
   FALLBACK_INSIGHT_IMAGES,
   FALLBACK_INSIGHTS,
+  toPlainText,
   type Insight,
 } from "@/components/ai-services/content";
 import { Hero } from "@/components/ai-services/Hero";
@@ -155,7 +156,7 @@ function buildStructuredData() {
             "@id": `${pageUrl}#${service.id}`,
             name: service.title,
             serviceType: service.title,
-            description: service.description,
+            description: toPlainText(service.description),
             url: `${pageUrl}#${service.id}`,
             image: `${SITE_URL}${service.image.src}`,
             provider,

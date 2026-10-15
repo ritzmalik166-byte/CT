@@ -5,6 +5,7 @@ import { CTA_TILES, INTERLUDE_IMAGE, type AiService, type Insight } from "./cont
 import {
   CtaTiles,
   DrawLine,
+  ExpandableText,
   MagneticLink,
   ParallaxImage,
   Reveal,
@@ -19,8 +20,8 @@ function ServiceRow({ service, index }: { service: AiService; index: number }) {
   return (
     <article id={service.id} aria-labelledby={titleId} className="scroll-mt-24">
       <DrawLine />
-      <div className="grid items-start gap-10 py-14 sm:py-16 md:gap-12 lg:grid-cols-2 lg:gap-16 lg:py-[clamp(4.5rem,7vw,6.5rem)] xl:gap-24">
-        <div className="lg:pt-2">
+      <div className="grid items-start gap-8 py-10 sm:py-12 md:gap-10 lg:grid-cols-2 lg:items-center lg:gap-14 lg:py-14 xl:gap-20">
+        <div>
           <Reveal>
             <p className="flex items-center gap-3 text-[11px] font-medium uppercase tracking-[0.16em] text-(--ais-muted)">
               <span className="tabular-nums">{number}</span>
@@ -31,19 +32,20 @@ function ServiceRow({ service, index }: { service: AiService; index: number }) {
 
           <h3
             id={titleId}
-            className="ais-serif mt-6 text-[clamp(2.25rem,3.7vw,3.4rem)] font-semibold leading-[1.04] tracking-[-0.01em]"
+            className="ais-serif mt-5 text-[clamp(2.25rem,3.7vw,3.4rem)] font-semibold leading-[1.04] tracking-[-0.01em]"
           >
             <TextReveal text={service.title} delay={0.1} />
           </h3>
 
           <Reveal delay={0.15}>
-            <p className="mt-5 max-w-[30rem] text-[15px] leading-[1.7] text-(--ais-muted)">
-              {service.description}
-            </p>
+            <ExpandableText
+              paragraphs={service.description}
+              className="mt-4 max-w-[30rem] text-[15px] leading-[1.7] text-(--ais-muted)"
+            />
           </Reveal>
 
           <Reveal delay={0.25}>
-            <ul aria-label={`${service.title} capabilities`} className="mt-7 flex flex-wrap gap-2.5">
+            <ul aria-label={`${service.title} capabilities`} className="mt-6 flex flex-wrap gap-2.5">
               {service.tags.map((tag) => (
                 <li
                   key={tag}
@@ -80,7 +82,7 @@ export function ServicesList({ services }: { services: AiService[] }) {
     <section
       id="services"
       aria-labelledby="services-heading"
-      className="scroll-mt-10 px-5 pt-16 sm:px-8 md:pt-24 lg:px-14"
+      className="scroll-mt-10 px-5 pt-10 sm:px-8 md:pt-14 lg:px-14"
     >
       <h2 id="services-heading" className="sr-only">
         What we do
@@ -97,7 +99,7 @@ export function ServicesList({ services }: { services: AiService[] }) {
 
 export function Interlude() {
   return (
-    <section aria-label="Human and AI collaboration" className="mt-20 md:mt-28">
+    <section aria-label="Human and AI collaboration" className="mt-12 md:mt-16">
       <ParallaxImage
         src={INTERLUDE_IMAGE.src}
         alt={INTERLUDE_IMAGE.alt}
@@ -164,7 +166,7 @@ export function FeaturedInsights({ insights }: { insights: Insight[] }) {
   if (insights.length === 0) return null;
 
   return (
-    <section aria-labelledby="insights-title" className="px-5 py-20 sm:px-8 md:py-28 lg:px-14">
+    <section aria-labelledby="insights-title" className="px-5 py-14 sm:px-8 md:py-20 lg:px-14">
       <div className="mx-auto max-w-[1240px]">
         <div className="flex flex-wrap items-end justify-between gap-x-8 gap-y-5">
           <h2
@@ -205,7 +207,7 @@ export function ProjectCta() {
   return (
     <section
       aria-labelledby="project-cta-title"
-      className="relative isolate overflow-hidden bg-(--ais-dark) px-5 pb-24 pt-20 text-white sm:px-8 md:pb-32 md:pt-28"
+      className="relative isolate overflow-hidden bg-(--ais-dark) px-5 pb-20 pt-16 text-white sm:px-8 md:pb-24 md:pt-20"
     >
       <div
         aria-hidden

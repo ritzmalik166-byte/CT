@@ -13,7 +13,7 @@ import {
 } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
-import { useRef, useSyncExternalStore } from "react";
+import { useEffect, useId, useRef, useState, useSyncExternalStore } from "react";
 import type { ContentImage } from "./content";
 
 export const EASE_OUT_EXPO = [0.19, 1, 0.22, 1] as const;
@@ -99,6 +99,79 @@ export function TextReveal({ text, delay = 0 }: { text: string; delay?: number }
         ))}
       </motion.span>
     </>
+  );
+}
+
+/** Renders `**word**` as a highlighted phrase. */
+function HighlightedText({ text }: { text: string }) {
+  return text.split(/\*\*(.+?)\*\*/g).map((part, i) =>
+    i % 2 === 1 ? (
+      <strong
+        key={i}
+        className="box-decoration-clone bg-[linear-gradient(transparent_58%,rgb(177_173_74/0.32)_58%)] px-0.5 font-semibold text-(--ais-ink)"
+      >
+        {part}
+      </strong>
+    ) : (
+      part
+    ),
+  );
+}
+
+/**
+ * Collapsed: the first paragraph clamped to 3 lines with an ellipsis. Expanded: every paragraph.
+ * The toggle only appears when there is more to show. All text stays in the HTML for SEO.
+ */
+export function ExpandableText({
+  paragraphs,
+  className = "",
+}: {
+  paragraphs: string[];
+  className?: string;
+}) {
+  const firstRef = useRef<HTMLParagraphElement>(null);
+  const [expanded, setExpanded] = useState(false);
+  const [firstClamped, setFirstClamped] = useState(false);
+  const textId = useId();
+
+  useEffect(() => {
+    const el = firstRef.current;
+    if (!el || expanded) return;
+    const observer = new ResizeObserver(() => {
+      setFirstClamped(el.scrollHeight > el.clientHeight + 1);
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [expanded, paragraphs]);
+
+  const hasMore = paragraphs.length > 1 || firstClamped;
+
+  return (
+    <div className={className}>
+      <div id={textId} className="space-y-4">
+        {paragraphs.map((paragraph, index) => (
+          <p
+            key={index}
+            ref={index === 0 ? firstRef : undefined}
+            hidden={!expanded && index > 0}
+            className={!expanded && index === 0 ? "line-clamp-3" : undefined}
+          >
+            <HighlightedText text={paragraph} />
+          </p>
+        ))}
+      </div>
+      {hasMore ? (
+        <button
+          type="button"
+          aria-expanded={expanded}
+          aria-controls={textId}
+          onClick={() => setExpanded((value) => !value)}
+          className="mt-2 text-[13px] font-medium text-(--ais-ink) underline decoration-(--ais-line) underline-offset-4 transition-colors duration-300 hover:decoration-(--ais-ink) focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-(--ais-ink)"
+        >
+          {expanded ? "Show less" : "Read more"}
+        </button>
+      ) : null}
+    </div>
   );
 }
 

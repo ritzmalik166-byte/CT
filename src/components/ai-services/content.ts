@@ -6,7 +6,8 @@ export type ContentImage = {
 export type AiService = {
   id: string;
   title: string;
-  description: string;
+  /** One string per paragraph; wrap words in `**double asterisks**` to highlight them. */
+  description: string[];
   tags: string[];
   image: ContentImage;
 };
@@ -38,9 +39,12 @@ export const AI_SERVICES: AiService[] = [
   {
     id: "ai-brand-films",
     title: "AI Brand Films",
-    description:
-      "Cinematic brand films that fuse generative AI, 3D worlds and live action. Every frame, transition, and story beat is crafted to make your brand unforgettable.",
-    tags: ["Generative Storytelling", "3D & CGI Worlds", "Cinematic Ads", "Brand Narratives"],
+    description: [
+      "Find out how **3D technology powered by AI** can change the story of your brand into the cinema. Our group employs the use of **generative AI** to produce amazing brand videos that mesh **live-action with virtual environments** to ensure a built-up visual experience. Our brand films powered by AI enhance your company's story engaging viewers with captivating visuals and creative narrative.",
+      "Through our **AI brand films**, the audience can become emotionally attached to your brand and be more aware of it. We combine the latest AI technology with **traditional storytelling** to create a brand film that is better than the competition. A unique audiovisual and interactive experience leaves a **lasting impression** and significantly enhances your brand value.",
+      "AI brand films are the **marketing of the future** whether you need a corporate presentation, a digital ad, or something for social media. With our creative approach, we'll ensure that your brand stands apart from the competition and is an experience to remember. **AI filmmaking** tells the story of your brand in the most futuristic and attention-grabbing way possible.",
+    ],
+    tags: ["AI-POWERED BRAND FILMS", "GENERATIVE AI STORYTELLING", "INTERACTIVE BRAND EXPERIENCES", "AI CINEMATIC MARKETING"],
     image: {
       src: "/assets/ai-services/service-design.png",
       alt: "Monochrome 3D render of glowing metallic rings orbiting a light column",
@@ -49,8 +53,9 @@ export const AI_SERVICES: AiService[] = [
   {
     id: "ai-powered-campaigns",
     title: "AI-Powered Campaigns",
-    description:
+    description: [
       "Data-led campaigns that learn as they run. Predictive targeting, performance creative, and continuous optimisation turn every rupee of ad spend into measurable growth.",
+    ],
     tags: ["Predictive Targeting", "Performance Creative", "Market Analysis", "Scalable Campaigns"],
     image: {
       src: "/assets/ai-services/service-development.png",
@@ -60,8 +65,9 @@ export const AI_SERVICES: AiService[] = [
   {
     id: "visual-identity",
     title: "Visual Identity System",
-    description:
+    description: [
       "Scalable identity systems that define how your brand looks, moves, and behaves — from logo architecture and typography to motion and UI components.",
+    ],
     tags: ["Brand Frameworks", "Design Systems", "Typography", "Motion Identity"],
     image: {
       src: "/assets/ai-services/service-brand.png",
@@ -71,8 +77,9 @@ export const AI_SERVICES: AiService[] = [
   {
     id: "digital-first-content",
     title: "Digital-First Content",
-    description:
+    description: [
       "Platform-native content produced at the speed of culture. AI-assisted creation and audience analytics keep your social, web, and commerce creatives sharp and on-brand.",
+    ],
     tags: ["Social Creatives", "Platform-Native", "AI Content Ops", "Audience Analytics"],
     image: {
       src: "/assets/G2.jpg",
@@ -80,6 +87,11 @@ export const AI_SERVICES: AiService[] = [
     },
   },
 ];
+
+/** Description as one plain string (no highlight markers), e.g. for structured data. */
+export function toPlainText(paragraphs: string[]): string {
+  return paragraphs.join(" ").replace(/\*\*/g, "");
+}
 
 export const INTERLUDE_IMAGE: ContentImage = {
   src: "/assets/ai-services/interlude-hands.png",
