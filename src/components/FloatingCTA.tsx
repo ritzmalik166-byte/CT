@@ -109,7 +109,7 @@ export default function FloatingCTA() {
       sm:py-[16px]
     "
                         >
-                            <h3
+                            <span
                                 className="
         whitespace-nowrap
         text-[10px]
@@ -123,7 +123,7 @@ export default function FloatingCTA() {
       "
                             >
                                 Explore Our Work
-                            </h3>
+                            </span>
                         </div>
                     </div>
                 </Link>

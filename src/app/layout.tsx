@@ -36,6 +36,7 @@ export const metadata: Metadata = {
     title: "Contenaissance - The Future of AI Storytelling",
     description: "Build, deploy, and scale AI applications with unprecedented speed.",
     type: "website",
+    
   },
 };
 
@@ -75,6 +76,43 @@ const websiteSchema = {
   },
 };
 
+const localBusinessSchema = {
+  "@context": "https://schema.org",
+  "@type": ["LocalBusiness"],
+  "@id": "https://www.contenaissance.com/#localbusiness",
+  name: "Contenaissance",
+  url: "https://www.contenaissance.com/",
+  description:
+    "Contenaissance is an AI-powered creative agency offering AI brand films, video production, branding, digital marketing, content marketing, SEO, website design and performance marketing services.",
+  telephone: "+91-9220516777",
+  email: "info@ritzmediaworld.com",
+  address: {
+    "@type": "PostalAddress",
+    streetAddress: "Unit No. 404, 4th Floor, Corporate Park Tower A1, Sector 142",
+    addressLocality: "Noida",
+    addressRegion: "Uttar Pradesh",
+    postalCode: "201305",
+    addressCountry: "IN",
+  },
+  areaServed: [
+    { "@type": "City", name: "Noida" },
+    { "@type": "AdministrativeArea", name: "Delhi NCR" },
+    { "@type": "Country", name: "India" },
+  ],
+  knowsAbout: [
+    "AI Creative Production",
+    "AI Video Production",
+    "Branding and Brand Identity",
+    "Creative Advertising",
+    "Digital Marketing",
+    "Content Marketing",
+    "Search Engine Optimization",
+    "Website Design and Development",
+    "Social Media Marketing",
+    "Performance Marketing",
+  ],
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -95,6 +133,10 @@ export default function RootLayout({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessSchema) }}
         />
       </head>
       <body className="min-h-full flex flex-col bg-white overflow-x-hidden" suppressHydrationWarning>
