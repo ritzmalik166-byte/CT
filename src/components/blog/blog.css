@@ -856,6 +856,8 @@
 }
 
 .ct-blog-content-body ul li {
+  /* Google Docs pastes inline `list-style-type: disc` on each item; the gold dot below replaces it. */
+  list-style: none !important;
   position: relative;
   padding-left: 1.5rem !important;
   margin-bottom: 0.7rem !important;
