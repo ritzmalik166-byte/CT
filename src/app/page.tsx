@@ -44,8 +44,8 @@ export default function Home() {
       {SHOW_INDEPENDENCE_DAY && <IndependenceCorner />}
       <FloatingCTA />
       <CinematicHero />
-      {/* <LogosSection /> */}
-      <TrustedByMarquee />
+      <LogosSection />
+      {/* <TrustedByMarquee /> */}
       <AIFeaturesGrid />
       {/* <StickyScrollShowcase /> */}
       {/* <ProductExperience /> */}
