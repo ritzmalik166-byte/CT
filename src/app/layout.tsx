@@ -32,6 +32,9 @@ export const metadata: Metadata = {
     icon: "/assets/fav-icon.png",
     apple: "/assets/fav-icon.png",
   },
+  verification: {
+    google: "htYldUHQILq96XoaBZjUrlGFbawq3ZgQ9XFj0kcSSeU",
+  },
   openGraph: {
     title: "Contenaissance - The Future of AI Storytelling",
     description: "Build, deploy, and scale AI applications with unprecedented speed.",
