@@ -792,7 +792,7 @@
 .ct-blog-content-body h4,
 .ct-blog-content-body h5,
 .ct-blog-content-body h6 {
-  color: #18181b !important;
+  color: var(--blog-gold) !important;
   font-weight: 700 !important;
   line-height: 1.3 !important;
   margin-top: 2.1rem !important;
@@ -813,16 +813,6 @@
 
 .ct-blog-content-body h3 {
   font-size: clamp(1.2rem, 2vw, 1.4rem) !important;
-  color: var(--blog-gold) !important;
-}
-
-.ct-blog-content-body h1 *,
-.ct-blog-content-body h2 *,
-.ct-blog-content-body h3 *,
-.ct-blog-content-body h4 * {
-  font-size: inherit !important;
-  font-weight: inherit !important;
-  color: inherit !important;
 }
 
 .ct-blog-content-body p {
@@ -838,6 +828,13 @@
   font-weight: 700 !important;
 }
 
+/* Must stay after the strong/b rule: same specificity, and pasted Google Docs headings wrap text in <strong>. */
+.ct-blog-content-body :is(h1, h2, h3, h4, h5, h6) * {
+  font-size: inherit !important;
+  font-weight: inherit !important;
+  color: inherit !important;
+}
+
 .ct-blog-content-body a {
   color: var(--blog-gold) !important;
   text-decoration: underline !important;
@@ -847,6 +844,10 @@
 
 .ct-blog-content-body a:hover {
   color: #7a6215 !important;
+}
+
+.ct-blog-content-body a * {
+  color: inherit !important;
 }
 
 .ct-blog-content-body ul {
