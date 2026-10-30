@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import mammoth from "mammoth";
 import {
   Calendar,
   Eye,
@@ -158,6 +159,100 @@ export function ManageBlogs() {
     return errors;
   }
 
+
+  async function uploadDocx(file: File) {
+    if (!file.name.toLowerCase().endsWith(".docx")) {
+      throw new Error("Please select a .docx Word document.");
+    }
+
+    const result = await mammoth.convertToHtml({
+      arrayBuffer: await file.arrayBuffer(),
+    });
+
+    const doc = new DOMParser().parseFromString(
+      result.value,
+      "text/html"
+    );
+
+    const blocks = Array.from(doc.body.children);
+    const fields: Record<string, string> = {
+      "Meta Title": "",
+      "Slug URL": "",
+      "Blog Keywords": "",
+      Author: "",
+      "Meta Description": "",
+    };
+
+    let articleHtml = "";
+    let insideContent = false;
+
+    for (let i = 0; i < blocks.length; i++) {
+      const block = blocks[i];
+      const line = block.textContent?.trim() || "";
+
+      if (/^Blog Content\s*:/i.test(line)) {
+        insideContent = true;
+
+        const firstContent = line.replace(
+          /^Blog Content\s*:\s*/i, ""
+        );
+
+        if (firstContent) {
+          articleHtml += `<p>${firstContent}</p>`;
+        }
+        continue;
+      }
+
+      if (insideContent) {
+        articleHtml += block.outerHTML;
+        continue;
+      }
+
+      for (const label of Object.keys(fields)) {
+        const match = line.match(
+          new RegExp("^" + label.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "\\s*:\\s*(.*)$", "i")
+        );
+
+        if (match) {
+          fields[label] =
+            match[1].trim() ||
+            blocks[i + 1]?.textContent?.trim() ||
+            "";
+          break;
+        }
+      }
+    }
+
+    if (!fields["Meta Title"] || !fields["Slug URL"] || !articleHtml.trim()) {
+      throw new Error(
+        "Check your document labels: Meta Title:, Slug URL:, and Blog Content: are required."
+      );
+    }
+
+    const author = BLOG_AUTHORS.find(
+      (name) =>
+        name.toLowerCase() === fields["Author"].toLowerCase()
+    );
+
+    if (fields["Author"] && !author) {
+      throw new Error(
+        `Author must match one of: ${BLOG_AUTHORS.join(", ")}`
+      );
+    }
+
+    setForm((prev) => ({
+      ...prev,
+      title: fields["Meta Title"],
+      slug: fields["Slug URL"],
+      blog_keywords: fields["Blog Keywords"],
+      blog_meta_description: fields["Meta Description"],
+      author_name: author || prev.author_name,
+    }));
+
+    setContent(articleHtml);
+    setError("");
+  }
+
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
     const errors = validateForm(publishMode);
@@ -262,10 +357,42 @@ export function ManageBlogs() {
             Create, schedule, publish, and preview blog posts — same workflow as MPF admin.
           </p>
         </div>
-        <button type="button" onClick={openCreateModal} className="admin-btn admin-btn-primary">
-          <Plus className="size-4" />
-          Add New Blog
-        </button>
+        <div className="flex items-center gap-3">
+          <label className="admin-btn admin-btn-secondary cursor-pointer">
+            <input
+              type="file"
+              accept=".docx"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+
+                if (file) {
+                  openCreateModal();
+
+                  uploadDocx(file).catch((err) => {
+                    setError(
+                      err instanceof Error
+                        ? err.message
+                        : "Could not read the Word document."
+                    );
+                  });
+                }
+
+                e.target.value = "";
+              }}
+            />
+            Upload Document
+          </label>
+
+          <button
+            type="button"
+            onClick={openCreateModal}
+            className="admin-btn admin-btn-primary"
+          >
+            <Plus className="size-4" />
+            Add New Blog
+          </button>
+        </div>
       </div>
 
       <div className="admin-filter-grid">
