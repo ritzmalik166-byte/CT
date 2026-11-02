@@ -223,6 +223,7 @@ const EMPTY_FORM: FormData = {
 };
 
 const OTP_LENGTH = 4;
+const ENABLE_PHONE_OTP = false;
 const EMPTY_OTP_DIGITS = Array.from({ length: OTP_LENGTH }, () => "");
 
 export default function ContactPage() {
@@ -644,10 +645,74 @@ export default function ContactPage() {
     }
   };
 
+  // const handleFormSubmit = async (e: React.FormEvent) => {
+  //   e.preventDefault();
+
+  //   const allErrors = validateAll(form);
+  //   setErrors(allErrors);
+  //   setTouched({
+  //     fullName: true,
+  //     email: true,
+  //     phone: true,
+  //     service: true,
+  //     country: true,
+  //     message: true,
+  //   });
+
+  //   if (Object.keys(allErrors).length > 0) {
+  //     setStatus("error");
+  //     setErrorMsg("Please fix the highlighted fields and try again.");
+  //     const firstInvalid = (Object.keys(allErrors) as (keyof FormData)[])[0];
+  //     const el = document.querySelector<HTMLElement>(`[name="${firstInvalid}"]`);
+  //     el?.focus();
+  //     return;
+  //   }
+
+  //   // Trigger OTP sending and navigate to OTP screen
+  //   setSendingOtp(true);
+  //   setStatus("idle");
+  //   setErrorMsg("");
+  //   setOtpStatus(null);
+
+  //   try {
+  //     const res = await fetch("/api/otp", {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify({
+  //         action: "send",
+  //         phone: form.phone,
+  //         country: form.country,
+  //       }),
+  //     });
+
+  //     const data = await res.json();
+
+  //     if (!res.ok || !data.success) {
+  //       throw new Error(data.error || "Failed to send OTP");
+  //     }
+
+  //     setOtpSent(true);
+  //     resetOtpDigits();
+  //     setCooldown(45);
+  //     setStep("otp");
+  //     setOtpStatus({
+  //       type: "success",
+  //       text: `4-digit OTP sent to your phone number.`,
+  //     });
+  //   } catch (err) {
+  //     const msg = err instanceof Error ? err.message : "Could not send OTP. Please try again.";
+  //     setStatus("error");
+  //     setErrorMsg(msg);
+  //   } finally {
+  //     setSendingOtp(false);
+  //   }
+  // };
+
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     const allErrors = validateAll(form);
+
     setErrors(allErrors);
     setTouched({
       fullName: true,
@@ -658,16 +723,32 @@ export default function ContactPage() {
       message: true,
     });
 
+    // Stop if validation fails
     if (Object.keys(allErrors).length > 0) {
       setStatus("error");
       setErrorMsg("Please fix the highlighted fields and try again.");
-      const firstInvalid = (Object.keys(allErrors) as (keyof FormData)[])[0];
-      const el = document.querySelector<HTMLElement>(`[name="${firstInvalid}"]`);
+
+      const firstInvalid = Object.keys(allErrors)[0];
+      const el = document.querySelector<HTMLElement>(
+        `[name="${firstInvalid}"]`
+      );
+
       el?.focus();
       return;
     }
 
-    // Trigger OTP sending and navigate to OTP screen
+    // Temporarily bypass OTP verification
+    if (!ENABLE_PHONE_OTP) {
+      const localPhone = normalizeLocalPhone(
+        form.phone,
+        form.country
+      );
+
+      await submitFormLead(localPhone);
+      return;
+    }
+
+    // Original OTP flow
     setSendingOtp(true);
     setStatus("idle");
     setErrorMsg("");
@@ -676,7 +757,9 @@ export default function ContactPage() {
     try {
       const res = await fetch("/api/otp", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({
           action: "send",
           phone: form.phone,
@@ -694,12 +777,17 @@ export default function ContactPage() {
       resetOtpDigits();
       setCooldown(45);
       setStep("otp");
+
       setOtpStatus({
         type: "success",
-        text: `4-digit OTP sent to your phone number.`,
+        text: "4-digit OTP sent to your phone number.",
       });
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "Could not send OTP. Please try again.";
+      const msg =
+        err instanceof Error
+          ? err.message
+          : "Could not send OTP. Please try again.";
+
       setStatus("error");
       setErrorMsg(msg);
     } finally {

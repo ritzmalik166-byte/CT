@@ -229,13 +229,21 @@ export function useContactLeadForm({
     }
   };
 
-  const submitFormLead = async (localPhone: string) => {
-    setStatus("loading");
-    setErrorMsg("");
+  // const submitFormLead = async (localPhone: string) => {
+    // setStatus("loading");
+    // setErrorMsg("");
+    // try {
+    //   await submitContactLead(form, localPhone, source);
 
-    try {
-      await submitContactLead(form, localPhone, source);
+const submitFormLead = async (
+  formData: ContactLeadFormData,
+  localPhone: string
+) => {
+  setStatus("loading");
+  setErrorMsg("");
 
+  try {
+    await submitContactLead(formData, localPhone, source);
       setStatus("idle");
       setErrorMsg("");
       setStep("form");
@@ -264,75 +272,126 @@ export function useContactLeadForm({
     }
   };
 
-  const handleFormSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // const handleFormSubmit = async (e: React.FormEvent) => {
+  //   e.preventDefault();
 
-    const submitForm = defaultService
-      ? { ...form, service: form.service || defaultService }
-      : form;
+  //   const submitForm = defaultService
+  //     ? { ...form, service: form.service || defaultService }
+  //     : form;
 
-    const allErrors = validateAllContactLeadFields(submitForm);
-    setErrors(allErrors);
-    setTouched({
-      fullName: true,
-      email: true,
-      phone: true,
-      ...(defaultService ? {} : { service: true }),
-      country: true,
-      message: true,
-    });
+  //   const allErrors = validateAllContactLeadFields(submitForm);
+  //   setErrors(allErrors);
+  //   setTouched({
+  //     fullName: true,
+  //     email: true,
+  //     phone: true,
+  //     ...(defaultService ? {} : { service: true }),
+  //     country: true,
+  //     message: true,
+  //   });
 
-    if (Object.keys(allErrors).length > 0) {
-      setStatus("error");
-      setErrorMsg("Please fix the highlighted fields and try again.");
-      const firstInvalid = (Object.keys(allErrors) as (keyof ContactLeadFormData)[])[0];
-      const el = document.querySelector<HTMLElement>(`[name="${firstInvalid}"]`);
-      el?.focus();
-      return;
-    }
+  //   if (Object.keys(allErrors).length > 0) {
+  //     setStatus("error");
+  //     setErrorMsg("Please fix the highlighted fields and try again.");
+  //     const firstInvalid = (Object.keys(allErrors) as (keyof ContactLeadFormData)[])[0];
+  //     const el = document.querySelector<HTMLElement>(`[name="${firstInvalid}"]`);
+  //     el?.focus();
+  //     return;
+  //   }
 
-    if (defaultService && form.service !== submitForm.service) {
-      setForm(submitForm);
-    }
+  //   if (defaultService && form.service !== submitForm.service) {
+  //     setForm(submitForm);
+  //   }
 
-    setSendingOtp(true);
-    setStatus("idle");
-    setErrorMsg("");
-    setOtpStatus(null);
+  //   setSendingOtp(true);
+  //   setStatus("idle");
+  //   setErrorMsg("");
+  //   setOtpStatus(null);
 
-    try {
-      const res = await fetch("/api/otp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          action: "send",
-          phone: form.phone,
-          country: form.country,
-        }),
-      });
+  //   try {
+  //     const res = await fetch("/api/otp", {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify({
+  //         action: "send",
+  //         phone: form.phone,
+  //         country: form.country,
+  //       }),
+  //     });
 
-      const data = await res.json();
+  //     const data = await res.json();
 
-      if (!res.ok || !data.success) {
-        throw new Error(data.error || "Failed to send OTP");
-      }
+  //     if (!res.ok || !data.success) {
+  //       throw new Error(data.error || "Failed to send OTP");
+  //     }
 
-      setOtpSent(true);
-      resetOtpDigits();
-      setCooldown(45);
-      setStep("otp");
-      setOtpStatus({
-        type: "success",
-        text: "4-digit OTP sent to your phone number.",
-      });
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : "Could not send OTP. Please try again.";
-      setStatus("error");
-      setErrorMsg(msg);
-    } finally {
-      setSendingOtp(false);
-    }
-  };
+  //     setOtpSent(true);
+  //     resetOtpDigits();
+  //     setCooldown(45);
+  //     setStep("otp");
+  //     setOtpStatus({
+  //       type: "success",
+  //       text: "4-digit OTP sent to your phone number.",
+  //     });
+  //   } catch (err) {
+  //     const msg = err instanceof Error ? err.message : "Could not send OTP. Please try again.";
+  //     setStatus("error");
+  //     setErrorMsg(msg);
+  //   } finally {
+  //     setSendingOtp(false);
+  //   }
+  // };
+
+  
+const handleFormSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+
+  const submitForm = defaultService
+    ? { ...form, service: form.service || defaultService }
+    : form;
+
+  const allErrors = validateAllContactLeadFields(submitForm);
+  setErrors(allErrors);
+  setTouched({
+    fullName: true,
+    email: true,
+    phone: true,
+    ...(defaultService ? {} : { service: true }),
+    country: true,
+    message: true,
+  });
+
+  if (Object.keys(allErrors).length > 0) {
+    setStatus("error");
+    setErrorMsg("Please fix the highlighted fields and try again.");
+    const firstInvalid = (
+      Object.keys(allErrors) as (keyof ContactLeadFormData)[]
+    )[0];
+    const el = document.querySelector<HTMLElement>(
+      `[name="${firstInvalid}"]`
+    );
+    el?.focus();
+    return;
+  }
+
+  if (defaultService && form.service !== submitForm.service) {
+    setForm(submitForm);
+  }
+
+  // TEMPORARY: Submit directly without sending an OTP.
+  // Restore the original OTP flow when verification is needed again.
+  const localPhone = normalizeLocalPhone(
+    submitForm.phone,
+    submitForm.country
+  );
+
+  setStatus("idle");
+  setErrorMsg("");
+  setOtpStatus(null);
+
+  // await submitFormLead(localPhone);
+  await submitFormLead(submitForm, localPhone);
+};
 
   const handleVerifyAndSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -374,7 +433,8 @@ export function useContactLeadForm({
       setIsPhoneVerified(true);
       setVerifiedPhone(localPhone);
 
-      await submitFormLead(localPhone);
+      // await submitFormLead(localPhone);
+      await submitFormLead(form, localPhone);
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Verification failed. Check the OTP and try again.";
       setOtpStatus({
