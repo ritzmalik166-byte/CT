@@ -23,12 +23,15 @@ function escapeHtml(value: string) {
     .replace(/"/g, "&quot;");
 }
 
+// Label shown in the "Source" line of Telegram enquiry alerts.
+const TELEGRAM_SOURCE_LABEL = "Contenaissance Enquiry";
+
 function buildMessage(body: EnquiryBody) {
   const type = body.type === "footer" ? "footer" : "contact";
   const timestamp =
     body.timestamp?.trim() ||
     new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" });
-  const source = body.source?.trim() || (type === "footer" ? "footer" : "contact-page");
+  const source = TELEGRAM_SOURCE_LABEL;
   const email = body.email?.trim() || "—";
 
   if (type === "footer") {

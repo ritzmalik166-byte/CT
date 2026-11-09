@@ -11,6 +11,7 @@
     "db:migrate-v2": "node --env-file=.env.local scripts/migrate-v2.mjs",
     "db:migrate-v3": "node --env-file=.env.local scripts/migrate-v3.mjs",
     "db:migrate-v4": "node --env-file=.env.local scripts/migrate-v4.mjs",
+    "db:migrate-v6": "node --env-file=.env.local scripts/migrate-v6.mjs",
     "db:seed-admin": "node --env-file=.env.local scripts/seed-admin.mjs"
   },
   "dependencies": {
@@ -32,6 +33,7 @@
     "mammoth": "^1.13.0",
     "mysql2": "^3.23.1",
     "next": "16.2.6",
+    "nodemailer": "^10.3.1",
     "ogl": "^1.0.8",
     "p5": "^2.3.2",
     "radix-ui": "^1.4.3",
@@ -52,6 +54,7 @@
     "@types/bcryptjs": "^2.4.6",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^20",
+    "@types/nodemailer": "^8.0.2",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "babel-plugin-react-compiler": "1.0.0",
