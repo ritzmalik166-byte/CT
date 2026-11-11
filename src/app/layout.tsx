@@ -155,6 +155,12 @@ export default function RootLayout({
             gtag('config', 'G-9KKTHS4QY2');
           `}
         </Script>
+        <Script
+          id="rmw-analytics"
+          src="https://analytics-api.ritzmediaworld.com/tracker.js"
+          data-site-id="site_0djh9grb0ofu"
+          strategy="afterInteractive"
+        />
         <Script id="microsoft-clarity" strategy="afterInteractive">
           {`
     (function(c,l,a,r,i,t,y){
