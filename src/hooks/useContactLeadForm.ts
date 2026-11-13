@@ -7,6 +7,9 @@ import {
   ContactLeadStatus,
   EMPTY_CONTACT_LEAD_FORM,
   EMPTY_OTP_DIGITS,
+  buildOtpSendBody,
+  getOtpSentText,
+  isInternationalCountry,
   OTP_LENGTH,
   normalizeLocalPhone,
   submitContactLead,
@@ -198,11 +201,7 @@ export function useContactLeadForm({
       const res = await fetch("/api/otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          action: "send",
-          phone: form.phone,
-          country: form.country,
-        }),
+        body: JSON.stringify(buildOtpSendBody(form)),
       });
 
       const data = await res.json();
@@ -216,7 +215,7 @@ export function useContactLeadForm({
       setCooldown(45);
       setOtpStatus({
         type: "success",
-        text: "New 4-digit OTP sent to your phone number.",
+        text: getOtpSentText(form.country, data.data?.message, true),
       });
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Could not resend OTP. Please try again.";
@@ -378,7 +377,48 @@ const handleFormSubmit = async (e: React.FormEvent) => {
     setForm(submitForm);
   }
 
-  // TEMPORARY: Submit directly without sending an OTP.
+  // International numbers: verify by email OTP before submitting.
+  // The server emails the OTP to the visitor and alerts the admin
+  // (micro-enquiry) as soon as the OTP is generated.
+  if (isInternationalCountry(submitForm.country)) {
+    setSendingOtp(true);
+    setStatus("idle");
+    setErrorMsg("");
+    setOtpStatus(null);
+
+    try {
+      const res = await fetch("/api/otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(buildOtpSendBody(submitForm)),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Failed to send OTP");
+      }
+
+      setOtpSent(true);
+      resetOtpDigits();
+      setCooldown(45);
+      setStep("otp");
+      setOtpStatus({
+        type: "success",
+        text: getOtpSentText(submitForm.country, data.data?.message),
+      });
+    } catch (err) {
+      setStatus("error");
+      setErrorMsg(
+        err instanceof Error ? err.message : "Could not send OTP. Please try again."
+      );
+    } finally {
+      setSendingOtp(false);
+    }
+    return;
+  }
+
+  // Indian numbers — TEMPORARY: Submit directly without sending an OTP.
   // Restore the original OTP flow when verification is needed again.
   const localPhone = normalizeLocalPhone(
     submitForm.phone,

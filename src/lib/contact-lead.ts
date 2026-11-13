@@ -267,3 +267,43 @@ export async function submitContactLead(
 
   return payload;
 }
+
+/**
+ * The SMS provider only supports Indian numbers. Every other country is
+ * verified with an email OTP (and the admin gets a micro-enquiry alert).
+ */
+export function isInternationalCountry(country: CountryOption | string): boolean {
+  return country !== "India";
+}
+
+/**
+ * Body for `POST /api/otp` with action "send".
+ * For international numbers the full enquiry is included, so the server can
+ * email the OTP to the visitor and alert the admin straight away.
+ */
+export function buildOtpSendBody(form: ContactLeadFormData) {
+  const base = { action: "send" as const, phone: form.phone, country: form.country };
+
+  if (!isInternationalCountry(form.country)) return base;
+
+  return {
+    ...base,
+    fullName: form.fullName.trim(),
+    email: form.email.trim(),
+    contactNumber: form.phone.trim(),
+    subject: form.service,
+    message: `Country: ${form.country}\n\n${form.message.trim()}`,
+  };
+}
+
+/** Success text for the OTP step: server message for email, default for SMS. */
+export function getOtpSentText(
+  country: CountryOption | string,
+  serverMessage: string | undefined,
+  resend = false
+): string {
+  if (isInternationalCountry(country)) {
+    return serverMessage || "4-digit OTP sent to your email address.";
+  }
+  return `${resend ? "New 4-digit" : "4-digit"} OTP sent to your phone number.`;
+}
