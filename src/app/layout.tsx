@@ -52,7 +52,7 @@ const organizationSchema = {
   logo: "https://www.contenaissance.com/assets/favicon.png",
   contactPoint: {
     "@type": "ContactPoint",
-    telephone: "9220516777",
+    telephone: "7290002168",
     contactType: "customer service",
     contactOption: "TollFree",
     areaServed: "IN",
@@ -88,7 +88,7 @@ const localBusinessSchema = {
   url: "https://www.contenaissance.com/",
   description:
     "Contenaissance is an AI-powered creative agency offering AI brand films, video production, branding, digital marketing, content marketing, SEO, website design and performance marketing services.",
-  telephone: "+91-9220516777",
+  telephone: "+91-7290002168",
   email: "info@ritzmediaworld.com",
   address: {
     "@type": "PostalAddress",

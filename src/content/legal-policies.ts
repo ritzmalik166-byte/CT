@@ -192,8 +192,8 @@ export const LEGAL_POLICIES: Record<LegalPolicyId, LegalPolicy> = {
           },
           {
             label: "Phone:",
-            value: "+91-9220516777",
-            href: "tel:+919220516777",
+            value: "+91-7290002168",
+            href: "tel:+917290002168",
           },
           {
             label: "Address:",
@@ -299,8 +299,8 @@ export const LEGAL_POLICIES: Record<LegalPolicyId, LegalPolicy> = {
           },
           {
             label: "Phone:",
-            value: "+91-9220516777",
-            href: "tel:+919220516777",
+            value: "+91-7290002168",
+            href: "tel:+917290002168",
           },
           {
             label: "Address:",
