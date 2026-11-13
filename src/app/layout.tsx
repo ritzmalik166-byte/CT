@@ -4,6 +4,7 @@ import { Geist, Geist_Mono, Inter } from "next/font/google";
 import "./globals.css";
 import { ConditionalSiteShell } from "@/components/ConditionalSiteShell";
 import { cn } from "@/lib/utils";
+import AttributionCapture from "@/components/AttributionCapture";
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
 
@@ -173,6 +174,7 @@ export default function RootLayout({
     })(window, document, "clarity", "script", "yudfcj2h2e");
   `}
         </Script>
+        <AttributionCapture />
         <ConditionalSiteShell>{children}</ConditionalSiteShell>
       </body>
     </html>

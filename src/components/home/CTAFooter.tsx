@@ -17,6 +17,7 @@ import {
 } from "@/lib/googleSheets";
 import { IMAGE_TITLES, LINK_TITLES } from "@/lib/seo-accessibility";
 import { EMAIL_INVALID_MESSAGE, EMAIL_PATTERN, isValidEmail } from "@/lib/validation";
+import { getAttribution } from "@/lib/attribution";
 import { SHOW_INDEPENDENCE_DAY } from "../../../site-config";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
@@ -118,7 +119,7 @@ export function CTAFooter({ showBrandHeading = true }: CTAFooterProps) {
       const telegramRes = await fetch("/api/enquiry", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type: "footer", ...payload }),
+        body: JSON.stringify({ type: "footer", ...payload, tracking: getAttribution() }),
       });
 
       if (!telegramRes.ok) {

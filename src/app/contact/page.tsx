@@ -10,6 +10,7 @@ import { createPortal } from "react-dom";
 import { CTAFooter } from "@/components/home/CTAFooter";
 import { InnerPageNav } from "@/components/InnerPageNav";
 import { useLenisScrollLock } from "@/components/SmoothScrollProvider";
+import { getAttribution } from "@/lib/attribution";
 import {
   EMAIL_INVALID_MESSAGE,
   EMAIL_PATTERN,
@@ -607,7 +608,7 @@ export default function ContactPage() {
         const telegramRes = await fetch("/api/enquiry", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ type: "contact", ...payload }),
+          body: JSON.stringify({ type: "contact", ...payload, tracking: getAttribution() }),
         });
 
         if (!telegramRes.ok) {

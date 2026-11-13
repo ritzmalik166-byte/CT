@@ -1,6 +1,7 @@
 import { sendTelegramMessage } from "../../../../helper/telegram";
 import { jsonError, jsonServerError, jsonSuccess } from "@/lib/api-response";
 import { query, queryOne } from "@/lib/db";
+import { trackingBlock } from "@/lib/attribution";
 
 type EnquiryType = "contact" | "footer";
 
@@ -13,6 +14,7 @@ type EnquiryBody = {
   message?: string;
   source?: string;
   timestamp?: string;
+  tracking?: unknown;
 };
 
 function escapeHtml(value: string) {
@@ -76,7 +78,8 @@ export async function POST(request: Request) {
     const fullName = body.fullName?.trim() || null;
     const phone = body.contactNumber?.trim() || null;
     const service = body.subject?.trim() || null;
-    const message = body.message?.trim() || null;
+    // Attribution is appended as "key: value" lines; the RMW CRM parses it back out.
+    const message = `${body.message?.trim() || ""}${trackingBlock(body.tracking)}`.trim() || null;
     const source = body.source?.trim() || (type === "footer" ? "footer" : "contact-page");
 
     try {

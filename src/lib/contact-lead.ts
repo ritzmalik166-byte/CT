@@ -2,6 +2,7 @@ import {
   getEmailValidationError,
   getNameValidationError,
 } from "@/lib/validation";
+import { getAttribution } from "@/lib/attribution";
 
 export const GOOGLE_SCRIPT_URL =
   "https://script.google.com/macros/s/AKfycby8DOgFwRAa65kLZaBohncDPmIrzPvOP2mf3-Row9835UrUl6QknU_NoOANwivOpps9/exec";
@@ -252,7 +253,7 @@ export async function submitContactLead(
     const telegramRes = await fetch("/api/enquiry", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ type: "contact", ...payload }),
+      body: JSON.stringify({ type: "contact", ...payload, tracking: getAttribution() }),
     });
 
     if (!telegramRes.ok) {
