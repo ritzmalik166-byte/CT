@@ -19,6 +19,11 @@ import {
   NAME_INVALID_MESSAGE,
   NAME_PATTERN,
 } from "@/lib/validation";
+import {
+  buildOtpSendBody,
+  getOtpSentText,
+  isInternationalCountry,
+} from "@/lib/contact-lead";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger, SplitText);
 
@@ -549,11 +554,7 @@ export default function ContactPage() {
       const res = await fetch("/api/otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          action: "send",
-          phone: form.phone,
-          country: form.country,
-        }),
+        body: JSON.stringify(buildOtpSendBody(form)),
       });
 
       const data = await res.json();
@@ -567,7 +568,7 @@ export default function ContactPage() {
       setCooldown(45);
       setOtpStatus({
         type: "success",
-        text: "New 4-digit OTP sent to your phone number.",
+        text: getOtpSentText(form.country, data.data?.message, true),
       });
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Could not resend OTP. Please try again.";
@@ -739,7 +740,10 @@ export default function ContactPage() {
     }
 
     // Temporarily bypass OTP verification
-    if (!ENABLE_PHONE_OTP) {
+    // Indian numbers: SMS OTP is behind ENABLE_PHONE_OTP.
+    // International numbers: always verified by email OTP
+    // (server also sends the admin a micro-enquiry alert).
+    if (!ENABLE_PHONE_OTP && !isInternationalCountry(form.country)) {
       const localPhone = normalizeLocalPhone(
         form.phone,
         form.country
@@ -761,11 +765,7 @@ export default function ContactPage() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          action: "send",
-          phone: form.phone,
-          country: form.country,
-        }),
+        body: JSON.stringify(buildOtpSendBody(form)),
       });
 
       const data = await res.json();
@@ -781,7 +781,7 @@ export default function ContactPage() {
 
       setOtpStatus({
         type: "success",
-        text: "4-digit OTP sent to your phone number.",
+        text: getOtpSentText(form.country, data.data?.message),
       });
     } catch (err) {
       const msg =
@@ -1326,13 +1326,13 @@ export default function ContactPage() {
                       </div>
                       <div>
                         <h2 id="otp-modal-title" className="text-lg font-bold text-white sm:text-xl">
-                          Verify Mobile Number
+                          {isInternationalCountry(form.country) ? "Verify Email Address" : "Verify Mobile Number"}
                         </h2>
                         <p className="mt-1 text-xs text-zinc-400 sm:text-sm">
                           Enter the 4-digit code sent to
                         </p>
                         <p className="mt-1 font-mono text-sm font-semibold tracking-wide text-[#D4AF37] sm:text-base">
-                          {maskPhoneForDisplay(form.phone, form.country)}
+                          {isInternationalCountry(form.country) ? form.email : maskPhoneForDisplay(form.phone, form.country)}
                         </p>
                         <p className="mt-0.5 text-[10px] uppercase tracking-[0.2em] text-zinc-500">{form.country}</p>
                       </div>
