@@ -182,17 +182,17 @@ export function getBlogAuthors() {
 // upload_banner
 // ---------------------------------------------------------------------------
 
-const IMAGE_TYPES = {
+export const IMAGE_TYPES = {
   "image/jpeg": "jpg",
   "image/png": "png",
   "image/webp": "webp",
 } as const;
 
-type ImageMimeType = keyof typeof IMAGE_TYPES;
+export type ImageMimeType = keyof typeof IMAGE_TYPES;
 
 const BANNER_TYPE_MESSAGE = "Banner image must be JPG, PNG or WebP";
 
-function detectImageType(buffer: Buffer): ImageMimeType | null {
+export function detectImageType(buffer: Buffer): ImageMimeType | null {
   if (buffer.length >= 3 && buffer[0] === 0xff && buffer[1] === 0xd8 && buffer[2] === 0xff) {
     return "image/jpeg";
   }
