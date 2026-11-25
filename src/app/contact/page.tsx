@@ -1158,7 +1158,7 @@ export default function ContactPage() {
                     </svg>
                   ),
                   label: "Location",
-                  value: "Unit No. 404, 4th Floor, Corporate Park Tower A1, Sector 142, Noida, Uttar Pradesh 201305, India",
+                  value: "7th Floor, Tower A2, Corporate Park, Sector 142, Noida, Uttar Pradesh 201305, India",
                 },
               ].map((item) => (
                 <div

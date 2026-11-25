@@ -198,7 +198,7 @@ export const LEGAL_POLICIES: Record<LegalPolicyId, LegalPolicy> = {
           {
             label: "Address:",
             value:
-              "Unit No. 404, 4th Floor, Corporate Park Tower A1, Sector 142, Noida, Uttar Pradesh 201305, India",
+              "7th Floor, Tower A2, Corporate Park, Sector 142, Noida, Uttar Pradesh 201305, India",
           },
         ],
       },
@@ -305,7 +305,7 @@ export const LEGAL_POLICIES: Record<LegalPolicyId, LegalPolicy> = {
           {
             label: "Address:",
             value:
-              "Unit No. 404, 4th Floor, Corporate Park Tower A1, Sector 142, Noida, Uttar Pradesh 201305, India",
+              "7th Floor, Tower A2, Corporate Park, Sector 142, Noida, Uttar Pradesh 201305, India",
           },
         ],
       },

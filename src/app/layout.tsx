@@ -92,7 +92,7 @@ const localBusinessSchema = {
   email: "info@ritzmediaworld.com",
   address: {
     "@type": "PostalAddress",
-    streetAddress: "Unit No. 404, 4th Floor, Corporate Park Tower A1, Sector 142",
+    streetAddress: "7th Floor, Tower A2, Corporate Park, Sector 142",
     addressLocality: "Noida",
     addressRegion: "Uttar Pradesh",
     postalCode: "201305",
