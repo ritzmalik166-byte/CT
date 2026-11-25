@@ -48,3 +48,12 @@ export async function uploadToAzureBlob(
 
   return `https://${accountName}.blob.core.windows.net/${container}/${fullBlobName}`;
 }
+
+/** Delete a blob previously written by uploadToAzureBlob (same relative name; prefix is added here). */
+export async function deleteFromAzureBlob(blobName: string): Promise<void> {
+  const client = getBlobServiceClient();
+  const { container, prefix } = getAzureBlobConfig();
+  const fullBlobName = prefix ? `${prefix}/${blobName}` : blobName;
+
+  await client.getContainerClient(container).getBlockBlobClient(fullBlobName).deleteIfExists();
+}
